@@ -33,6 +33,10 @@ Ensight teknik staj ödevi (ENS-AI-001): Türkçe sorulan iş sorularını SQL'e
 ```python
 generate_sql(question: str, previous_error: str | None = None) -> dict
     # {"status": "ok"|"clarify"|"unsupported", "sql": str, "assumption": str, "message": str}
+    # Fırlatır: ModelUnavailableError (Ollama kapalı/model yok/zaman aşımı → "model_unavailable", yeniden deneme yok)
+    #           ModelOutputError (cevap kullanılamaz: bozuk JSON, bilinmeyen status, ok iken boş sql
+    #                             → "invalid_model_output", 1 kez yeniden denenebilir)
+    # İkisi de app.llm'den import edilir. status != "ok" iken sql her zaman "" döner.
 validate_sql(sql: str) -> tuple[bool, str, str]     # (geçti_mi, temiz_sql, hata_türü)
 execute_sql(sql: str) -> tuple[list[dict], bool]    # (satırlar, kesildi_mi)
 ask(question: str) -> dict                           # pipeline: generate → validate → execute + log
@@ -62,9 +66,11 @@ write_log(record: dict) -> None                      # app/logger.py (Kişi B), 
    - **Karşılaştırma (Kişi A, `run_all.py`):** modelin döndürdüğü sütun sayısı beklenenden azsa, gelen sütunlar beklenen sütunlarla değerlerine göre eşleştirilir ve sadece onlar karşılaştırılır (ör. yalnızca şehir adı döndüyse yalnızca şehir adı). Satır sayısı ve sıra kuralı (madde 5) yine geçerlidir.
 
 ## Durum
-- Hazır: `setup_db.py`, `data/`, `config.py`, `app/validator.py`, `app/db.py`, `tests/test_cases.json`, `tests/expected/` (01–08 cevap anahtarı + `build_expected.py`), `app/schema.py` (şema + az değerli TEXT sütun değerleri + tarih aralığı → `data/schema.json`; `setup_db.py` otomatik çağırır)
+- Hazır: `setup_db.py`, `data/`, `config.py`, `app/validator.py`, `app/db.py`, `tests/test_cases.json`, `tests/expected/` (01–08 cevap anahtarı + `build_expected.py`), `app/schema.py` (şema + az değerli TEXT sütun değerleri + tarih aralığı + FK'lerden JOIN koşulları → `data/schema.json`; `setup_db.py` otomatik çağırır), `app/llm.py` (prompt + varsayılan ölçüt kuralı + 4 few-shot + `generate_sql`)
 - Ortam: `.venv` + `requirements.txt` kurulu, Ollama + `qwen2.5-coder:7b` indirildi ve Python'dan çağrıldı
-- Yapılacak: `app/llm.py`, `app/pipeline.py`, `app/ui.py`, `app/logger.py`, `tests/run_all.py`, `tests/report.py`, `docs/`, README'deki TODO'lar
+- Prompt ölçümleri (`docs/olcumler/`, retry yok): başlangıç 4/8 → kural + ilişkiler 5/8 → few-shot 8/8. Her adımda 09 clarify ✓, 10 unsupported ✓, 11–16 SQL çalışmadı ✓. Prompt ≈ 2385 token (Ollama penceresi 4096; aşılırsa sistem prompt'u kesilir). Yanıt 12–60 sn (model %18 CPU'da).
+- Sıradaki (Kişi B): gizli test hazırlığı (aynı soruların farklı ifadeleriyle ölçüm).
+- Yapılacak: `app/pipeline.py`, `app/ui.py`, `app/logger.py`, `tests/run_all.py`, `tests/report.py`, `docs/`, README'deki TODO'lar
 
 ## Komutlar
 ```bash
