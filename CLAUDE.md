@@ -62,12 +62,14 @@ write_log(record: dict) -> None                      # app/logger.py (Kişi B), 
    - **Karşılaştırma (Kişi A, `run_all.py`):** modelin döndürdüğü sütun sayısı beklenenden azsa, gelen sütunlar beklenen sütunlarla değerlerine göre eşleştirilir ve sadece onlar karşılaştırılır (ör. yalnızca şehir adı döndüyse yalnızca şehir adı). Satır sayısı ve sıra kuralı (madde 5) yine geçerlidir.
 
 ## Durum
-- Hazır: `setup_db.py`, `data/`, `config.py`, `app/validator.py`, `app/db.py`, `tests/test_cases.json`, `tests/expected/` (01–08 cevap anahtarı + `build_expected.py`)
-- Yapılacak: `app/schema.py`, `app/llm.py`, `app/pipeline.py`, `app/ui.py`, `app/logger.py`, `tests/run_all.py`, `tests/report.py`, `docs/`, README'deki TODO'lar
+- Hazır: `setup_db.py`, `data/`, `config.py`, `app/validator.py`, `app/db.py`, `tests/test_cases.json`, `tests/expected/` (01–08 cevap anahtarı + `build_expected.py`), `app/schema.py` (şema + az değerli TEXT sütun değerleri + tarih aralığı → `data/schema.json`; `setup_db.py` otomatik çağırır)
+- Ortam: `.venv` + `requirements.txt` kurulu, Ollama + `qwen2.5-coder:7b` indirildi ve Python'dan çağrıldı
+- Yapılacak: `app/llm.py`, `app/pipeline.py`, `app/ui.py`, `app/logger.py`, `tests/run_all.py`, `tests/report.py`, `docs/`, README'deki TODO'lar
 
 ## Komutlar
 ```bash
-python setup_db.py          # veritabanını kur
+python setup_db.py          # veritabanını kur + data/schema.json üret
+python -m app.schema        # sadece şemayı yeniden üret (proje kökünden, -m ile)
 python tests/expected/build_expected.py   # test 01–08 cevap anahtarını üret
 streamlit run app/ui.py     # arayüz
 python tests/run_all.py     # 16 test + rapor
