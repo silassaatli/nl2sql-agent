@@ -64,12 +64,13 @@ write_log(record: dict) -> None                      # app/logger.py (Kişi B), 
 6. **Eksik sütun riski (01, 07, 08: "hangi ürün/şehir?") iki katmanda çözülür:**
    - **Prompt (Kişi B, `llm.py`):** "Sıralama veya seçim ölçütü olan metriği (ör. ciro) her zaman sonuç sütunu olarak göster" kuralı eklenir.
    - **Karşılaştırma (Kişi A, `run_all.py`):** modelin döndürdüğü sütun sayısı beklenenden azsa, gelen sütunlar beklenen sütunlarla değerlerine göre eşleştirilir ve sadece onlar karşılaştırılır (ör. yalnızca şehir adı döndüyse yalnızca şehir adı). Satır sayısı ve sıra kuralı (madde 5) yine geçerlidir.
+   - **Kısıt (ölçümde bulunan hata):** esnek eşleştirme YALNIZCA model daha az sütun döndürdüğünde ve döndürdüğü her sütun eşleştiğinde uygulanır. Model en az beklenen kadar sütun döndürdüyse beklenen sütunların **hepsi** eşleşmeli. Aksi halde doğru şehir + yanlış ciro PASS sayılır (gerçek örnek: test 07'de model Q4 2025 tarihlerini kullandı, İstanbul yine birinci çıktığı için yanlışlıkla PASS sayılmıştı). Uygulama örneği: `docs/olcumler/karsilastir.py`.
 
 ## Durum
-- Hazır: `setup_db.py`, `data/`, `config.py`, `app/validator.py`, `app/db.py`, `tests/test_cases.json`, `tests/expected/` (01–08 cevap anahtarı + `build_expected.py`), `app/schema.py` (şema + az değerli TEXT sütun değerleri + tarih aralığı + FK'lerden JOIN koşulları → `data/schema.json`; `setup_db.py` otomatik çağırır), `app/llm.py` (prompt + varsayılan ölçüt kuralı + 4 few-shot + `generate_sql`)
+- Hazır: `setup_db.py`, `data/`, `config.py`, `app/validator.py`, `app/db.py`, `tests/test_cases.json`, `tests/expected/` (01–08 cevap anahtarı + `build_expected.py`), `app/schema.py` (şema + az değerli TEXT sütun değerleri + tarih aralığı + FK'lerden JOIN koşulları → `data/schema.json`; `setup_db.py` otomatik çağırır), `app/llm.py` (prompt + varsayılan ölçüt kuralı ("en çok satan" dahil = ciro) + yılsız ay kuralı + 4 few-shot + `generate_sql`)
 - Ortam: `.venv` + `requirements.txt` kurulu, Ollama + `qwen2.5-coder:7b` indirildi ve Python'dan çağrıldı
-- Prompt ölçümleri (`docs/olcumler/`, retry yok): başlangıç 4/8 → kural + ilişkiler 5/8 → few-shot 8/8. Her adımda 09 clarify ✓, 10 unsupported ✓, 11–16 SQL çalışmadı ✓. Prompt ≈ 2385 token (Ollama penceresi 4096; aşılırsa sistem prompt'u kesilir). Yanıt 12–60 sn (model %18 CPU'da).
-- Sıradaki (Kişi B): gizli test hazırlığı (aynı soruların farklı ifadeleriyle ölçüm).
+- Prompt ölçümleri (`docs/olcumler/README.md`, retry yok, iş soruları 01–08): test soruları 4/8 → 5/8 → 8/8 → (ay kuralı sonrası) 7/8; farklı ifadeler 1: 6/8 → 7/8; farklı ifadeler 2: **3/8**. 09 ve 10 her ölçümde doğru, 11–16'da SQL hiç çalışmadı. Prompt ≈ 2777 token (Ollama penceresi 4096; aşılırsa sistem prompt'u kesilir).
+- Açık sorunlar (prompt): few-shot Örnek 1'in tarih aralığı (2025 Q4) çeyrek sorularına kopyalanıyor (07); "en çok satan" kurala rağmen adete göre (08); karmaşık yılsız ay ifadelerinde yıl yanlış (03); "satır tutarı" eş anlamlısı tanınmıyor (04).
 - Yapılacak: `app/pipeline.py`, `app/ui.py`, `app/logger.py`, `tests/run_all.py`, `tests/report.py`, `docs/`, README'deki TODO'lar
 
 ## Komutlar

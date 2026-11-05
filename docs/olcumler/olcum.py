@@ -9,7 +9,10 @@ Bu resmi test raporu DEĞİLDİR (o: tests/run_all.py). Farkları:
 - Yeniden deneme YOK (pipeline'dan daha katı ölçer)
 - Karşılaştırma CLAUDE.md ekip kararları 4–6'nın basit bir uygulamasıdır
 
-Kullanım (proje kökünden):  python docs/olcumler/olcum.py <etiket>
+Kullanım (proje kökünden):
+    python docs/olcumler/olcum.py <etiket>                  # tests/test_cases.json soruları
+    python docs/olcumler/olcum.py <etiket> <soru_dosyası>   # ör. docs/olcumler/farkli_ifadeler.json
+Soru dosyası test_cases.json biçimindedir (id, input, type). 01–08 yine tests/expected/ ile karşılaştırılır.
 Çıktı: docs/olcumler/<etiket>.json  (meta + her test için soru, status, SQL, sonuç, PASS/FAIL)
 """
 import json, os, sys, time
@@ -17,6 +20,7 @@ from datetime import datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LABEL = sys.argv[1] if len(sys.argv) > 1 else "olcum"
+QUESTIONS_FILE = sys.argv[2] if len(sys.argv) > 2 else "tests/test_cases.json"
 sys.path.insert(0, ROOT)
 os.chdir(ROOT)
 
@@ -24,55 +28,14 @@ import app.llm as llm  # noqa: E402
 from app.llm import generate_sql, ModelOutputError  # noqa: E402
 from app.validator import validate_sql  # noqa: E402
 from app.db import execute_sql  # noqa: E402
-
-UNORDERED = {"04", "05", "06"}
-
-
-def norm(v):
-    return round(v, 2) if isinstance(v, float) else v
-
-
-def compare(test_id, rows):
-    exp = json.load(open(f"tests/expected/{test_id}.json", encoding="utf-8"))
-    e_rows = [[norm(v) for v in r] for r in exp["rows"]]
-    a_rows = [[norm(v) for v in r.values()] for r in rows]
-    if len(a_rows) != len(e_rows):
-        return False, f"satır sayısı {len(a_rows)} ≠ {len(e_rows)}"
-    if not a_rows:
-        return True, "ikisi de boş"
-    n_e, n_a = len(e_rows[0]), len(a_rows[0])
-    # gerçek sütunları beklenen sütunlarla değerlerine göre eşleştir (madde 6)
-    e_cols = [[r[i] for r in e_rows] for i in range(n_e)]
-    a_cols = [[r[i] for r in a_rows] for i in range(n_a)]
-    if test_id in UNORDERED:
-        e_cols = [sorted(map(str, c)) for c in e_cols]
-        a_cols = [sorted(map(str, c)) for c in a_cols]
-    used, mapping = set(), []
-    for ac in a_cols:
-        j = next((j for j, ec in enumerate(e_cols) if j not in used and ec == ac), None)
-        if j is not None:
-            used.add(j); mapping.append(j)
-    if not used:
-        return False, "hiçbir sütun eşleşmedi"
-    if n_a > n_e and len(used) < n_e:
-        return False, "beklenen sütunların hepsi bulunamadı"
-    # eşleşen sütunlarla satırları birlikte karşılaştır (sırasızlarda satır kümesi)
-    e_sub = [tuple(str(r[j]) for j in sorted(used)) for r in e_rows]
-    a_idx = [a_cols.index(next(ac for ac in a_cols if ac == e_cols[j])) for j in sorted(used)]
-    a_sub = [tuple(str(r[i]) for i in a_idx) for r in a_rows]
-    if test_id in UNORDERED:
-        e_sub, a_sub = sorted(e_sub), sorted(a_sub)
-    if e_sub != a_sub:
-        return False, "satırlar eşleşmedi"
-    note = "" if len(used) == n_e else f" (sadece {len(used)}/{n_e} sütun döndü)"
-    return True, "eşleşti" + note
+from karsilastir import compare  # noqa: E402  (aynı klasördeki modül)
 
 
 def customers_count():
     return execute_sql("SELECT COUNT(*) AS n FROM Customers")[0][0]["n"]
 
 
-cases = json.load(open("tests/test_cases.json", encoding="utf-8"))
+cases = json.load(open(QUESTIONS_FILE, encoding="utf-8"))
 before = customers_count()
 results = []
 for t in cases:
@@ -110,6 +73,7 @@ biz = [r for r in results if r["type"] == "is"]
 print(f"İş soruları: {sum(r['pass'] for r in biz)}/8 PASS")
 meta = {
     "label": LABEL,
+    "questions_file": QUESTIONS_FILE.replace("\\", "/"),
     "measured_at": datetime.now().isoformat(timespec="seconds"),   # sadece kayıt zamanı
     "model": llm.MODEL_NAME,
     "temperature": llm.TEMPERATURE,

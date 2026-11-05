@@ -18,7 +18,9 @@ Hatalar:
   status "ok" iken boş SQL) → pipeline'da "invalid_model_output", 1 kez yeniden denenebilir
 """
 
+import calendar
 import json
+from datetime import date
 from functools import lru_cache
 
 import ollama
@@ -103,6 +105,8 @@ SYSTEM_PROMPT_TEMPLATE = """Sen bir SQLite uzmanısın. Bir bankanın ürün ve 
 - Referans tarih (bugün): {reference_date}. date('now'), CURRENT_DATE veya sistem saati ASLA kullanılmaz.
 - Göreli tarih ifadeleri için şu sabit aralıkları kullan (iki uç dahil):
 {date_rules}
+- Yılı belirtilmeyen ay adları, referans tarihten geriye doğru en yakın o aydır. Sadece şu aralıkları kullan:
+{month_rules}
 - Orders.OrderDate 'YYYY-MM-DD' biçiminde metindir. Aylık gruplama için strftime('%Y-%m', o.OrderDate) kullan.
 
 ## SQL kuralları
@@ -110,7 +114,7 @@ SYSTEM_PROMPT_TEMPLATE = """Sen bir SQLite uzmanısın. Bir bankanın ürün ve 
 - Metin değerlerini şemada yazıldığı gibi kullan (ör. 'İzmir', 'KOBİ'). LOWER() veya UPPER() kullanma: SQLite Türkçe harfleri (İ, ı, Ş, Ğ, Ü, Ö, Ç) doğru çevirmez.
 - Sıralama veya seçim ölçütü olan metriği (ör. ciro) her zaman sonuç sütunu olarak göster.
 - "En yüksek / en düşük ..." tek bir sonuç istiyorsa ORDER BY ... LIMIT 1, "ilk N" istiyorsa ORDER BY ... DESC LIMIT N kullan.
-- Varsayılan ölçüt: "ilk N", "en çok", "en yüksek", "en fazla" gibi sıralama sorularında ölçüt belirtilmemişse ciroyu kullan (GROUP BY ile grupla, SUM(oi.Quantity * oi.UnitPrice) ile sırala) ve assumption alanına "Ölçüt belirtilmediği için ciro kullanıldı" diye açıkça yaz.
+- Varsayılan ölçüt: "ilk N", "en çok", "en yüksek", "en fazla", "en çok satan / en çok satılan" gibi sıralama sorularında ölçüt belirtilmemişse ciroyu kullan (GROUP BY ile grupla, SUM(oi.Quantity * oi.UnitPrice) ile sırala) ve assumption alanına "Ölçüt belirtilmediği için ciro kullanıldı" diye açıkça yaz.
 - Sütunlara anlaşılır takma ad ver (ör. AS Ciro).
 - Tek bir ifade yaz; noktalı virgülle ikinci bir sorgu ekleme.
 
@@ -127,6 +131,21 @@ SYSTEM_PROMPT_TEMPLATE = """Sen bir SQLite uzmanısın. Bir bankanın ürün ve 
 """
 
 
+MONTHS_TR = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+             "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
+
+
+def _month_rules() -> str:
+    """Yılsız ay adı → referans tarihten geriye en yakın o ayın aralığı (ör. Ocak → 2026, Temmuz → 2025)."""
+    ref = date.fromisoformat(REFERENCE_DATE)
+    lines = []
+    for month, name in enumerate(MONTHS_TR, start=1):
+        year = ref.year if month <= ref.month else ref.year - 1
+        last_day = calendar.monthrange(year, month)[1]
+        lines.append(f"  - {name}: '{year}-{month:02d}-01' – '{year}-{month:02d}-{last_day:02d}'")
+    return "\n".join(lines)
+
+
 @lru_cache(maxsize=1)
 def build_system_prompt() -> str:
     """Şablonu şema ve config değerleriyle doldurur. Bir kez üretilir, sonra önbellekten döner."""
@@ -139,7 +158,8 @@ def build_system_prompt() -> str:
             .replace("{schema}", schema_to_prompt_text(load_schema()))
             .replace("{active_range}", f"'{start}' ile '{end}'")
             .replace("{reference_date}", REFERENCE_DATE)
-            .replace("{date_rules}", date_rules))
+            .replace("{date_rules}", date_rules)
+            .replace("{month_rules}", _month_rules()))
 
 
 def _parse_response(content: str) -> dict:
