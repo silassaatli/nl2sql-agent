@@ -1,0 +1,16 @@
+{
+  "id": "07",
+  "question": "Geçen çeyrekte en yüksek cirolu şehir hangisi?",
+  "reference_sql": "SELECT c.City, SUM(oi.Quantity * oi.UnitPrice) AS Ciro\nFROM Customers c\nJOIN Orders o      ON o.CustomerID = c.CustomerID\nJOIN OrderItems oi ON oi.OrderID   = o.OrderID\nWHERE o.OrderDate BETWEEN '2026-01-01' AND '2026-03-31'\nGROUP BY c.City\nORDER BY Ciro DESC\nLIMIT 1;",
+  "columns": [
+    "City",
+    "Ciro"
+  ],
+  "rows": [
+    [
+      "İstanbul",
+      7427178.6899999995
+    ]
+  ],
+  "row_count": 1
+}

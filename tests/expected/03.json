@@ -1,0 +1,36 @@
+{
+  "id": "03",
+  "question": "Son 6 ayın aylık ciro trendi nedir?",
+  "reference_sql": "SELECT strftime('%Y-%m', o.OrderDate) AS Ay, SUM(oi.Quantity * oi.UnitPrice) AS Ciro\nFROM Orders o\nJOIN OrderItems oi ON oi.OrderID = o.OrderID\nWHERE o.OrderDate BETWEEN '2026-01-01' AND '2026-06-30'\nGROUP BY Ay\nORDER BY Ay;",
+  "columns": [
+    "Ay",
+    "Ciro"
+  ],
+  "rows": [
+    [
+      "2026-01",
+      9146930.06
+    ],
+    [
+      "2026-02",
+      8118314.29
+    ],
+    [
+      "2026-03",
+      10095517.72
+    ],
+    [
+      "2026-04",
+      11815898.25
+    ],
+    [
+      "2026-05",
+      9020015.23
+    ],
+    [
+      "2026-06",
+      13934092.3
+    ]
+  ],
+  "row_count": 6
+}

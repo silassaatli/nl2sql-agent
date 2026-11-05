@@ -1,0 +1,14 @@
+{
+  "id": "02",
+  "question": "İzmir'in toplam cirosu nedir?",
+  "reference_sql": "SELECT SUM(oi.Quantity * oi.UnitPrice) AS Ciro\nFROM Customers c\nJOIN Orders o      ON o.CustomerID = c.CustomerID\nJOIN OrderItems oi ON oi.OrderID   = o.OrderID\nWHERE c.City = 'İzmir';",
+  "columns": [
+    "Ciro"
+  ],
+  "rows": [
+    [
+      19235337.37
+    ]
+  ],
+  "row_count": 1
+}
