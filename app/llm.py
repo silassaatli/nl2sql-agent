@@ -17,7 +17,8 @@ Güvenlik bu dosyaya bırakılmaz: model ne üretirse üretsin SQL, pipeline'da 
 Hatalar:
 - ModelUnavailableError: Ollama kapalı, model yok, zaman aşımı → pipeline'da "model_unavailable"
 - ModelOutputError: model cevap verdi ama cevap kullanılamaz (geçersiz JSON, bilinmeyen status,
-  status "ok" iken boş SQL) → pipeline'da "invalid_model_output", 1 kez yeniden denenebilir
+  status "ok" iken boş SQL) → ValueError'dan türer; pipeline "except ValueError" ile yakalar,
+  "error" / "invalid_model_response" döner (yeniden deneme yok)
 """
 
 import json
@@ -34,8 +35,9 @@ class ModelUnavailableError(Exception):
     """Ollama kapalı / model yüklenemedi / zaman aşımı."""
 
 
-class ModelOutputError(Exception):
-    """Model cevap verdi ama cevap sözleşmeye uymuyor."""
+class ModelOutputError(ValueError):
+    """Model cevap verdi ama cevap sözleşmeye uymuyor.
+    ValueError'dan türer: pipeline.py bozuk model cevabını "except ValueError" ile yakalıyor."""
 
 
 VALID_STATUSES = {"ok", "clarify", "unsupported"}

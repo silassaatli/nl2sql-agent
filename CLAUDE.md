@@ -34,8 +34,8 @@ Ensight teknik staj ödevi (ENS-AI-001): Türkçe sorulan iş sorularını SQL'e
 generate_sql(question: str, previous_error: str | None = None) -> dict
     # {"status": "ok"|"clarify"|"unsupported", "sql": str, "assumption": str, "message": str}
     # Fırlatır: ModelUnavailableError (Ollama kapalı/model yok/zaman aşımı → "model_unavailable", yeniden deneme yok)
-    #           ModelOutputError (cevap kullanılamaz: bozuk JSON, bilinmeyen status, ok iken boş sql
-    #                             → "invalid_model_output", 1 kez yeniden denenebilir)
+    #           ModelOutputError(ValueError) (cevap kullanılamaz: bozuk JSON, bilinmeyen status, ok iken boş sql
+    #                             → pipeline "except ValueError" ile yakalar → "error" / "invalid_model_response", yeniden deneme yok)
     # İkisi de app.llm'den import edilir. status != "ok" iken sql her zaman "" döner.
 validate_sql(sql: str) -> tuple[bool, str, str]     # (geçti_mi, temiz_sql, hata_türü)
 execute_sql(sql: str) -> tuple[list[dict], bool]    # (satırlar, kesildi_mi)
