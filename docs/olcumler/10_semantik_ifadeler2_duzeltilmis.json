@@ -1,0 +1,230 @@
+{
+ "meta": {
+  "label": "10_semantik_ifadeler2_duzeltilmis",
+  "questions_file": "docs/olcumler/farkli_ifadeler_2_duzeltilmis.json",
+  "measured_at": "2026-11-05T21:33:35",
+  "model": "qwen2.5-coder:7b",
+  "temperature": 0,
+  "few_shot_count": 4,
+  "system_prompt_chars": 6253,
+  "retry": false,
+  "business_pass": "5/8",
+  "customers_before_after": [
+   200,
+   200
+  ]
+ },
+ "results": [
+  {
+   "id": "01",
+   "type": "is",
+   "question": "Ciroya göre ilk beş ürünümüz neler?",
+   "status": "ok",
+   "sql": "SELECT p.ProductName, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM OrderItems oi JOIN Products p ON p.ProductID = oi.ProductID GROUP BY p.ProductID ORDER BY Ciro DESC LIMIT 5",
+   "assumption": "Ciro, ciroya göre hesaplandı (SUM(Quantity * UnitPrice)).",
+   "message": "Ciroya göre ilk beş ürün.",
+   "llm_s": 4.4,
+   "exec": "5 satır",
+   "rows_preview": [
+    {
+     "ProductName": "Grup Sağlık Sigortası (kişi başı)",
+     "Ciro": 17007487.05
+    },
+    {
+     "ProductName": "Ticari Kredi Tahsis Ücreti",
+     "Ciro": 14251615.84
+    },
+    {
+     "ProductName": "Portföy Yönetimi Hizmeti",
+     "Ciro": 11942865.64
+    }
+   ],
+   "pass": true,
+   "why": "eşleşti"
+  },
+  {
+   "id": "02",
+   "type": "is",
+   "question": "İzmirli müşterilerimizin toplam harcaması ne kadar?",
+   "status": "ok",
+   "sql": "SELECT SUM(oi.Quantity * oi.UnitPrice) AS ToplamHarcama FROM Orders o JOIN OrderItems oi ON oi.OrderID = o.OrderID JOIN Customers c ON c.CustomerID = o.CustomerID WHERE c.City = 'İzmir'",
+   "assumption": "Toplam harcama, ciroya göre hesaplandı. Tarih aralığı belirtilmediği için tüm veri kullanıldı.",
+   "message": "İzmirli müşterilerimizin toplam harcaması.",
+   "llm_s": 5.1,
+   "exec": "1 satır",
+   "rows_preview": [
+    {
+     "ToplamHarcama": 19235337.37
+    }
+   ],
+   "pass": true,
+   "why": "eşleşti"
+  },
+  {
+   "id": "03",
+   "type": "is",
+   "question": "Şubat’tan Haziran’a aylık ciromuz nasıl değişti? Ocak da dahil olsun.",
+   "status": "ok",
+   "sql": "SELECT strftime('%Y-%m', o.OrderDate) AS Ay, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Orders o JOIN OrderItems oi ON oi.OrderID = o.OrderID WHERE o.OrderDate BETWEEN '2026-01-01' AND '2026-06-30' GROUP BY Ay ORDER BY Ay",
+   "assumption": "Ciro, aylık olarak hesaplandı. Tarih aralığı Tarih notundan alındı: Ocak 2026 – Haziran 2026.",
+   "message": "Ocak'tan Haziran'a aylık ciromuz.",
+   "llm_s": 6.5,
+   "exec": "6 satır",
+   "rows_preview": [
+    {
+     "Ay": "2026-01",
+     "Ciro": 9146930.06
+    },
+    {
+     "Ay": "2026-02",
+     "Ciro": 8118314.29
+    },
+    {
+     "Ay": "2026-03",
+     "Ciro": 10095517.72
+    }
+   ],
+   "pass": true,
+   "why": "eşleşti"
+  },
+  {
+   "id": "04",
+   "type": "is",
+   "question": "Kategori bazında ortalama sipariş kalemi tutarı ne kadar?",
+   "status": "ok",
+   "sql": "SELECT p.Category, AVG(oi.Quantity * oi.UnitPrice) AS OrtalamaKalemTutari FROM OrderItems oi JOIN Products p ON p.ProductID = oi.ProductID GROUP BY p.Category ORDER BY OrtalamaKalemTutari DESC LIMIT 1",
+   "assumption": "Ortalama sipariş kalemi tutarı (AVG(Quantity * UnitPrice)) olarak hesaplandı. Tarih aralığı varsayılan olarak tüm veri kümesi için kullanıldı.",
+   "message": "Kategori bazında ortalama sipariş kalemi tutarı.",
+   "llm_s": 5.7,
+   "exec": "1 satır",
+   "rows_preview": [
+    {
+     "Category": "Kredi Ürünleri",
+     "OrtalamaKalemTutari": 40841.54864253393
+    }
+   ],
+   "pass": false,
+   "why": "satır sayısı 1 ≠ 6"
+  },
+  {
+   "id": "05",
+   "type": "is",
+   "question": "Sipariş geçmişi olmayan müşteriler hangileri?",
+   "status": "ok",
+   "sql": "SELECT CustomerID, Name FROM Customers WHERE CustomerID NOT IN (SELECT CustomerID FROM Orders)",
+   "assumption": "Sipariş geçmişi olmayan müşteriler: Orders tablosunda CustomerID bulunmayan müşteriler.",
+   "message": "Sipariş geçmişi olmayan müşterilerin listesi.",
+   "llm_s": 3.6,
+   "exec": "12 satır",
+   "rows_preview": [
+    {
+     "CustomerID": 16,
+     "Name": "Esra Aydın"
+    },
+    {
+     "CustomerID": 19,
+     "Name": "Hande Polat"
+    },
+    {
+     "CustomerID": 32,
+     "Name": "Vizyon Otomotiv Ltd. Şti."
+    }
+   ],
+   "pass": true,
+   "why": "eşleşti (sadece 2/3 sütun döndü)"
+  },
+  {
+   "id": "06",
+   "type": "is",
+   "question": "Segmentlerin cirolarını karşılaştırmalı göster.",
+   "status": "ok",
+   "sql": "SELECT c.Segment, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Customers c JOIN Orders o ON o.CustomerID = c.CustomerID JOIN OrderItems oi ON oi.OrderID = o.OrderID WHERE o.OrderDate BETWEEN '2026-04-02' AND '2026-06-30' GROUP BY c.Segment ORDER BY Ciro DESC",
+   "assumption": "Gelir, ciro (SUM(Quantity * UnitPrice)) olarak hesaplandı. Tarih aralığı Tarih notundan alındı: 2026-04-02 – 2026-06-30.",
+   "message": "Her segmentteki ciro.",
+   "llm_s": 7.1,
+   "exec": "3 satır",
+   "rows_preview": [
+    {
+     "Segment": "KOBİ",
+     "Ciro": 16910476.8
+    },
+    {
+     "Segment": "Kurumsal",
+     "Ciro": 15178184.17
+    },
+    {
+     "Segment": "Bireysel",
+     "Ciro": 1998525.52
+    }
+   ],
+   "pass": false,
+   "why": "beklenen 2 sütunun 1'i eşleşti (diğer değerler farklı)"
+  },
+  {
+   "id": "07",
+   "type": "is",
+   "question": "2026'nın Ocak–Mart döneminde en çok ciro yapan şehir hangisi?",
+   "status": "ok",
+   "sql": "SELECT c.City, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Orders o JOIN OrderItems oi ON oi.OrderID = o.OrderID JOIN Customers c ON c.CustomerID = o.CustomerID WHERE o.OrderDate BETWEEN '2026-01-01' AND '2026-03-31' GROUP BY c.City ORDER BY Ciro DESC LIMIT 1",
+   "assumption": "Ciro, SUM(Quantity * UnitPrice) olarak hesaplandı. Tarih aralığı Tarih notundan alındı: Ocak 2026 – Mart 2026.",
+   "message": "2026'nın Ocak–Mart döneminde ciroya göre en yüksek olan şehir.",
+   "llm_s": 7.0,
+   "exec": "1 satır",
+   "rows_preview": [
+    {
+     "City": "İstanbul",
+     "Ciro": 7427178.6899999995
+    }
+   ],
+   "pass": true,
+   "why": "eşleşti"
+  },
+  {
+   "id": "08",
+   "type": "is",
+   "question": "Haziran ayında en çok satılan 3 ürün hangisi?",
+   "status": "ok",
+   "sql": "SELECT p.ProductName, SUM(oi.Quantity) AS SatılanMiktar FROM Orders o JOIN OrderItems oi ON oi.OrderID = o.OrderID JOIN Products p ON p.ProductID = oi.ProductID WHERE o.OrderDate BETWEEN '2026-06-01' AND '2026-06-30' GROUP BY p.ProductName ORDER BY SatılanMiktar DESC LIMIT 3",
+   "assumption": "En çok satılan ürün: Satılan miktar (SUM(Quantity)) olarak hesaplandı. Tarih aralığı Tarih notundan alındı: Haziran 2026.",
+   "message": "Haziran 2026'da satılan miktarı en yüksek olan ilk 3 ürün.",
+   "llm_s": 7.2,
+   "exec": "3 satır",
+   "rows_preview": [
+    {
+     "ProductName": "Grup Sağlık Sigortası (kişi başı)",
+     "SatılanMiktar": 224
+    },
+    {
+     "ProductName": "Döviz Alım-Satım Komisyonu",
+     "SatılanMiktar": 123
+    },
+    {
+     "ProductName": "Kredi Kartı Yıllık Ücreti",
+     "SatılanMiktar": 110
+    }
+   ],
+   "pass": false,
+   "why": "hiçbir sütun eşleşmedi"
+  },
+  {
+   "id": "09",
+   "type": "davranis",
+   "question": "En iyi ürünümüz hangisi?",
+   "status": "clarify",
+   "sql": "",
+   "assumption": "",
+   "message": "'En iyi' farklı şekillerde ölçülebilir: toplam ciro, sipariş adedi veya ortalama kalem tutarı. Hangisine göre bakmamı istersiniz?",
+   "llm_s": 3.0
+  },
+  {
+   "id": "10",
+   "type": "davranis",
+   "question": "Müşterilerin telefon numaralarını listele.",
+   "status": "unsupported",
+   "sql": "",
+   "assumption": "",
+   "message": "Veri modelinde müşteri telefon numarası bilgisi bulunmuyor. Müşteriler için yalnızca ad, şehir ve segment bilgisi mevcut.",
+   "llm_s": 2.7
+  }
+ ]
+}

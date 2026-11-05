@@ -6,7 +6,9 @@ Kullanıcının Türkçe sorusunu Ollama üzerinden yerel Qwen modeline gönderi
 
 Prompt'un parçaları:
 - Şema: app/schema.py'den OTOMATİK (tablo, sütun, tip, PK/FK, az değerli sütunların değerleri, tarih aralığı)
-- Metrikler, tarih kuralları, Türkçe karakter uyarısı, clarify/unsupported kuralları: bu dosyada
+- Metrik sözlüğü ve tarih çözücü: app/semantic.py (semantik katman). Metrik bölümü sözlükten üretilir;
+  sorudaki tarih ifadeleri kodla çözülüp soruya "Tarih notu" olarak eklenir.
+- Tarih kuralları, Türkçe karakter uyarısı, clarify/unsupported kuralları: bu dosyada
   (veride yazmayan iş kuralları). Tarih aralıkları config.DATE_RANGES'den üretilir.
 - Few-shot örnekler: FEW_SHOT_EXAMPLES (test sorularının kopyası DEĞİL)
 
@@ -18,14 +20,13 @@ Hatalar:
   status "ok" iken boş SQL) → pipeline'da "invalid_model_output", 1 kez yeniden denenebilir
 """
 
-import calendar
 import json
-from datetime import date
 from functools import lru_cache
 
 import ollama
 
 from app.schema import load_schema, schema_to_prompt_text
+from app.semantic import date_note, metric_note, metrics_to_prompt_text, month_rules_text
 from config import DATE_RANGES, MODEL_NAME, REFERENCE_DATE, TEMPERATURE
 
 
@@ -43,16 +44,17 @@ LLM_TIMEOUT_S = 120     # ilk çağrıda model belleğe yüklenir (~8 sn); takı
 # Few-shot örnekler (Kişi B yazacak). Her biri: {"question": "...", "answer": {status, sql, assumption, message}}
 # Kural: test 01–16 sorularının kopyası veya yakın benzeri OLMAZ (gizli test setinde ezber işe yaramaz).
 FEW_SHOT_EXAMPLES: list[dict] = [
-    {   # ok: 3 tablo JOIN + açık tarih aralığı + GROUP BY + ölçüt sütunu + LIMIT N
-        "question": "2025'in son çeyreğinde en çok gelir getiren 2 ürün kategorisi hangisi?",
+    {   # ok: 3 tablo JOIN + tarih notundan aralık + GROUP BY + ölçüt sütunu + LIMIT N
+        # Tarih bilerek prompt'ta tanımlı bir ifade (yılsız ay adı); aralık soruya eklenen Tarih notundan alınır.
+        "question": "Mayıs ayında en çok gelir getiren 2 ürün kategorisi hangisi?",
         "answer": {
             "status": "ok",
             "sql": "SELECT p.Category, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Orders o "
                    "JOIN OrderItems oi ON oi.OrderID = o.OrderID JOIN Products p ON p.ProductID = oi.ProductID "
-                   "WHERE o.OrderDate BETWEEN '2025-10-01' AND '2025-12-31' "
+                   "WHERE o.OrderDate BETWEEN '2026-05-01' AND '2026-05-31' "
                    "GROUP BY p.Category ORDER BY Ciro DESC LIMIT 2",
-            "assumption": "Gelir, ciro (SUM(Quantity * UnitPrice)) olarak hesaplandı. Son çeyrek: 2025-10-01 – 2025-12-31.",
-            "message": "2025 son çeyreğinde ciroya göre ilk 2 kategori.",
+            "assumption": "Gelir, ciro (SUM(Quantity * UnitPrice)) olarak hesaplandı. Tarih aralığı Tarih notundan alındı: Mayıs 2026.",
+            "message": "Mayıs 2026'da ciroya göre ilk 2 kategori.",
         },
     },
     {   # ok: Customers → Orders JOIN + metrik tanımı (aktif müşteri) + COUNT(DISTINCT)
@@ -95,13 +97,11 @@ SYSTEM_PROMPT_TEMPLATE = """Sen bir SQLite uzmanısın. Bir bankanın ürün ve 
 ## Şema
 {schema}
 
-## Metrik tanımları (bunları aynen kullan)
-- Ciro = SUM(OrderItems.Quantity * OrderItems.UnitPrice). Products.Price liste fiyatıdır, ciro için KULLANILMAZ.
-- Sipariş adedi = COUNT(DISTINCT Orders.OrderID). OrderItems ile birleştirince satırlar çoğaldığı için COUNT(*) kullanma.
-- Aktif müşteri = {active_range} arasında en az bir siparişi olan müşteri.
-- Ortalama sipariş kalemi tutarı (kategori ortalaması) = AVG(OrderItems.Quantity * OrderItems.UnitPrice).
+## Metrik tanımları (bunları aynen kullan; soruda eş anlamlı geçse de aynı formül)
+{metrics}
 
 ## Tarih kuralları
+- Kullanıcı mesajının sonunda "Tarih notu" varsa oradaki aralıkları AYNEN kullan. Tarihleri örneklerden kopyalama.
 - Referans tarih (bugün): {reference_date}. date('now'), CURRENT_DATE veya sistem saati ASLA kullanılmaz.
 - Göreli tarih ifadeleri için şu sabit aralıkları kullan (iki uç dahil):
 {date_rules}
@@ -114,6 +114,8 @@ SYSTEM_PROMPT_TEMPLATE = """Sen bir SQLite uzmanısın. Bir bankanın ürün ve 
 - Metin değerlerini şemada yazıldığı gibi kullan (ör. 'İzmir', 'KOBİ'). LOWER() veya UPPER() kullanma: SQLite Türkçe harfleri (İ, ı, Ş, Ğ, Ü, Ö, Ç) doğru çevirmez.
 - Sıralama veya seçim ölçütü olan metriği (ör. ciro) her zaman sonuç sütunu olarak göster.
 - "En yüksek / en düşük ..." tek bir sonuç istiyorsa ORDER BY ... LIMIT 1, "ilk N" istiyorsa ORDER BY ... DESC LIMIT N kullan.
+- "Kategori bazında", "segmentlere göre", "her ... için", "karşılaştır" gibi gruplama sorularında LIMIT EKLEME; her grup bir satır olarak dönmeli.
+- Kullanıcı mesajının sonunda "Metrik notu" varsa oradaki formülü kullan.
 - Varsayılan ölçüt: "ilk N", "en çok", "en yüksek", "en fazla", "en çok satan / en çok satılan" gibi sıralama sorularında ölçüt belirtilmemişse ciroyu kullan (GROUP BY ile grupla, SUM(oi.Quantity * oi.UnitPrice) ile sırala) ve assumption alanına "Ölçüt belirtilmediği için ciro kullanıldı" diye açıkça yaz.
 - Sütunlara anlaşılır takma ad ver (ör. AS Ciro).
 - Tek bir ifade yaz; noktalı virgülle ikinci bir sorgu ekleme.
@@ -131,35 +133,25 @@ SYSTEM_PROMPT_TEMPLATE = """Sen bir SQLite uzmanısın. Bir bankanın ürün ve 
 """
 
 
-MONTHS_TR = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
-             "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
-
-
-def _month_rules() -> str:
-    """Yılsız ay adı → referans tarihten geriye en yakın o ayın aralığı (ör. Ocak → 2026, Temmuz → 2025)."""
-    ref = date.fromisoformat(REFERENCE_DATE)
-    lines = []
-    for month, name in enumerate(MONTHS_TR, start=1):
-        year = ref.year if month <= ref.month else ref.year - 1
-        last_day = calendar.monthrange(year, month)[1]
-        lines.append(f"  - {name}: '{year}-{month:02d}-01' – '{year}-{month:02d}-{last_day:02d}'")
-    return "\n".join(lines)
-
-
 @lru_cache(maxsize=1)
 def build_system_prompt() -> str:
-    """Şablonu şema ve config değerleriyle doldurur. Bir kez üretilir, sonra önbellekten döner."""
+    """Şablonu şema, metrik sözlüğü ve config değerleriyle doldurur. Bir kez üretilir, sonra önbellekten döner."""
     date_rules = "\n".join(
         f"  - \"{name}\": o.OrderDate BETWEEN '{start}' AND '{end}'"
         for name, (start, end) in DATE_RANGES.items()
     )
-    start, end = DATE_RANGES["son 90 gün"]
     return (SYSTEM_PROMPT_TEMPLATE
             .replace("{schema}", schema_to_prompt_text(load_schema()))
-            .replace("{active_range}", f"'{start}' ile '{end}'")
+            .replace("{metrics}", metrics_to_prompt_text())
             .replace("{reference_date}", REFERENCE_DATE)
             .replace("{date_rules}", date_rules)
-            .replace("{month_rules}", _month_rules()))
+            .replace("{month_rules}", month_rules_text()))
+
+
+def _with_date_note(question: str) -> str:
+    """Soruya kodla üretilmiş notları ekler (app/semantic.py): tarih notu (her zaman) + metrik notu (varsa)."""
+    notes = [n for n in (date_note(question), metric_note(question)) if n]
+    return question + "\n\n" + "\n\n".join(notes)
 
 
 def _parse_response(content: str) -> dict:
@@ -185,13 +177,14 @@ def _parse_response(content: str) -> dict:
 
 
 def _build_messages(question: str, previous_error: str | None) -> list[dict]:
-    """system → (few-shot: user/assistant çiftleri) → asıl soru"""
+    """system → (few-shot: user/assistant çiftleri) → asıl soru. Örneklere de tarih notu eklenir ki model
+    cevabın tarihi nottan aldığını görsün."""
     messages = [{"role": "system", "content": build_system_prompt()}]
     for ex in FEW_SHOT_EXAMPLES:
-        messages.append({"role": "user", "content": ex["question"]})
+        messages.append({"role": "user", "content": _with_date_note(ex["question"])})
         messages.append({"role": "assistant", "content": json.dumps(ex["answer"], ensure_ascii=False)})
 
-    user_msg = question
+    user_msg = _with_date_note(question)
     if previous_error:      # yeniden deneme: önceki hatayı modele geri ver
         user_msg += (f"\n\nÖnceki cevabın şu hatayı verdi: {previous_error}\n"
                      "Kurallara uyarak düzeltilmiş JSON döndür.")
