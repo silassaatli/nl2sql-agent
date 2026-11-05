@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Üretilen dosyalar (setup_db.py ile yeniden oluşturulur)
+data/nl2sql.db
+data/schema.json
+logs/*.jsonl
+
+# Editör / sistem
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

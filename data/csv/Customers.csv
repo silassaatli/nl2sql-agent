@@ -1,0 +1,201 @@
+CustomerID,Name,City,Segment
+1,Zirve İnşaat Ltd. Şti.,İstanbul,KOBİ
+2,Esra Aksoy,Kocaeli,Bireysel
+3,Güney Bilişim Ltd. Şti.,İstanbul,KOBİ
+4,Fatma Şimşek,İstanbul,Bireysel
+5,Merve Güneş,İstanbul,Bireysel
+6,Elif Aydın,İstanbul,Bireysel
+7,Yıldız Otomotiv Ltd. Şti.,İstanbul,KOBİ
+8,Gizem Arslan,İstanbul,Bireysel
+9,Ömer Doğan,Ankara,Bireysel
+10,Birlik Medikal Ltd. Şti.,Konya,KOBİ
+11,Mustafa Kurt,Eskişehir,Bireysel
+12,Derya Doğan,Bursa,Bireysel
+13,Mehmet Erdoğan,Kocaeli,Bireysel
+14,Mustafa Öztürk,İstanbul,Bireysel
+15,Birlik Danışmanlık Ltd. Şti.,Ankara,KOBİ
+16,Esra Aydın,Ankara,Bireysel
+17,Marmara Ticaret Ltd. Şti.,Antalya,KOBİ
+18,Atlas Lojistik Ltd. Şti.,İzmir,KOBİ
+19,Hande Polat,İstanbul,Bireysel
+20,Delta Bilişim Ltd. Şti.,İstanbul,KOBİ
+21,Murat Kılıç,İstanbul,Bireysel
+22,Elif Güneş,İstanbul,Bireysel
+23,Yusuf Polat,Antalya,Bireysel
+24,Emre Aksoy,İstanbul,Bireysel
+25,Elif Aslan,İstanbul,Bireysel
+26,Netiş Enerji Ltd. Şti.,Ankara,KOBİ
+27,Ali Çelik,İstanbul,Bireysel
+28,Güney Ticaret Ltd. Şti.,Konya,KOBİ
+29,Deniz Koç,Ankara,Bireysel
+30,Ahmet Erdoğan,İzmir,Bireysel
+31,Teknova Tekstil Ltd. Şti.,Antalya,KOBİ
+32,Vizyon Otomotiv Ltd. Şti.,Ankara,KOBİ
+33,Büşra Aksoy,İstanbul,Bireysel
+34,Hasan Koç,İzmir,Bireysel
+35,Vizyon Medikal A.Ş.,Gaziantep,Kurumsal
+36,Yıldız Medikal Ltd. Şti.,İstanbul,KOBİ
+37,Anadolu Ticaret A.Ş.,Eskişehir,Kurumsal
+38,Hande Doğan,İstanbul,Bireysel
+39,Vizyon İnşaat Ltd. Şti.,Konya,KOBİ
+40,Mustafa Demir,Gaziantep,Bireysel
+41,Teknova Lojistik Ltd. Şti.,Konya,KOBİ
+42,Zeynep Yıldız,İzmir,Bireysel
+43,Kerem Yıldırım,Gaziantep,Bireysel
+44,Doğa Tekstil A.Ş.,Adana,Kurumsal
+45,Ömer Çetin,Antalya,Bireysel
+46,Atlas İnşaat Ltd. Şti.,İzmir,KOBİ
+47,Zeynep Öztürk,İstanbul,Bireysel
+48,Selin Polat,İstanbul,Bireysel
+49,Mehmet Arslan,İstanbul,Bireysel
+50,Esra Kara,İstanbul,Bireysel
+51,Hande Özkan,İstanbul,Bireysel
+52,Ayşe Aslan,İstanbul,Bireysel
+53,Kerem Doğan,İstanbul,Bireysel
+54,Büşra Kaya,İzmir,Bireysel
+55,Akdeniz Bilişim Ltd. Şti.,Samsun,KOBİ
+56,İrem Şahin,Ankara,Bireysel
+57,Deniz Çelik,İstanbul,Bireysel
+58,Emre Demir,İstanbul,Bireysel
+59,Zeynep Şahin,Gaziantep,Bireysel
+60,Sıla Yılmaz,Samsun,Bireysel
+61,Atlas Lojistik A.Ş.,Eskişehir,Kurumsal
+62,İrem Kılıç,İzmir,Bireysel
+63,Anadolu Otomotiv A.Ş.,İstanbul,Kurumsal
+64,Deniz Özdemir,Adana,Bireysel
+65,Ece Kurt,Trabzon,Bireysel
+66,Doğa Tekstil Ltd. Şti.,İzmir,KOBİ
+67,Büşra Kurt,İstanbul,Bireysel
+68,Mehmet Özkan,Ankara,Bireysel
+69,Fatma Yıldız,Eskişehir,Bireysel
+70,İrem Yıldız,İzmir,Bireysel
+71,İrem Öztürk,İstanbul,Bireysel
+72,Elif Öztürk,Trabzon,Bireysel
+73,Mustafa Aslan,İstanbul,Bireysel
+74,Delta Tekstil Ltd. Şti.,Bursa,KOBİ
+75,Emre Aydın,Kocaeli,Bireysel
+76,Can Çetin,Antalya,Bireysel
+77,Mustafa Yılmaz,Adana,Bireysel
+78,Ali Demir,Samsun,Bireysel
+79,Hüseyin Doğan,İzmir,Bireysel
+80,Mavi Tekstil Ltd. Şti.,Gaziantep,KOBİ
+81,Selin Özdemir,Konya,Bireysel
+82,Netiş Bilişim Ltd. Şti.,Samsun,KOBİ
+83,Akdeniz Lojistik Ltd. Şti.,İzmir,KOBİ
+84,Hüseyin Aydın,Kayseri,Bireysel
+85,Murat Yıldırım,İstanbul,Bireysel
+86,Zirve Bilişim Ltd. Şti.,Gaziantep,KOBİ
+87,Burak Kaya,Ankara,Bireysel
+88,Merve Aydın,Adana,Bireysel
+89,Selin Aslan,İzmir,Bireysel
+90,Derya Güneş,İstanbul,Bireysel
+91,Mavi Ticaret A.Ş.,İzmir,Kurumsal
+92,Mehmet Özdemir,Ankara,Bireysel
+93,İrem Kaya,Eskişehir,Bireysel
+94,Atlas Gıda Ltd. Şti.,İstanbul,KOBİ
+95,İrem Aslan,İzmir,Bireysel
+96,Yıldız Otomotiv A.Ş.,Adana,Kurumsal
+97,Murat Aslan,Kocaeli,Bireysel
+98,Atlas Tekstil Ltd. Şti.,Gaziantep,KOBİ
+99,Yusuf Kaya,Kocaeli,Bireysel
+100,Atlas Bilişim Ltd. Şti.,İstanbul,KOBİ
+101,Zirve Gıda Ltd. Şti.,Ankara,KOBİ
+102,Netiş Otomotiv A.Ş.,İstanbul,Kurumsal
+103,Akdeniz Tekstil Ltd. Şti.,Gaziantep,KOBİ
+104,Ali Şimşek,Trabzon,Bireysel
+105,Emine Koç,Kocaeli,Bireysel
+106,İbrahim Aydın,Kayseri,Bireysel
+107,Fatma Kurt,Ankara,Bireysel
+108,Doğa Danışmanlık Ltd. Şti.,Trabzon,KOBİ
+109,Hande Arslan,Trabzon,Bireysel
+110,Netiş Tekstil Ltd. Şti.,Antalya,KOBİ
+111,Vizyon Medikal Ltd. Şti.,Ankara,KOBİ
+112,Yusuf Erdoğan,Ankara,Bireysel
+113,Ufuk Tekstil Ltd. Şti.,İstanbul,KOBİ
+114,Can Özdemir,Konya,Bireysel
+115,Emine Polat,Adana,Bireysel
+116,Esra Yıldırım,İzmir,Bireysel
+117,Ece Aksoy,Konya,Bireysel
+118,Fatma Erdoğan,İstanbul,Bireysel
+119,Karadeniz Bilişim Ltd. Şti.,Ankara,KOBİ
+120,Emine Tekin,Samsun,Bireysel
+121,Merve Özkan,Ankara,Bireysel
+122,Ayşe Kılıç,Kocaeli,Bireysel
+123,Ahmet Tekin,Antalya,Bireysel
+124,Güney İnşaat Ltd. Şti.,Kayseri,KOBİ
+125,Fatma Çetin,Trabzon,Bireysel
+126,Ece Çetin,İstanbul,Bireysel
+127,Pera Danışmanlık Ltd. Şti.,Samsun,KOBİ
+128,Pera Medikal A.Ş.,Kayseri,Kurumsal
+129,Deniz Yıldız,Kayseri,Bireysel
+130,Zirve Medikal Ltd. Şti.,İzmir,KOBİ
+131,Deniz Demir,İstanbul,Bireysel
+132,Delta Danışmanlık Ltd. Şti.,İstanbul,KOBİ
+133,Karadeniz İnşaat Ltd. Şti.,İstanbul,KOBİ
+134,İbrahim Demir,İstanbul,Bireysel
+135,Deniz Aslan,Ankara,Bireysel
+136,Yusuf Tekin,Konya,Bireysel
+137,İrem Tekin,Kocaeli,Bireysel
+138,Ömer Özdemir,İzmir,Bireysel
+139,Güney Medikal Ltd. Şti.,Gaziantep,KOBİ
+140,Pera İnşaat Ltd. Şti.,İzmir,KOBİ
+141,Ayşe Yılmaz,İstanbul,Bireysel
+142,Ece Kılıç,Antalya,Bireysel
+143,Karadeniz Ticaret Ltd. Şti.,Gaziantep,KOBİ
+144,Elif Özkan,Kayseri,Bireysel
+145,Güney Lojistik Ltd. Şti.,İstanbul,KOBİ
+146,Zirve Otomotiv Ltd. Şti.,İstanbul,KOBİ
+147,Murat Tekin,İzmir,Bireysel
+148,Güney Tekstil Ltd. Şti.,İstanbul,KOBİ
+149,Teknova Bilişim Ltd. Şti.,İzmir,KOBİ
+150,Marmara Bilişim A.Ş.,Ankara,Kurumsal
+151,Doğa Bilişim Ltd. Şti.,Trabzon,KOBİ
+152,Özgün Gıda Ltd. Şti.,İstanbul,KOBİ
+153,Selin Aydın,İstanbul,Bireysel
+154,Pera Gıda Ltd. Şti.,İstanbul,KOBİ
+155,Vizyon Gıda Ltd. Şti.,İstanbul,KOBİ
+156,Elif Erdoğan,Eskişehir,Bireysel
+157,Doğa Gıda A.Ş.,Ankara,Kurumsal
+158,Emre Şahin,Konya,Bireysel
+159,Ufuk Bilişim Ltd. Şti.,Ankara,KOBİ
+160,Ömer Demir,Ankara,Bireysel
+161,Sıla Kara,Ankara,Bireysel
+162,Merve Çetin,Trabzon,Bireysel
+163,Pera Medikal Ltd. Şti.,Ankara,KOBİ
+164,Delta İnşaat Ltd. Şti.,İzmir,KOBİ
+165,Birlik İnşaat Ltd. Şti.,İstanbul,KOBİ
+166,Kuzey Danışmanlık Ltd. Şti.,Bursa,KOBİ
+167,Hasan Kara,Gaziantep,Bireysel
+168,Murat Aydın,Konya,Bireysel
+169,Anadolu Medikal Ltd. Şti.,Kocaeli,KOBİ
+170,Güney Enerji A.Ş.,İstanbul,Kurumsal
+171,Ayşe Polat,İstanbul,Bireysel
+172,Anadolu Gıda Ltd. Şti.,İzmir,KOBİ
+173,Emre Özdemir,Ankara,Bireysel
+174,Teknova Medikal Ltd. Şti.,Ankara,KOBİ
+175,Zeynep Arslan,Samsun,Bireysel
+176,Can Aydın,İzmir,Bireysel
+177,Murat Şahin,Kocaeli,Bireysel
+178,Yıldız İnşaat Ltd. Şti.,Trabzon,KOBİ
+179,Büşra Özkan,İzmir,Bireysel
+180,Vizyon Gıda A.Ş.,İzmir,Kurumsal
+181,Mavi Lojistik Ltd. Şti.,İstanbul,KOBİ
+182,Mehmet Kaya,Kocaeli,Bireysel
+183,Hüseyin Polat,Kocaeli,Bireysel
+184,Anadolu Ticaret Ltd. Şti.,İzmir,KOBİ
+185,Murat Yıldız,İzmir,Bireysel
+186,Özgün Gıda A.Ş.,İstanbul,Kurumsal
+187,Ege Lojistik Ltd. Şti.,Ankara,KOBİ
+188,Can Demir,Bursa,Bireysel
+189,Güney Ticaret A.Ş.,İstanbul,Kurumsal
+190,Gizem Koç,Bursa,Bireysel
+191,Can Özkan,Kayseri,Bireysel
+192,Pera Bilişim A.Ş.,Ankara,Kurumsal
+193,Doğa İnşaat Ltd. Şti.,Adana,KOBİ
+194,Emre Yıldız,İstanbul,Bireysel
+195,Kerem Çetin,İstanbul,Bireysel
+196,Ege İnşaat Ltd. Şti.,İzmir,KOBİ
+197,İrem Çetin,İstanbul,Bireysel
+198,Burak Polat,İstanbul,Bireysel
+199,İbrahim Aslan,Konya,Bireysel
+200,Sıla Çelik,İstanbul,Bireysel
