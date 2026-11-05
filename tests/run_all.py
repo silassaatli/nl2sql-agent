@@ -42,7 +42,7 @@ sys.path.insert(0, str(PROJECT_DIR))
 from app import pipeline
 from app.validator import validate_sql
 from config import DB_PATH
-from report import write_report  # tests/report.py, Sıla'nın fonksiyonu
+from report import write_report 
 
 
 def main() -> None:
@@ -136,35 +136,26 @@ def main() -> None:
                         actual_width = len(actual_columns)
                         expected_width = len(expected["columns"])
 
-                        if actual_width == expected_width:
-                            allowed_width = True
-                        else:
-                            allowed_width = (
-                                case_id in partial_column_cases
-                                and 0 < actual_width < expected_width
-                            )
+                        # Geniş sonuçtan dar sonuca tek bir sütun eşlemesi uygula.
+                        # Fazla sütun varsa bütün beklenen sütunlar eşleşmeli.
+                        partial = actual_width < expected_width
+                        if not partial or (case_id in partial_column_cases and actual_width > 0):
+                            source = expected_values if partial else actual_values
+                            target = actual_values if partial else expected_values
+                            width = len(target[0])
+                            ordered = case_id in ordered_cases
+                            reference = target if ordered else Counter(target)
 
-                        if allowed_width:
-                            # En geniş cevap anahtarı 3 sütun. Aynı eşlemeyi
-                            # bütün satırlara uygulayarak sütunları karşılaştır.
-                            for indexes in permutations(range(expected_width), actual_width):
-                                # 01, 07 ve 08 "hangi ürün/şehir?" diye soruyor.
-                                # Sadece ciro dönerse sorunun cevabı eksiktir.
-                                if case_id in partial_column_cases and 0 not in indexes:
+                            for indexes in permutations(range(len(source[0])), width):
+                                # Eksik sütun istisnasında ürün/şehir yine zorunlu.
+                                if partial and 0 not in indexes:
                                     continue
-
                                 projected = [
                                     tuple(row[index] for index in indexes)
-                                    for row in expected_values
+                                    for row in source
                                 ]
-
-                                if case_id in ordered_cases:
-                                    passed = actual_values == projected
-                                else:
-                                    # Counter tekrar eden satırları da sayar.
-                                    passed = Counter(actual_values) == Counter(projected)
-
-                                if passed:
+                                if (projected if ordered else Counter(projected)) == reference:
+                                    passed = True
                                     break
 
                         reason = (
