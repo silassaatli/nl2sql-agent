@@ -8,11 +8,12 @@
   "few_shot_count": 4,
   "system_prompt_chars": 6497,
   "retry": false,
-  "business_pass": "5/8",
+  "business_pass": "4/8",
   "customers_before_after": [
    200,
    200
-  ]
+  ],
+  "rescored": "Karşılaştırma hatası düzeltildikten sonra kayıtlı SQL'ler yeniden çalıştırılıp yeniden puanlandı (model çağrılmadı). Önceki puan: 5/8. Değişenler: 05: PASS → FAIL (eksik sütun (2/3); eksik sütun yalnızca 01/07/08'de kabul edilir)"
  },
  "results": [
   {
@@ -130,8 +131,8 @@
      "Name": "Vizyon Otomotiv Ltd. Şti."
     }
    ],
-   "pass": true,
-   "why": "eşleşti (sadece 2/3 sütun döndü)"
+   "pass": false,
+   "why": "eksik sütun (2/3); eksik sütun yalnızca 01/07/08'de kabul edilir"
   },
   {
    "id": "06",
