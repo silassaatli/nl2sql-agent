@@ -21,7 +21,7 @@ from app.db import execute_sql  # noqa: E402
 from app.validator import validate_sql  # noqa: E402
 from karsilastir import compare  # noqa: E402  (olcum.py ile aynı karşılaştırma)
 
-for path in sorted(glob.glob(os.path.join(HERE, "0*.json"))):
+for path in sorted(glob.glob(os.path.join(HERE, "[0-9][0-9]_*.json"))):
     data = json.load(open(path, encoding="utf-8"))
     changed = []
     for r in data["results"]:

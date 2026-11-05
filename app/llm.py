@@ -74,6 +74,16 @@ FEW_SHOT_EXAMPLES: list[dict] = [
             "message": "Her segmentteki aktif müşteri sayısı.",
         },
     },
+    {   # ok: "X bazında" gruplama sorusu → GROUP BY, LIMIT YOK (her grup bir satır). Test 04'teki LIMIT 1 hatası için.
+        "question": "Şehir bazında sipariş adetlerini göster.",
+        "answer": {
+            "status": "ok",
+            "sql": "SELECT c.City, COUNT(DISTINCT o.OrderID) AS SiparisAdedi FROM Customers c "
+                   "JOIN Orders o ON o.CustomerID = c.CustomerID GROUP BY c.City ORDER BY SiparisAdedi DESC",
+            "assumption": "Sipariş adedi COUNT(DISTINCT OrderID) ile sayıldı. 'Bazında' sorusu olduğu için tüm şehirler listelendi.",
+            "message": "Her şehrin sipariş adedi.",
+        },
+    },
     {   # clarify: değerlendirme sorusu, metrik belirsiz
         "question": "En değerli ürün grubumuz hangisi?",
         "answer": {

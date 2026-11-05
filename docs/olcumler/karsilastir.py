@@ -4,13 +4,16 @@
 CLAUDE.md ekip kararları 4–6'nın basit uygulaması:
 - Float değerler 2 ondalığa yuvarlanır (madde 4)
 - 04, 05, 06 sırasız karşılaştırılır (madde 5)
-- Esnek sütun eşleştirmesi (madde 6): sadece model DAHA AZ sütun döndürdüyse ve döndürdüğü her sütun
-  eşleştiyse. En az beklenen kadar sütun döndüyse beklenen sütunların hepsi eşleşmeli.
+- Esnek sütun eşleştirmesi (madde 6): eksik sütun YALNIZCA 01/07/08'de ve ürün/şehir sütunu (beklenen 0. sütun)
+  döndüyse kabul edilir; döndürülen her sütun eşleşmeli. En az beklenen kadar sütun döndüyse beklenen sütunların
+  hepsi eşleşmeli (fazla sütun yok sayılır). tests/run_all.py ile aynı kural.
+  (Düzeltme: önceki sürüm eksik sütunu bütün testlerde kabul ediyordu; ölçüm 18–20'de 05 bu yüzden PASS görünmüştü.)
 """
 import json
 
 
 UNORDERED = {"04", "05", "06"}
+PARTIAL_COLUMN_CASES = {"01", "07", "08"}   # "hangi ürün/şehir?" soruları
 
 
 def norm(v):
@@ -44,8 +47,10 @@ def compare(test_id, rows):
     # (ör. doğru şehir + yanlış ciro → FAIL).
     if n_a >= n_e and len(used) < n_e:
         return False, f"beklenen {n_e} sütunun {len(used)}'i eşleşti (diğer değerler farklı)"
-    if n_a < n_e and len(used) < n_a:
-        return False, "döndürülen sütunlardan bazıları eşleşmedi"
+    if n_a < n_e and test_id not in PARTIAL_COLUMN_CASES:
+        return False, f"eksik sütun ({n_a}/{n_e}); eksik sütun yalnızca 01/07/08'de kabul edilir"
+    if n_a < n_e and (len(used) < n_a or 0 not in used):
+        return False, "döndürülen sütunlardan bazıları eşleşmedi veya ürün/şehir sütunu yok"
     # eşleşen sütunlarla satırları birlikte karşılaştır (sırasızlarda satır kümesi)
     e_sub = [tuple(str(r[j]) for j in sorted(used)) for r in e_rows]
     a_idx = [a_cols.index(next(ac for ac in a_cols if ac == e_cols[j])) for j in sorted(used)]
