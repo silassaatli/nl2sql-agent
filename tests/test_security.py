@@ -53,3 +53,25 @@ def test_database_unchanged():
     )
 
     assert rows[0]["total"] == 200
+
+
+def test_query_timeout():
+    import time
+    import sqlite3
+
+    sql = """
+    SELECT COUNT(*)
+    FROM OrderItems a
+    CROSS JOIN OrderItems b
+    CROSS JOIN OrderItems c
+    """
+
+    start = time.monotonic()
+
+    with pytest.raises(sqlite3.OperationalError, match="interrupted"):
+        execute_sql(sql)
+
+    elapsed = time.monotonic() - start
+    print(f"\nSorgu {elapsed:.2f} saniyede durduruldu.")
+
+    assert elapsed < 7, "Sorgu zaman aşımı sınırını çok geçti."
