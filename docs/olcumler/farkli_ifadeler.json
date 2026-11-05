@@ -1,0 +1,72 @@
+[
+  {
+    "id": "01",
+    "input": "Bize en çok kazandıran beş ürün hangileri?",
+    "original": "En yüksek ciroya sahip 5 ürün hangisi?",
+    "expected_behavior": "Ciro bazında ilk 5 ürün; sıra ve tutarlar doğru",
+    "type": "is"
+  },
+  {
+    "id": "02",
+    "input": "İzmir’den ne kadar gelir elde ettik?",
+    "original": "İzmir'in toplam cirosu nedir?",
+    "expected_behavior": "Tek satır; İzmir müşterilerinin toplam cirosu",
+    "type": "is"
+  },
+  {
+    "id": "03",
+    "input": "Ocak’tan Haziran’a her ay ne kadar ciro yaptık?",
+    "original": "Son 6 ayın aylık ciro trendi nedir?",
+    "expected_behavior": "2026-01 – 2026-06 arası 6 ay; her ay için ciro",
+    "type": "is"
+  },
+  {
+    "id": "04",
+    "input": "Her ürün kategorisinde bir satış kaleminin ortalama tutarı ne kadar?",
+    "original": "Kategori bazında ortalama sipariş kalemi tutarı nedir?",
+    "expected_behavior": "Her kategori için ortalama (Quantity × UnitPrice)",
+    "type": "is"
+  },
+  {
+    "id": "05",
+    "input": "Hiç alışveriş yapmamış müşterilerimizi listele.",
+    "original": "Hiç sipariş vermemiş müşteriler kimler?",
+    "expected_behavior": "Siparişi olmayan müşteriler; yoksa boş sonuç ve açıklama",
+    "type": "is"
+  },
+  {
+    "id": "06",
+    "input": "Bireysel, KOBİ ve kurumsal müşterilerden gelen ciroyu karşılaştır.",
+    "original": "Segmentlere göre ciro karşılaştırması nedir?",
+    "expected_behavior": "Bireysel, KOBİ ve Kurumsal için ciro",
+    "type": "is"
+  },
+  {
+    "id": "07",
+    "input": "2026'nın ilk çeyreğinde en çok ciro yapan şehir neresi?",
+    "original": "Geçen çeyrekte en yüksek cirolu şehir hangisi?",
+    "expected_behavior": "2026 I. çeyreği ciro bazında lider şehir",
+    "type": "is"
+  },
+  {
+    "id": "08",
+    "input": "Haziranda en çok satan üç ürün neydi?",
+    "original": "Son 30 günün ilk 3 ürünü hangisi?",
+    "expected_behavior": "2026-06-01 – 2026-06-30 arası ciro bazında ilk 3 ürün",
+    "type": "is"
+  },
+  {
+    "id": "09",
+    "input": "En önemli müşterimiz kim?",
+    "original": "En iyi müşteri kimdir?",
+    "expected_behavior": "Metriği açıkça belirten yanıt veya netleştirme sorusu. Sessiz varsayım FAIL",
+    "type": "davranis"
+  },
+  {
+    "id": "10",
+    "input": "Müşterilerin yaşlarını göster.",
+    "original": "Müşterilerin doğum tarihi nedir?",
+    "expected_behavior": "Alan veri modelinde yok: kontrollü ret, SQL yürütülmez",
+    "type": "davranis"
+  }
+]

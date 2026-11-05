@@ -33,6 +33,10 @@ Ensight teknik staj ödevi (ENS-AI-001): Türkçe sorulan iş sorularını SQL'e
 ```python
 generate_sql(question: str, previous_error: str | None = None) -> dict
     # {"status": "ok"|"clarify"|"unsupported", "sql": str, "assumption": str, "message": str}
+    # Fırlatır: ModelUnavailableError (Ollama kapalı/model yok/zaman aşımı → "model_unavailable", yeniden deneme yok)
+    #           ModelOutputError(ValueError) (cevap kullanılamaz: bozuk JSON, bilinmeyen status, ok iken boş sql
+    #                             → pipeline "except ValueError" ile yakalar → "error" / "invalid_model_response", yeniden deneme yok)
+    # İkisi de app.llm'den import edilir. status != "ok" iken sql her zaman "" döner.
 validate_sql(sql: str) -> tuple[bool, str, str]     # (geçti_mi, temiz_sql, hata_türü)
 execute_sql(sql: str) -> tuple[list[dict], bool]    # (satırlar, kesildi_mi)
 ask(question: str) -> dict                           # pipeline: generate → validate → execute + log
@@ -60,11 +64,15 @@ write_log(record: dict) -> None                      # app/logger.py (Kişi B), 
 6. **Eksik sütun riski (01, 07, 08: "hangi ürün/şehir?") iki katmanda çözülür:**
    - **Prompt (Kişi B, `llm.py`):** "Sıralama veya seçim ölçütü olan metriği (ör. ciro) her zaman sonuç sütunu olarak göster" kuralı eklenir.
    - **Karşılaştırma (Kişi A, `run_all.py`):** modelin döndürdüğü sütun sayısı beklenenden azsa, gelen sütunlar beklenen sütunlarla değerlerine göre eşleştirilir ve sadece onlar karşılaştırılır (ör. yalnızca şehir adı döndüyse yalnızca şehir adı). Satır sayısı ve sıra kuralı (madde 5) yine geçerlidir.
+   - **Kısıt (ölçümde bulunan hata):** esnek eşleştirme YALNIZCA model daha az sütun döndürdüğünde ve döndürdüğü her sütun eşleştiğinde uygulanır. Model en az beklenen kadar sütun döndürdüyse beklenen sütunların **hepsi** eşleşmeli. Aksi halde doğru şehir + yanlış ciro PASS sayılır (gerçek örnek: test 07'de model Q4 2025 tarihlerini kullandı, İstanbul yine birinci çıktığı için yanlışlıkla PASS sayılmıştı). Uygulama örneği: `docs/olcumler/karsilastir.py`.
 
 ## Durum
-- Hazır: `setup_db.py`, `data/`, `config.py`, `app/validator.py`, `app/db.py`, `tests/test_cases.json`, `tests/expected/` (01–08 cevap anahtarı + `build_expected.py`), `app/schema.py` (şema + az değerli TEXT sütun değerleri + tarih aralığı → `data/schema.json`; `setup_db.py` otomatik çağırır)
+- Hazır: `setup_db.py`, `data/`, `config.py`, `app/validator.py`, `app/db.py`, `tests/test_cases.json`, `tests/expected/` (01–08 cevap anahtarı + `build_expected.py`), `app/schema.py` (şema + az değerli TEXT sütun değerleri + tarih aralığı + FK'lerden JOIN koşulları → `data/schema.json`; `setup_db.py` otomatik çağırır), `app/llm.py` (prompt + varsayılan ölçüt kuralı + yılsız ay kuralı + 4 few-shot + `generate_sql`), `app/semantic.py` (bonus semantik katman: metrik sözlüğü + tarih çözücü; soruya Tarih notu ve Metrik notu ekler, README'de belgeli)
 - Ortam: `.venv` + `requirements.txt` kurulu, Ollama + `qwen2.5-coder:7b` indirildi ve Python'dan çağrıldı
-- Yapılacak: `app/llm.py`, `app/pipeline.py`, `app/ui.py`, `app/logger.py`, `tests/run_all.py`, `tests/report.py`, `docs/`, README'deki TODO'lar
+- Prompt ölçümleri (`docs/olcumler/README.md`, 18 ölçüm, retry yok, iş soruları 01–08). **Güncel (adım 14–17): test soruları 7/8, farklı ifadeler 1: 7/8, farklı ifadeler 2 (düzeltilmiş): 7/8.** 09 ve 10 her ölçümde doğru, 11–16'da SQL hiç çalışmadı. Prompt ≈ 3255 token; `num_ctx = 8192` (`llm.LLM_NUM_CTX`, Ollama varsayılanı 4096'ydı). "İşlem tutarı" eş anlamlı değil (işlem = sipariş). Bilinen hatalar (04, 05, 08) README "Sınırlılıklar"da.
+- Açık sorunlar (prompt, kural/notla çözülemedi; muhtemel çözüm few-shot örneği): "en çok satan/satılan" bazen adete göre (08); gruplama sorusuna `LIMIT 1` (04); ara sıra var olan `Orders` tablosunu "yok" sayıp `unsupported` (05). Sonuçlar ifadeden ifadeye dalgalanıyor.
+- Sıradaki: zorunlu kısım → `app/logger.py`, `tests/report.py`, `app/ui.py`.
+- Yapılacak: `app/pipeline.py`, `app/ui.py`, `app/logger.py`, `tests/run_all.py`, `tests/report.py`, `docs/`, README'deki TODO'lar
 
 ## Komutlar
 ```bash

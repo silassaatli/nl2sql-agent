@@ -118,13 +118,25 @@ def _column_line(col: dict, fk_map: dict) -> str:
     return line
 
 
+def _relationship_lines(schema: dict) -> list[str]:
+    """FK'lerden hazır JOIN koşulları, ör.:  - Orders.CustomerID = Customers.CustomerID"""
+    return [
+        f"  - {table}.{fk['column']} = {fk['ref_table']}.{fk['ref_column']}"
+        for table, info in schema.items()
+        for fk in info["foreign_keys"]
+    ]
+
+
 def schema_to_prompt_text(schema: dict) -> str:
-    """Şemayı modelin kolay okuyacağı metne çevirir."""
+    """Şemayı modelin kolay okuyacağı metne çevirir: tablolar + ilişkiler (JOIN koşulları)."""
     blocks = []
     for table, info in schema.items():
         fk_map = {fk["column"]: f"{fk['ref_table']}.{fk['ref_column']}" for fk in info["foreign_keys"]}
         lines = [f"{table}"] + [_column_line(c, fk_map) for c in info["columns"]]
         blocks.append("\n".join(lines))
+    relations = _relationship_lines(schema)
+    if relations:
+        blocks.append("İlişkiler (JOIN koşulları; tablolar yalnızca bunlarla birleştirilir):\n" + "\n".join(relations))
     return "\n\n".join(blocks)
 
 

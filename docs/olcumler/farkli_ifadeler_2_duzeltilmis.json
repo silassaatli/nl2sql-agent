@@ -1,0 +1,78 @@
+[
+  {
+    "id": "01",
+    "input": "Ciroya göre ilk beş ürünümüz neler?",
+    "original": "En yüksek ciroya sahip 5 ürün hangisi?",
+    "expected_behavior": "Ciro bazında ilk 5 ürün; sıra ve tutarlar doğru",
+    "type": "is"
+  },
+  {
+    "id": "02",
+    "input": "İzmirli müşterilerimizin toplam harcaması ne kadar?",
+    "original": "İzmir'in toplam cirosu nedir?",
+    "expected_behavior": "Tek satır; İzmir müşterilerinin toplam cirosu",
+    "type": "is"
+  },
+  {
+    "id": "03",
+    "input": "Şubat’tan Haziran’a aylık ciromuz nasıl değişti? Ocak da dahil olsun.",
+    "original": "Son 6 ayın aylık ciro trendi nedir?",
+    "expected_behavior": "2026-01 – 2026-06 arası 6 ay; her ay için ciro",
+    "type": "is"
+  },
+  {
+    "id": "04",
+    "input": "Kategori bazında ortalama sipariş kalemi tutarı ne kadar?",
+    "original": "Kategori bazında ortalama sipariş kalemi tutarı nedir?",
+    "expected_behavior": "Her kategori için ortalama (Quantity × UnitPrice)",
+    "type": "is",
+    "replaced": "Kategorilere göre ortalama satır tutarını göster.",
+    "note": "Önceki ifade ödevdeki beklenen davranışla uyuşmuyordu; düzeltildi."
+  },
+  {
+    "id": "05",
+    "input": "Sipariş geçmişi olmayan müşteriler hangileri?",
+    "original": "Hiç sipariş vermemiş müşteriler kimler?",
+    "expected_behavior": "Siparişi olmayan müşteriler; yoksa boş sonuç ve açıklama",
+    "type": "is"
+  },
+  {
+    "id": "06",
+    "input": "Segmentlerin cirolarını karşılaştırmalı göster.",
+    "original": "Segmentlere göre ciro karşılaştırması nedir?",
+    "expected_behavior": "Bireysel, KOBİ ve Kurumsal için ciro",
+    "type": "is",
+    "replaced": "Hangi segment bize daha çok ciro getiriyor?",
+    "note": "Önceki ifade ödevdeki beklenen davranışla uyuşmuyordu; düzeltildi."
+  },
+  {
+    "id": "07",
+    "input": "2026'nın Ocak–Mart döneminde en çok ciro yapan şehir hangisi?",
+    "original": "Geçen çeyrekte en yüksek cirolu şehir hangisi?",
+    "expected_behavior": "2026 I. çeyreği ciro bazında lider şehir",
+    "type": "is",
+    "replaced": "Mart sonuna kadarki ilk üç ayda en çok ciro yapan şehir hangisi?",
+    "note": "Önceki ifade ödevdeki beklenen davranışla uyuşmuyordu; düzeltildi."
+  },
+  {
+    "id": "08",
+    "input": "Haziran ayında en çok satılan 3 ürün hangisi?",
+    "original": "Son 30 günün ilk 3 ürünü hangisi?",
+    "expected_behavior": "2026-06-01 – 2026-06-30 arası ciro bazında ilk 3 ürün",
+    "type": "is"
+  },
+  {
+    "id": "09",
+    "input": "En iyi ürünümüz hangisi?",
+    "original": "En iyi müşteri kimdir?",
+    "expected_behavior": "Metriği açıkça belirten yanıt veya netleştirme sorusu. Sessiz varsayım FAIL",
+    "type": "davranis"
+  },
+  {
+    "id": "10",
+    "input": "Müşterilerin telefon numaralarını listele.",
+    "original": "Müşterilerin doğum tarihi nedir?",
+    "expected_behavior": "Alan veri modelinde yok: kontrollü ret, SQL yürütülmez",
+    "type": "davranis"
+  }
+]
