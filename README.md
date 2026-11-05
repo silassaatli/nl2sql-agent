@@ -129,6 +129,15 @@ Ortak gözlem: `qwen2.5-coder:7b` örnekleri kurallardan daha güçlü takip edi
 kopyalıyor) ve sonuçlar ifadeden ifadeye dalgalanıyor. Bir hatayı düzelten örnek başka bir testi bozabiliyor. Görünen
 sorulardaki sonuç gizli test setinde garanti değildir; kurallar ve örnekler bu sorulardaki hatalara bakılarak eklendi.
 
+### Arayüzde görülen davranışlar
+
+- **Varsayım metni doğrulanmaz.** `assumption` modelin kendi açıklamasıdır; örneğin "İzmir'in toplam cirosu" sorusunda SQL doğru
+  ve tarih filtresi içermediği hâlde model "tarih filtresi eklendi" yazdı. Arayüz bu yüzden varsayımın altında "neyin
+  hesaplandığını SQL gösterir" notunu verir; esas olan çalıştırılan SQL'dir.
+- **Doğrudan yazılan SQL önce modele gider.** "SELECT * FROM Customers; DELETE FROM Customers" gibi bir girdide model
+  `unsupported` döndürdüğü için SQL validator'a ulaşmaz. Veri yine değişmez; model SQL üretseydi validator ve authorizer
+  devreye girerdi (test 11–16 bu yüzden geçiyor).
+
 ### Çalışma ortamı
 
 - Bağlam penceresi `num_ctx = 8192` (Ollama varsayılanı 4096). Prompt ≈ 3255 token; pencere aşılırsa Ollama prompt'un başını
