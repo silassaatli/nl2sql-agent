@@ -77,6 +77,7 @@ meta = {
     "measured_at": datetime.now().isoformat(timespec="seconds"),   # sadece kayıt zamanı
     "model": llm.MODEL_NAME,
     "temperature": llm.TEMPERATURE,
+    "num_ctx": getattr(llm, "LLM_NUM_CTX", 4096),   # 4096 = Ollama varsayılanı (ölçüm 17'den önce)
     "few_shot_count": len(llm.FEW_SHOT_EXAMPLES),
     "system_prompt_chars": len(llm.build_system_prompt()),
     "retry": False,

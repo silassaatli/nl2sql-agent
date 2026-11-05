@@ -77,11 +77,11 @@ bu sözlükten üretilir.
 | Ciro | gelir, en çok satan, en çok satılan | `SUM(oi.Quantity * oi.UnitPrice)` (Products.Price değil) |
 | Sipariş adedi | sipariş sayısı | `COUNT(DISTINCT o.OrderID)` |
 | Aktif müşteri | — | `COUNT(DISTINCT o.CustomerID)`, 2026-04-02 – 2026-06-30 arasında siparişi olan |
-| Ortalama sipariş kalemi tutarı | kategori ortalaması, satır / kalem / satış kalemi / işlem tutarı | `AVG(oi.Quantity * oi.UnitPrice)` (AVG(UnitPrice) değil) |
+| Ortalama sipariş kalemi tutarı | kategori ortalaması, satır / kalem / satış kalemi tutarı | `AVG(oi.Quantity * oi.UnitPrice)` (AVG(UnitPrice) değil) |
 
 Soruda riskli bir eş anlamlı geçerse (ör. "en çok sat…", "kalem", "satır tutarı") formül ayrıca **Metrik notu** olarak
-soruya eklenir. Not: veri setinde "işlem" = sipariş (Orders) olarak tanımlı; "ortalama işlem tutarı" sipariş başına ortalama
-olarak da okunabilir. Ekip kararıyla kalem ortalamasına eşlendi.
+soruya eklenir. "İşlem tutarı" bilerek eş anlamlı **değildir**: veri setinde işlem = sipariş (Orders), yani "ortalama işlem
+tutarı" kalem başına değil sipariş başına ortalamadır.
 
 **2. Tarih çözücü (`resolve_dates`, `date_note`).** Soru modele gitmeden önce tarih ifadeleri bulunur, aralığa çevrilir ve
 soruya **Tarih notu** olarak eklenir. Model tarih hesaplamaz, nottaki aralığı kopyalar. Hesap yalnızca
@@ -111,7 +111,29 @@ _TODO: Özet tablo (docs/test_report.md'den)._
 
 ## Sınırlılıklar
 
-_TODO_
+_TODO: Teknik değerlendirmeyle birlikte tamamlanacak._
+
+### Bilinen model hataları (prompt ölçümleri, [docs/olcumler/README.md](docs/olcumler/README.md))
+
+Son ölçümlerde (yeniden deneme olmadan) iş sorularında test soruları ve iki farklı ifade setinde **7/8**. Kural ve kodla
+üretilen notlarla çözülemeyen hatalar:
+
+| Test | Hata | Not |
+|---|---|---|
+| 04 | "Kategori bazında …" gruplama sorusuna `LIMIT 1` ekleniyor, tek kategori dönüyor | Prompt'ta "gruplama sorularında LIMIT ekleme" kuralı var; model uygulamıyor |
+| 08 | "En çok satan / satılan" bazen ciroya, bazen adete (`SUM(Quantity)`) göre sıralanıyor | Metrik sözlüğü ve Metrik notu "ciroya göre" diyor; bir ölçümde model notu okuyup tersini yazdı |
+| 05 | Ara sıra var olan `Orders` tablosu "veri modelinde yok" sayılıp `unsupported` dönüyor | `unsupported` bir hata olmadığı için pipeline'ın yeniden denemesi bunu yakalamaz |
+
+Ortak gözlem: `qwen2.5-coder:7b` örnekleri kurallardan daha güçlü takip ediyor ve sonuçlar ifadeden ifadeye dalgalanıyor.
+Muhtemel çözüm ilgili kalıbı gösteren bir few-shot örneği ya da daha büyük bir model. Görünen sorulardaki sonuç gizli test
+setinde garanti değildir; kurallar ve notlar bu sorulardaki hatalara bakılarak eklendi.
+
+### Çalışma ortamı
+
+- Bağlam penceresi `num_ctx = 8192` (Ollama varsayılanı 4096). Prompt ≈ 3255 token; pencere aşılırsa Ollama prompt'un başını
+  (sistem prompt'u) sessizce keser.
+- Model ekran kartı belleğine tam sığmıyor (`ollama ps`: %24 CPU / %76 GPU). Yanıtlar genelde 2–10 sn, model belleğe ilk
+  yüklenirken ~15 sn.
 
 ## Kullanılan yapay zekâ araçları
 

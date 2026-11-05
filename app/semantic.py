@@ -47,8 +47,9 @@ METRICS = [
     },
     {
         "name": "Ortalama sipariş kalemi tutarı",
-        "synonyms": ["kategori ortalaması", "satır tutarı", "kalem tutarı", "satış kalemi tutarı", "işlem tutarı"],
-        "match": ["kalem", "satır tutar", "işlem tutar"],
+        # "işlem tutarı" bilerek YOK: veri setinde işlem = sipariş (Orders), yani sipariş başına tutar demektir.
+        "synonyms": ["kategori ortalaması", "satır tutarı", "kalem tutarı", "satış kalemi tutarı"],
+        "match": ["kalem", "satır tutar"],
         "sql": "AVG(oi.Quantity * oi.UnitPrice)",
         "note": "Bir OrderItems satırının tutarının ortalaması. Ortalama birim fiyat (AVG(UnitPrice)) DEĞİLDİR.",
     },

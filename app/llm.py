@@ -40,6 +40,9 @@ class ModelOutputError(Exception):
 
 VALID_STATUSES = {"ok", "clarify", "unsupported"}
 LLM_TIMEOUT_S = 120     # ilk çağrıda model belleğe yüklenir (~8 sn); takılırsa sonsuza kadar beklemeyelim
+# Bağlam penceresi (prompt + cevap birlikte). Ollama varsayılanı 4096; prompt ≈ 3255 token olduğu için pay azdı.
+# Pencere aşılırsa Ollama prompt'un başını (sistem prompt'u) sessizce keser.
+LLM_NUM_CTX = 8192
 
 # Few-shot örnekler (Kişi B yazacak). Her biri: {"question": "...", "answer": {status, sql, assumption, message}}
 # Kural: test 01–16 sorularının kopyası veya yakın benzeri OLMAZ (gizli test setinde ezber işe yaramaz).
@@ -204,7 +207,8 @@ def generate_sql(question: str, previous_error: str | None = None) -> dict:
             model=MODEL_NAME,
             messages=_build_messages(question, previous_error),
             format="json",                          # çıktıyı geçerli JSON olmaya zorlar
-            options={"temperature": TEMPERATURE},   # 0 → aynı soruya aynı cevap, testler tekrarlanabilir
+            options={"temperature": TEMPERATURE,    # 0 → aynı soruya aynı cevap, testler tekrarlanabilir
+                     "num_ctx": LLM_NUM_CTX},       # bağlam penceresi (prompt + cevap)
         )
     except Exception as e:      # bağlantı yok, model indirilmemiş, zaman aşımı...
         raise ModelUnavailableError(f"Modele ulaşılamadı ({MODEL_NAME}): {e}") from e

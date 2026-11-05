@@ -36,7 +36,9 @@ karşılaştırma ([karsilastir.py](karsilastir.py)), CLAUDE.md ekip kararları 
 | 15 | [15_aktif_farkli_ifadeler.json](15_aktif_farkli_ifadeler.json) | Farklı ifadeler 1 | = adım 14 (**güncel**) | **7/8** | ✓ | ✓ | — |
 | 16 | [16_aktif_ifadeler2_duzeltilmis.json](16_aktif_ifadeler2_duzeltilmis.json) | Farklı ifadeler 2 düzeltilmiş | = adım 14 (**güncel**) | **7/8** | ✓ | ✓ | — |
 
-**Güncel durum (adım 14–16):** üç sette de 7/8. Kalan hatalar her sette farklı: test soruları 04 (`LIMIT 1`),
+| 17 | [17_numctx8192_test_sorulari.json](17_numctx8192_test_sorulari.json) | Test soruları | + `num_ctx = 8192` (önceki ölçümler Ollama varsayılanı 4096); "işlem tutarı" eş anlamlılardan çıkarıldı | **7/8** (yalnız 04 FAIL, adım 14 ile aynı) | ✓ | ✓ | ✓ |
+
+**Güncel durum (adım 14–17):** üç sette de 7/8; `num_ctx = 8192` sonucu değiştirmedi. Kalan hatalar her sette farklı: test soruları 04 (`LIMIT 1`),
 farklı ifadeler 1 05 (`unsupported`), farklı ifadeler 2 08 (adet).
 
 **Soru düzeltmesi (adım 7):** Farklı ifadeler 2'deki üç soru ödevdeki beklenen davranışla uyuşmuyordu ("Hangi segment
@@ -86,7 +88,8 @@ Değişen dosyada `meta.rescored` alanı bunu açıklar.
   uygulanmıyor. Kodla üretilen notlar (tarih, metrik) kurallardan daha etkili; ama örnek ile not çelişirse model örneği izliyor.
   Sonuçlar ifadeden ifadeye dalgalanıyor (aynı prompt'la bir sette geçen soru diğerinde kalıyor). Görünen sorulardaki
   7/8 sonucu gizli test setinde garanti değil; kurallar ve notlar bu sorulardaki hatalara bakılarak eklendi.
-- **Bağlam penceresi:** Ollama 4096 token pencereyle çalışıyor; adım 14'teki prompt ≈ 3255 token (adım 4: 2777). Pencere aşılırsa
-  Ollama prompt'un başını (sistem prompt'u) sessizce keser. Kalan pay ≈ 840 token; yeni örnek veya kural eklerken izlenmeli.
+- **Bağlam penceresi:** Adım 16'ya kadar Ollama varsayılanı 4096 token; adım 14'teki prompt ≈ 3255 token (adım 4: 2777).
+  Pencere aşılırsa Ollama prompt'un başını (sistem prompt'u) sessizce keser. Adım 17'den itibaren `num_ctx = 8192`
+  (`ollama ps` ile doğrulandı); CPU payı %18 → %24 arttı, yanıt süreleri belirgin değişmedi.
 - **Süre:** Model belleğe tam sığmadığı için %18'i CPU'da çalışıyor (`ollama ps`). Yanıtlar ölçüme göre 3–60 sn arası değişti;
   darboğaz üretim hızı (~10 token/sn).
