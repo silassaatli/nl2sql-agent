@@ -1,0 +1,73 @@
+{
+  "id": "05",
+  "question": "Hiç sipariş vermemiş müşteriler kimler?",
+  "reference_sql": "SELECT c.CustomerID, c.Name, c.City\nFROM Customers c\nLEFT JOIN Orders o ON o.CustomerID = c.CustomerID\nWHERE o.OrderID IS NULL\nORDER BY c.CustomerID;",
+  "columns": [
+    "CustomerID",
+    "Name",
+    "City"
+  ],
+  "rows": [
+    [
+      16,
+      "Esra Aydın",
+      "Ankara"
+    ],
+    [
+      19,
+      "Hande Polat",
+      "İstanbul"
+    ],
+    [
+      32,
+      "Vizyon Otomotiv Ltd. Şti.",
+      "Ankara"
+    ],
+    [
+      43,
+      "Kerem Yıldırım",
+      "Gaziantep"
+    ],
+    [
+      74,
+      "Delta Tekstil Ltd. Şti.",
+      "Bursa"
+    ],
+    [
+      79,
+      "Hüseyin Doğan",
+      "İzmir"
+    ],
+    [
+      113,
+      "Ufuk Tekstil Ltd. Şti.",
+      "İstanbul"
+    ],
+    [
+      120,
+      "Emine Tekin",
+      "Samsun"
+    ],
+    [
+      146,
+      "Zirve Otomotiv Ltd. Şti.",
+      "İstanbul"
+    ],
+    [
+      153,
+      "Selin Aydın",
+      "İstanbul"
+    ],
+    [
+      177,
+      "Murat Şahin",
+      "Kocaeli"
+    ],
+    [
+      192,
+      "Pera Bilişim A.Ş.",
+      "Ankara"
+    ]
+  ],
+  "row_count": 12
+}

@@ -3,9 +3,10 @@ NL2SQL Agent — veritabanı kurulumu.
 
 data/csv/ klasöründeki SABİT veri dosyalarını okuyup SQLite veritabanını sıfırdan oluşturur.
 Rastgelelik yoktur: her çalıştırmada birebir aynı veritabanı oluşur.
+Kurulumdan sonra LLM'e verilecek şema bağlamı (data/schema.json) da app/schema.py ile üretilir.
 
 Kullanım:
-    python setup_db.py              # data/nl2sql.db oluşturur (varsa silip yeniden kurar)
+    python setup_db.py              # data/nl2sql.db + data/schema.json oluşturur (varsa silip yeniden kurar)
     python setup_db.py --db yol.db  # farklı bir dosya yolu
 """
 
@@ -13,6 +14,8 @@ import argparse
 import csv
 import os
 import sqlite3
+
+from app.schema import SCHEMA_JSON_PATH, extract_schema, save_schema
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CSV_DIR = os.path.join(BASE_DIR, "data", "csv")
@@ -107,4 +110,7 @@ def build_database(db_path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="NL2SQL veritabanı kurulumu (sabit CSV'lerden)")
     parser.add_argument("--db", default=DEFAULT_DB, help="veritabanı dosya yolu")
-    build_database(parser.parse_args().db)
+    db_path = parser.parse_args().db
+    build_database(db_path)
+    save_schema(extract_schema(db_path))
+    print(f"Şema bağlamı hazır: {SCHEMA_JSON_PATH}")

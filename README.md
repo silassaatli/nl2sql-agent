@@ -22,7 +22,7 @@ python -m venv .venv
 pip install -r requirements.txt
 
 ollama pull qwen2.5-coder:7b     # modeli indir (bir kez)
-python setup_db.py               # veritabanını sabit CSV'lerden sıfırdan kur
+python setup_db.py               # veritabanını sabit CSV'lerden sıfırdan kur + şema bağlamını (data/schema.json) üret
 ```
 
 ## Çalıştırma
@@ -36,7 +36,7 @@ python tests/run_all.py          # 16 testi çalıştır, docs/ altına rapor ü
 
 ```
 config.py            Sabit ayarlar: referans tarih, limitler, model adı
-setup_db.py          Veritabanını data/csv/ içindeki sabit veriden kurar
+setup_db.py          Veritabanını data/csv/ içindeki sabit veriden kurar, ardından data/schema.json üretir
 data/                Veri seti (CSV) ve veri dokümantasyonu
 app/schema.py        Şema bağlamı: tablo, sütun, tip, PK/FK → LLM'e verilir
 app/llm.py           Prompt + Ollama çağrısı → SQL üretimi

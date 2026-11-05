@@ -1,0 +1,36 @@
+{
+  "id": "04",
+  "question": "Kategori bazında ortalama sipariş kalemi tutarı nedir?",
+  "reference_sql": "SELECT p.Category, AVG(oi.Quantity * oi.UnitPrice) AS OrtalamaKalemTutari\nFROM OrderItems oi\nJOIN Products p ON p.ProductID = oi.ProductID\nGROUP BY p.Category\nORDER BY p.Category;",
+  "columns": [
+    "Category",
+    "OrtalamaKalemTutari"
+  ],
+  "rows": [
+    [
+      "Döviz ve Hazine",
+      37647.91520259319
+    ],
+    [
+      "Kart ve Ödeme",
+      8664.976864310149
+    ],
+    [
+      "Kredi Ürünleri",
+      40841.54864253393
+    ],
+    [
+      "Nakit Yönetimi",
+      18592.14287655719
+    ],
+    [
+      "Sigorta",
+      35214.693098901094
+    ],
+    [
+      "Yatırım",
+      17933.536939182453
+    ]
+  ],
+  "row_count": 6
+}

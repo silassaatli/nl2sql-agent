@@ -1,0 +1,24 @@
+{
+  "id": "08",
+  "question": "Son 30 günün ilk 3 ürünü hangisi?",
+  "reference_sql": "SELECT p.ProductName, SUM(oi.Quantity * oi.UnitPrice) AS Ciro\nFROM Orders o\nJOIN OrderItems oi ON oi.OrderID  = o.OrderID\nJOIN Products p    ON p.ProductID = oi.ProductID\nWHERE o.OrderDate BETWEEN '2026-06-01' AND '2026-06-30'\nGROUP BY p.ProductID, p.ProductName\nORDER BY Ciro DESC\nLIMIT 3;",
+  "columns": [
+    "ProductName",
+    "Ciro"
+  ],
+  "rows": [
+    [
+      "Grup Sağlık Sigortası (kişi başı)",
+      1865774.79
+    ],
+    [
+      "Portföy Yönetimi Hizmeti",
+      1506532.59
+    ],
+    [
+      "Akreditif Komisyonu",
+      1431926.96
+    ]
+  ],
+  "row_count": 3
+}

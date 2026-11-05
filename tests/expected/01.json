@@ -1,0 +1,32 @@
+{
+  "id": "01",
+  "question": "En yüksek ciroya sahip 5 ürün hangisi?",
+  "reference_sql": "SELECT p.ProductName, SUM(oi.Quantity * oi.UnitPrice) AS Ciro\nFROM OrderItems oi\nJOIN Products p ON p.ProductID = oi.ProductID\nGROUP BY p.ProductID, p.ProductName\nORDER BY Ciro DESC\nLIMIT 5;",
+  "columns": [
+    "ProductName",
+    "Ciro"
+  ],
+  "rows": [
+    [
+      "Grup Sağlık Sigortası (kişi başı)",
+      17007487.05
+    ],
+    [
+      "Ticari Kredi Tahsis Ücreti",
+      14251615.84
+    ],
+    [
+      "Portföy Yönetimi Hizmeti",
+      11942865.64
+    ],
+    [
+      "Rotatif Kredi Komisyonu",
+      11309950.72
+    ],
+    [
+      "Akreditif Komisyonu",
+      9353874.3
+    ]
+  ],
+  "row_count": 5
+}

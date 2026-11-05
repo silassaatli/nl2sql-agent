@@ -9,6 +9,9 @@ data/nl2sql.db
 data/schema.json
 logs/*.jsonl
 
+# Öğretici belgeleri (ödev + ekip planı PDF'leri) repoya konmaz, yerelde durur
+data/kaynak/
+
 # Editör / sistem
 .vscode/
 .idea/

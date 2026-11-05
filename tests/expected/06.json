@@ -1,0 +1,24 @@
+{
+  "id": "06",
+  "question": "Segmentlere göre ciro karşılaştırması nedir?",
+  "reference_sql": "SELECT c.Segment, SUM(oi.Quantity * oi.UnitPrice) AS Ciro\nFROM Customers c\nJOIN Orders o      ON o.CustomerID = c.CustomerID\nJOIN OrderItems oi ON oi.OrderID   = o.OrderID\nGROUP BY c.Segment\nORDER BY Ciro DESC;",
+  "columns": [
+    "Segment",
+    "Ciro"
+  ],
+  "rows": [
+    [
+      "KOBİ",
+      65692708.79
+    ],
+    [
+      "Kurumsal",
+      58444161.14
+    ],
+    [
+      "Bireysel",
+      9244577.89
+    ]
+  ],
+  "row_count": 3
+}
