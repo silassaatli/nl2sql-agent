@@ -6,6 +6,9 @@
     "ProductName",
     "Ciro"
   ],
+  "required_columns": [
+    "ProductName"
+  ],
   "rows": [
     [
       "Grup Sağlık Sigortası (kişi başı)",

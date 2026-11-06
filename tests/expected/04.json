@@ -6,6 +6,10 @@
     "Category",
     "OrtalamaKalemTutari"
   ],
+  "required_columns": [
+    "Category",
+    "OrtalamaKalemTutari"
+  ],
   "rows": [
     [
       "Döviz ve Hazine",
