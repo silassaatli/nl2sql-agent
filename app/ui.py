@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import streamlit as st  # noqa: E402
 
-from app.pipeline import ask  # noqa: E402
+from app.pipeline import SQL_START, ask  # noqa: E402
 from config import MAX_ROWS, MODEL_NAME, REFERENCE_DATE  # noqa: E402
 
 # ask() durumu → (ekranda görünen ad, Streamlit kutusu)
@@ -60,10 +60,13 @@ SQL_NOTE = {
     "rejected": "Bu SQL güvenlik kurallarından geçemedi ve çalıştırılmadı; veri değişmedi.",
     "error": "Bu SQL başarıyla çalıştırılamadı.",
 }
+# Doğrudan SQL girdisinde SQL'i model değil kullanıcı yazdı; "modelin ham metni" notu burada yanlış olur.
+SQL_NOTE_DIRECT = {**SQL_NOTE, "success": "Çalıştırılan SQL: doğrulayıcının yorumları atıp yeniden ürettiği hal."}
 
 
-def show_result(result: dict) -> None:
-    """ask() sonucunu gösterir: durum, mesaj, varsayım, SQL, sonuç tablosu, süre."""
+def show_result(result: dict, direct_sql: bool = False) -> None:
+    """ask() sonucunu gösterir: durum, mesaj, varsayım, SQL, sonuç tablosu, süre.
+    direct_sql: girdi modele gitmeden doğrudan SQL olarak işlendiyse True (yalnızca başlık ve not metnini değiştirir)."""
     status = result.get("status", "error")
     label, box = STATUS_VIEW.get(status, (status, st.error))
     error_type = result.get("error_type") or ""
@@ -81,11 +84,12 @@ def show_result(result: dict) -> None:
         # Varsayım metni modelin kendi açıklamasıdır ve doğrulanmaz; esas olan çalışan SQL'dir.
         st.caption("Varsayım, modelin kendi açıklamasıdır; neyin hesaplandığını SQL gösterir.")
 
-    st.subheader("Üretilen SQL")
+    st.subheader("Girilen SQL" if direct_sql else "Üretilen SQL")
+    notes = SQL_NOTE_DIRECT if direct_sql else SQL_NOTE
     if result.get("sql"):
         st.code(result["sql"], language="sql")
-        if status in SQL_NOTE:
-            st.caption(SQL_NOTE[status])
+        if status in notes:
+            st.caption(notes[status])
     else:
         st.caption("SQL üretilmedi; veritabanında hiçbir sorgu çalıştırılmadı.")
 
@@ -135,4 +139,5 @@ if run:
             except Exception as e:      # ask() hataları kendisi yönetir; bu sadece beklenmeyen durumlar için
                 st.error(f"Beklenmeyen hata: {type(e).__name__}: {e}")
                 st.stop()
-        show_result(result)
+        # Pipeline ile aynı regex: girdinin hangi yoldan gittiğini arayüz ayrıca tahmin etmez.
+        show_result(result, direct_sql=bool(SQL_START.match(question)))

@@ -363,9 +363,6 @@ sorulardaki sonuç gizli test setinde garanti değildir; kurallar ve örnekler b
 - **SQL kelimesiyle başlayan Türkçe soru SQL sayılır.** Doğrudan SQL tespiti ilk kelimeye bakar; "Select en çok satan 5
   ürün" gibi bir girdi modele gitmez, validator'da `error · parse_error` döner (2026-11-06'da elle denendi). Güvenlik
   sorunu değildir: girdi yine validator'dan geçer ve hiçbir şey çalışmaz.
-- **Doğrudan SQL'de arayüz başlığı.** Arayüz SQL'i "Üretilen SQL" başlığıyla gösterir; doğrudan SQL girdisinde bu SQL'i
-  model değil kullanıcı yazmıştır (reddedilen girdide kullanıcının ham metni, çalışan girdide validator'ın temiz hali).
-
 ### Çalışma ortamı
 
 - Bağlam penceresi `num_ctx = 8192` (Ollama varsayılanı 4096). Prompt ≈ 3446 token; pencere aşılırsa Ollama prompt'un başını
