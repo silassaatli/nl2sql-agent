@@ -3,7 +3,7 @@
 Ensight Teknik Staj Ödevi (ENS-AI-001). Türkçe sorulan iş sorularını SQL'e çeviren, sorguyu güvenli şekilde çalıştıran ve sonucu gösteren bir Proof of Concept.
 Senaryo: bir bankanın ürün ve hizmet satış verisi (bkz. [data/VERI_SETI.md](data/VERI_SETI.md)).
 
-**Ekip:** _İsim Soyisim_ · _İsim Soyisim_
+**Ekip:** _İsim Soyisim_ · Murat Taha Yavaş
 
 ## Gereksinimler
 
@@ -54,7 +54,9 @@ logs/                Çalışma logları (queries.jsonl)
 
 _TODO: docs/ altındaki diyagramı ekleyin._
 
-soru → LLM (şema + metrikler + tarih kuralları) → doğrulama (SQLGlot) → salt-okunur çalıştırma (authorizer, 500 satır, süre sınırı) → sonuç + JSON log
+Doğal dil soruları LLM'e gönderilir. Baştaki boşluk ve SQL yorumları atlandıktan sonra SQL komutuyla başlayan girdiler doğrudan validator'a yönlendirilir. Her iki yoldaki SQL aynı doğrulamadan geçer. Doğrulanan temiz SQL salt-okunur bağlantı ve authorizer altında, 500 satır ve 5 saniye sınırıyla çalıştırılır.
+
+Kullanıcının doğrudan SQL girdisindeki hata kullanıcıya döndürülür. Modelin ürettiği SQL'de ayrıştırma veya sütun hatası oluşursa önceki SQL ve hata mesajıyla en fazla bir düzeltme denemesi yapılır. Güvenlik reddi, süre aşımı ve model erişim hatalarında sonuç doğrudan döndürülür. Pipeline sonuç kaydını log fonksiyonuna iletir.
 
 ## Şema bağlamı
 
@@ -105,6 +107,8 @@ kullanılırsa yanlış eşleşebilir. Etkisi ölçümlerle belgelendi: [docs/ol
 
 _TODO: Ödev Bölüm 05'teki 7 kuralın her biri nasıl sağlanıyor._
 
+Validator gelen SQL'i sabit kurallarla denetler. Kullanıcı girdisi bu kuralları değiştiremez. Modelin ürettiği SQL ve kullanıcının doğrudan SQL girdisi aynı doğrulayıcıdan geçer. Doğrulama sonrasında çalıştırılan sorgu ayrıca salt-okunur bağlantı ve SQLite authorizer tarafından denetlenir.
+
 ## Testler
 
 _TODO: Özet tablo (docs/test_report.md'den)._
@@ -134,9 +138,10 @@ sorulardaki sonuç gizli test setinde garanti değildir; kurallar ve örnekler b
 - **Varsayım metni doğrulanmaz.** `assumption` modelin kendi açıklamasıdır; örneğin "İzmir'in toplam cirosu" sorusunda SQL doğru
   ve tarih filtresi içermediği hâlde model "tarih filtresi eklendi" yazdı. Arayüz bu yüzden varsayımın altında "neyin
   hesaplandığını SQL gösterir" notunu verir; esas olan çalıştırılan SQL'dir.
-- **Doğrudan yazılan SQL önce modele gider.** "SELECT * FROM Customers; DELETE FROM Customers" gibi bir girdide model
-  `unsupported` döndürdüğü için SQL validator'a ulaşmaz. Veri yine değişmez; model SQL üretseydi validator ve authorizer
-  devreye girerdi (test 11–16 bu yüzden geçiyor).
+- **Doğrudan SQL girdileri validator'a yönlendirilir.** `SELECT * FROM Customers; DELETE FROM Customers` ve
+  `ATTACH DATABASE 'x.db' AS x; PRAGMA table_info(Customers)` girdileri çoklu ifade oldukları için reddedilir.
+  `SELECT * FROM Customers /* DELETE FROM Customers */` girdisinde yorum temizlenir ve yalnızca güvenli SELECT çalıştırılır.
+  SQL komutuyla başlayan doğal dil metinleri de bu yola girdiği için ayrıştırma hatası alabilir.
 
 ### Çalışma ortamı
 
@@ -147,4 +152,6 @@ sorulardaki sonuç gizli test setinde garanti değildir; kurallar ve örnekler b
 
 ## Kullanılan yapay zekâ araçları
 
-_TODO: Örn. Claude, GitHub Copilot: hangi kısımda, nasıl kullanıldı._
+| Araç | Kim | Nerede / nasıl |
+|---|---|---|
+| Codex (OpenAI) | Murat Taha Yavaş | Kodlama ve öğrenme yardımcısı. `pipeline.py` ve `run_all.py` için kod üretimi, açıklama ve düzeltme desteği. `validator.py`, `db.py` ve `test_security.py` için kod inceleme ve güvenlik davranışının açıklanması. |
