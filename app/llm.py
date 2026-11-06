@@ -42,7 +42,7 @@ class ModelOutputError(ValueError):
 
 VALID_STATUSES = {"ok", "clarify", "unsupported"}
 LLM_TIMEOUT_S = 120     # ilk çağrıda model belleğe yüklenir (~8 sn); takılırsa sonsuza kadar beklemeyelim
-# Bağlam penceresi (prompt + cevap birlikte). Ollama varsayılanı 4096; prompt ≈ 3255 token olduğu için pay azdı.
+# Bağlam penceresi (prompt + cevap birlikte). Ollama varsayılanı 4096; prompt ≈ 3446 token olduğu için pay azdı.
 # Pencere aşılırsa Ollama prompt'un başını (sistem prompt'u) sessizce keser.
 LLM_NUM_CTX = 8192
 
