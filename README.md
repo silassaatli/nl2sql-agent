@@ -3,8 +3,7 @@
 Ensight Teknik Staj Ödevi (ENS-AI-001). Türkçe sorulan iş sorularını SQL'e çeviren, sorguyu güvenli şekilde çalıştıran ve sonucu gösteren bir Proof of Concept.
 Senaryo: bir bankanın ürün ve hizmet satış verisi (bkz. [data/VERI_SETI.md](data/VERI_SETI.md)).
 
-**Ekip:** Sıla Saatlı · Taha Yavaş [KONTROL: Kişi A'nın adı git commit yazarından alındı; yazımı onaylanmalı]
-
+**Ekip:** Sıla Saatlı · Murat Taha Yavaş
 ## Teslim paketi
 
 | Ödevdeki madde (Bölüm 07) | Nerede |
@@ -36,7 +35,6 @@ ollama pull qwen2.5-coder:7b     # modeli indir (bir kez)
 python setup_db.py               # veritabanını sabit CSV'lerden sıfırdan kur + şema bağlamını (data/schema.json) üret
 ```
 
-[KONTROL: Temiz bir klasöre klonlayıp bu adımları harfiyen izleyen sıfırdan kurulum denemesi henüz yapılmadı.]
 
 ## Çalıştırma
 
@@ -74,15 +72,20 @@ soru → semantic.py (Tarih notu + Metrik notu) → llm.py (şema + metrikler + 
      → validator.py (SQLGlot) → db.py (salt-okunur bağlantı + authorizer, 5 sn, 500 satır) → sonuç + JSON log → ui.py
 ```
 
-- **Güvenlik koda, zekâ modele.** Model ne üretirse üretsin SQL çalışmadan önce `validate_sql` ve `execute_sql`'deki
-  kurallardan geçer. Arayüz güvenlik kontrolü yapmaz, yalnızca `pipeline.ask()`'ı çağırır ([app/ui.py](app/ui.py)).
-- **Durum çevirisi `pipeline.py`'de:** model `ok` → (SQL çalıştıysa) `success`, `clarify` → `clarify`, `unsupported` →
-  `rejected`, güvenlik reddi → `rejected`, diğer hatalar → `error`.
-- **Yeniden deneme en fazla 1 kez** ve tek hak: `parse_error` ile `unknown_field` (SQLite `no such column`) aynı sayacı
-  paylaşır. Önceki SQL ve hata mesajı modele geri verilir. Güvenlik reddi, timeout, model erişilemezliği ve bozuk model
-  cevabı yeniden denenmez.
-- [A'NIN DEĞİŞİKLİĞİNDEN SONRA GÜNCELLENECEK] SQL gibi görünen doğrudan girdilerin modele gitmeden validator'a verilmesi
-  (Kişi A'nın pipeline değişikliği) henüz `main`'de değil; şu an her girdi önce modele gider.
+- **SQL doğrulaması.** Çalıştırılacak her SQL, `validate_sql` kontrolünden geçer.
+  Temizlenen sorgu, `execute_sql` tarafından salt-okunur bağlantı ve SQLite authorizer
+  altında çalıştırılır. Arayüz `pipeline.ask()` fonksiyonunu çağırır.
+- **Durum çevirisi.** Modelin `ok` cevabı sorgu başarıyla çalışırsa `success`,
+  `clarify` cevabı `clarify`, `unsupported` cevabı `rejected` olarak döner.
+  Güvenlik reddi `rejected`, diğer hatalar `error` durumuyla bildirilir.
+- **Doğrudan SQL yolu.** Baştaki boşluk ve yorumlar atlandıktan sonra SQL komutuyla
+  başlayan girdiler doğrudan validator'a gönderilir. Doğal dil soruları modele gider.
+  Her iki yoldaki SQL aynı güvenlik kontrollerinden geçer.
+- **Yeniden deneme.** Modelin ürettiği SQL'deki `parse_error` ve `unknown_field`
+  hataları için toplam en fazla bir düzeltme denemesi yapılır. Önceki SQL ve hata
+  mesajı modele iletilir. Kullanıcının doğrudan SQL girdisindeki hatalar kullanıcıya
+  döndürülür. Güvenlik reddi, timeout, model erişilemezliği ve bozuk model cevabında
+  sonuç doğrudan döndürülür.
 
 ## Şema bağlamı
 
@@ -282,6 +285,8 @@ geri kalan her şeyi (`SQLITE_DENY`) reddeder.
 - Otomatik testi olmayan kontroller: WITH içinde `sqlite_master` (`WITH t AS (SELECT * FROM sqlite_master) SELECT * FROM t` →
   `table_not_allowed:sqlite_master`) ve `--` satır yorumu 2026-11-06'da elle denendi; `tests/test_security.py`'ye eklenmeleri önerilir.
 
+Validator gelen SQL'i sabit kurallarla denetler. Kullanıcı girdisi bu kuralları değiştiremez. Modelin ürettiği SQL ve kullanıcının doğrudan SQL girdisi aynı doğrulayıcıdan geçer. Doğrulama sonrasında çalıştırılan sorgu ayrıca salt-okunur bağlantı ve SQLite authorizer tarafından denetlenir.
+
 ## Testler
 
 Resmi rapor: [docs/test_report.md](docs/test_report.md) (her testin sorusu, beklenen davranışı, üretilen SQL'i, beklenen ve
@@ -347,9 +352,10 @@ sorulardaki sonuç gizli test setinde garanti değildir; kurallar ve örnekler b
 - **Varsayım metni doğrulanmaz.** `assumption` modelin kendi açıklamasıdır; örneğin "İzmir'in toplam cirosu" sorusunda SQL doğru
   ve tarih filtresi içermediği hâlde model "tarih filtresi eklendi" yazdı. Arayüz bu yüzden varsayımın altında "neyin
   hesaplandığını SQL gösterir" notunu verir; esas olan çalıştırılan SQL'dir.
-- **Doğrudan yazılan SQL önce modele gider.** [A'NIN DEĞİŞİKLİĞİNDEN SONRA GÜNCELLENECEK] "SELECT * FROM Customers; DELETE FROM
-  Customers" gibi bir girdide model `unsupported` döndürdüğü için SQL validator'a ulaşmaz. Veri yine değişmez; model SQL
-  üretseydi validator ve authorizer devreye girerdi.
+- **Doğrudan SQL girdileri validator'a yönlendirilir.** `SELECT * FROM Customers; DELETE FROM Customers` ve
+  `ATTACH DATABASE 'x.db' AS x; PRAGMA table_info(Customers)` girdileri çoklu ifade oldukları için reddedilir.
+  `SELECT * FROM Customers /* DELETE FROM Customers */` girdisinde yorum temizlenir ve yalnızca güvenli SELECT çalıştırılır.
+  SQL komutuyla başlayan doğal dil metinleri de bu yola girdiği için ayrıştırma hatası alabilir.
 
 ### Çalışma ortamı
 
@@ -366,6 +372,6 @@ ve savunulabilir olması hedeflendi.
 | Araç | Kim | Nerede / nasıl |
 |---|---|---|
 | Claude Code (Anthropic, VS Code eklentisi) | Sıla Saatlı | Kodlama ve öğrenme yardımcısı: şema bağlamı, prompt ve few-shot denemeleri, ölçüm araçları, arayüz, log ve rapor kodu; dokümantasyon taslakları (README, mimari diyagram, log örnekleri, teknik değerlendirme). Çalışma kuralları [CLAUDE.md](CLAUDE.md)'de. [KONTROL: Hangi dosyalarda ne ölçüde kullanıldığı Sıla tarafından netleştirilmeli] |
-| [KONTROL: Kişi A'nın kullandığı yapay zekâ araçları] | Taha Yavaş | [KONTROL: validator, db, pipeline, run_all, test_security için kullanılan araçlar] |
+| | Codex (OpenAI) | Murat Taha Yavaş | Kodlama ve öğrenme yardımcısı: `pipeline.py` ve `run_all.py`, açıklama ve düzeltme desteği. `validator.py`, `db.py` ve `test_security.py` için kod inceleme ve güvenlik davranışının açıklanması. |
 | `qwen2.5-coder:7b` (Ollama, yerel) | Uygulamanın parçası | Çalışma anında Türkçe soruyu SQL'e çeviren model; geliştirme yardımcısı değil |
-| Veri üretimi | [KONTROL: kim] | [data/VERI_SETI.md](data/VERI_SETI.md) verinin "bir Python betiğiyle bir kez üretildiğini" söylüyor. [KONTROL: Bu betik yapay zekâ yardımıyla mı yazıldı, betik repoda değil] |
+| Veri üretimi | [data/VERI_SETI.md](data/VERI_SETI.md) verinin "bir Python betiğiyle bir kez üretildiğini" söylüyor. [KONTROL: Bu betik yapay zekâ yardımıyla mı yazıldı, betik repoda değil] |
