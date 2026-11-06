@@ -23,6 +23,13 @@ Senaryo: bir bankanın ürün ve hizmet satış verisi (bkz. [data/VERI_SETI.md]
 
 ## Kurulum
 
+> **Windows: klasör yolu kısa olmalı.** Projeyi yolu en fazla ~115 karakter olan bir klasöre klonlayın (ör.
+> `C:\Users\<ad>\Desktop\nl2sql-agent`). `streamlit` 1.67 paketinin içinde 117 karakterlik bir dosya yolu var; Windows'un
+> 260 karakter sınırı (uzun yol desteği kapalıysa) aşılınca `pip install` şu hatayla durur:
+> `OSError: [WinError 3] Sistem belirtilen yolu bulamıyor: '...\.venv\Lib\site-packages\streamlit\.agents\...'`.
+> Çözüm: daha kısa bir klasöre klonlamak ya da Windows'ta uzun yol desteğini açmak
+> (https://pip.pypa.io/warnings/enable-long-paths).
+
 ```bash
 git clone https://github.com/silassaatli/nl2sql-agent.git
 cd nl2sql-agent
@@ -36,7 +43,22 @@ ollama pull qwen2.5-coder:7b     # modeli indir (bir kez)
 python setup_db.py               # veritabanını sabit CSV'lerden sıfırdan kur + şema bağlamını (data/schema.json) üret
 ```
 
-[KONTROL: Temiz bir klasöre klonlayıp bu adımları harfiyen izleyen sıfırdan kurulum denemesi henüz yapılmadı.]
+**Sıfırdan kurulum denemesi (2026-11-06, Windows 11, PowerShell, Python 3.11.9).** `sila/dokumanlar` dalı boş bir geçici
+klasöre klonlandı ve yukarıdaki adımlar sırasıyla uygulandı:
+
+| Adım | Sonuç |
+|---|---|
+| `git clone`, `python -m venv .venv`, `.venv\Scripts\activate` | Sorunsuz |
+| `pip install -r requirements.txt` | İlk denemede **başarısız**: klon yolu uzundu (toplam 277 karakter), yukarıdaki Windows yol sınırı hatası. 65 karakterlik bir klasörde yeniden denendi: sorunsuz (sqlglot 30.29.0, streamlit 1.67.0, ollama 0.6.3, pytest 9.2.0) |
+| `ollama pull qwen2.5-coder:7b` | Sorunsuz (model zaten indirilmişti) |
+| `python setup_db.py` | Sorunsuz: 200 / 32 / 2500 / 5174 satır, `data/nl2sql.db` + `data/schema.json`. `schema.json` geliştirme ortamındakiyle birebir aynı |
+| `python tests/expected/build_expected.py` | Cevap anahtarı (01–08) birebir aynı üretildi (`git status` temiz) |
+| `python -m pytest tests/test_security.py` | 10 passed |
+| `streamlit run app/ui.py` | Uygulama açıldı (`http://localhost:8501`, sağlık kontrolü 200) |
+| Uçtan uca soru (`ask("İzmir'in toplam cirosu nedir?")`) | `success`, 19,235,337.37 (cevap anahtarıyla aynı) |
+
+Not: Windows PowerShell'de `.venv\Scripts\activate` betik çalıştırma izni gerektirir; deneme makinesinde
+`CurrentUser: RemoteSigned` zaten tanımlıydı, bu yüzden bu adımın izni olmayan bir makinede davranışı denenmedi.
 
 ## Çalıştırma
 
