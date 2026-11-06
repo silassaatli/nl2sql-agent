@@ -3,7 +3,7 @@
 NL2SQL Agent · ENS-AI-001 · Sıla Saatlı, Taha Yavaş [KONTROL: Kişi A'nın adı]
 
 **Sonuç.** Resmi raporda ([test_report.md](test_report.md), gerçek model, mock yok) iş soruları 7/8 (eşik 6/8), davranış
-2/2, güvenlik 6/6. Uçtan uca süre ortalama 5,0 sn, medyan 3,6 sn. Model `qwen2.5-coder:7b` (Ollama, yerel),
+2/2, güvenlik 6/6. Modele giden 13 testin uçtan uca süresi ortalama 9,3 sn, medyan 7,2 sn. Model `qwen2.5-coder:7b` (Ollama, yerel),
 `temperature=0`, prompt ≈ 3446 token, `num_ctx=8192`.
 
 ## 1. Sınırlılıklar
@@ -14,10 +14,12 @@ NL2SQL Agent · ENS-AI-001 · Sıla Saatlı, Taha Yavaş [KONTROL: Kişi A'nın 
 - **Test 05 FAIL.** Model doğru 12 müşteriyi buluyor ama yalnızca `CustomerID, Name` döndürüyor; cevap anahtarındaki `City`
   eksik. Ara sıra var olan `Orders` tablosunu "yok" sayıp `unsupported` da döndürüyor. `unsupported` bir hata sayılmadığı için
   yeniden deneme bunu yakalamıyor.
-- **Uçtan uca güvenlik testlerinde reddi veren model.** Test 11–16'nın altısında da model `unsupported` döndürdü; doğrudan SQL
-  girdileri (12, 14, 16) validator'a ulaşmadı. Validator ve authorizer `tests/test_security.py` ile ayrıca doğrulanıyor
-  (10/10 PASS), ama uçtan uca raporda bu katmanların reddi görünmüyor.
-  [A'NIN DEĞİŞİKLİĞİNDEN SONRA GÜNCELLENECEK]
+- **Doğal dil güvenlik testlerinde reddi veren model.** Doğrudan SQL girdileri (12, 14, 16) artık modele gitmeden
+  validator'da işleniyor, ama doğal dil girdilerinde (11, 13, 15) model SQL üretmeden `unsupported` döndürdü; bu üç testte
+  validator'a SQL ulaşmadı. Model kandırılıp SQL üretseydi validator ve authorizer devreye girerdi; bu katmanlar
+  `tests/test_security.py` ile ayrıca doğrulanıyor (10/10 PASS).
+- **Doğrudan SQL tespiti ilk kelimeye bakıyor.** "Select en çok satan 5 ürün" gibi SQL kelimesiyle başlayan bir Türkçe soru
+  modele gitmez, `parse_error` döner. Güvenlik açığı değil (girdi yine validator'dan geçer), kullanılabilirlik sınırı.
 - **Varsayım metni doğrulanmıyor.** `assumption` modelin kendi açıklaması; "İzmir'in toplam cirosu"nda SQL tarih filtresi
   içermediği hâlde model "tarih filtresi eklendi" yazdı. Doğruluk için esas olan SQL'dir; arayüz bunu not olarak gösteriyor.
 - **Semantik katman kural tabanlı.** "Geçen Kasım", "yılbaşından beri" gibi ifadeler tanınmıyor; yılsız "son çeyrek" bilerek
@@ -39,6 +41,7 @@ Prompt 21 ölçümle, her değişiklikten sonra yeniden deneme olmadan geliştir
 | "En çok satan" adete göre, "ortalama satır tutarı" `AVG(UnitPrice)` olarak okundu | Metrik sözlüğü ve riskli eş anlamlılar için "Metrik notu" | 08 son ölçümlerde ciroya göre |
 | "Kategori bazında" sorusuna `LIMIT 1` | 5. few-shot örneği: gruplama, LIMIT yok | 04 düzeldi, ama 05 eksik sütunla bozuldu; üç setin toplamı 20/24 → 22/24 olduğu için örnek tutuldu |
 | Prompt büyüdükçe Ollama'nın 4096 token'lık varsayılan penceresi yetmeyebilirdi (aşılırsa sistem prompt'u sessizce kesilir) | `num_ctx = 8192` | Prompt ≈ 3446 token, pay yeterli |
+| Doğrudan SQL girdileri (12, 14, 16) de modele gidiyordu; model `unsupported` döndürdüğü için validator'a hiç ulaşmıyorlardı | `SQL_START` regex'i: SQL komutuyla başlayan girdi modele gitmeden validator'a verilir (Kişi A) | 12 ve 16 `multiple_statements` ile reddedildi, 14'te yalnızca temiz SELECT çalıştı |
 | Ölçüm aracı yanlış PASS veriyordu: doğru şehir + yanlış ciro, ve eksik sütunun her testte kabulü | Karşılaştırma `run_all.py` ile aynı kurala getirildi, kayıtlı SQL'ler modeli çağırmadan yeniden puanlandı | Bazı eski puanlar düştü (ör. adım 2: 8/8 → 7/8); düzeltilmiş puanlar yayımlandı |
 
 **Ana ders.** Bu 7B model örnekleri kurallardan daha güçlü takip ediyor; örnekteki tarih aralığını ve sütun sayısını da
@@ -59,8 +62,10 @@ bozabildiği için her değişiklik bütün setlerde ölçüldü.
 
 ## 4. İyileştirme önerileri
 
-1. **Doğrudan SQL girdilerini modele göndermeden validator'a vermek** (Kişi A'nın üzerinde çalıştığı değişiklik). Böylece
-   12, 14, 16'da validator reddi uçtan uca raporda görünür. [A'NIN DEĞİŞİKLİĞİNDEN SONRA GÜNCELLENECEK]
+1. **Doğrudan SQL tespitini daraltmak:** girdi SQL komutuyla başlıyor ama SQLGlot ayrıştıramıyorsa (ör. "Select en çok
+   satan 5 ürün") hata vermek yerine doğal dil olarak modele göndermek. Güvenlik değişmez, çünkü modelin SQL'i de aynı
+   validator'dan geçer. (Doğrudan SQL'i modele göndermeden validator'a verme önerisi uygulandı; 12 ve 16 artık
+   `multiple_statements` ile reddediliyor.)
 2. **`unsupported` iddiasını kodla denetlemek:** model şemada var olan bir tabloyu "yok" diyorsa bu bir hata sayılıp tek
    yeniden deneme hakkı kullanılabilir (05'teki ara sıra görülen hata).
 3. **Listeleme sorularında tanımlayıcı sütunlar:** "kimler?" gibi sorularda ad ve şehir gibi ayırt edici sütunları göstermeyi
