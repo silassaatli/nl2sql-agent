@@ -16,16 +16,16 @@ alındı; okunabilirlik için yalnızca girintilendi.
 | `duration_ms` | Uçtan uca süre (model + doğrulama + çalıştırma) |
 | `model` | Kullanılan model; girdi doğrudan SQL ise model çağrılmadığı için `null` |
 
-Örnek 1–4, resmi test raporunu üreten çalıştırmadan alındı (`python tests/run_all.py`, 2026-11-06 12:50–12:52 yerel saat =
-09:50–09:52 UTC; `logs/queries.jsonl` satır 103, 110, 113, 115). Örnek 5 bu dosya için 2026-11-06'da ayrıca üretildi.
+Örnek 1–4, resmi test raporunu üreten çalıştırmadan alındı (`python tests/run_all.py`, 2026-11-06 13:15–13:16 yerel saat =
+10:15–10:16 UTC; `logs/queries.jsonl` satır 125, 132, 135, 137). Örnek 5 bu dosya için 2026-11-06'da ayrıca üretildi.
 
 ## 1. success: İzmir'in toplam cirosu (test 02)
 
 ```json
-{"timestamp": "2026-11-06T09:51:02.879461+00:00",
+{"timestamp": "2026-11-06T10:15:32.795181+00:00",
  "question": "İzmir'in toplam cirosu nedir?",
  "sql": "SELECT SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Customers AS c JOIN Orders AS o ON o.CustomerID = c.CustomerID JOIN OrderItems AS oi ON oi.OrderID = o.OrderID WHERE c.City = 'İzmir'",
- "status": "success", "error_type": null, "retry_count": 0, "row_count": 1, "duration_ms": 5694,
+ "status": "success", "error_type": null, "retry_count": 0, "row_count": 1, "duration_ms": 5260,
  "model": "qwen2.5-coder:7b"}
 ```
 
@@ -36,9 +36,9 @@ Model SQL üretti, validator geçirdi, salt-okunur bağlantıda çalıştı ve 1
 ## 2. clarify: "En iyi müşteri kimdir?" (test 09)
 
 ```json
-{"timestamp": "2026-11-06T09:51:48.875686+00:00",
+{"timestamp": "2026-11-06T10:16:14.455889+00:00",
  "question": "En iyi müşteri kimdir?",
- "sql": "", "status": "clarify", "error_type": "ambiguous", "retry_count": 0, "row_count": 0, "duration_ms": 3597,
+ "sql": "", "status": "clarify", "error_type": "ambiguous", "retry_count": 0, "row_count": 0, "duration_ms": 3307,
  "model": "qwen2.5-coder:7b"}
 ```
 
@@ -48,7 +48,7 @@ yapmak yerine ölçütü sordu. SQL üretilmediği için veritabanına hiç gidi
 ## 3. rejected: çoklu ifade girdisi (test 12)
 
 ```json
-{"timestamp": "2026-11-06T09:51:58.661545+00:00",
+{"timestamp": "2026-11-06T10:16:23.378646+00:00",
  "question": "SELECT * FROM Customers; DELETE FROM Customers",
  "sql": "SELECT * FROM Customers; DELETE FROM Customers",
  "status": "rejected", "error_type": "multiple_statements", "retry_count": 0, "row_count": 0, "duration_ms": 1,
@@ -62,7 +62,7 @@ buldu, validator `multiple_statements` ile reddetti, yürütücü hiç çağrıl
 ## 4. success: yorum içine gizlenmiş komut (test 14)
 
 ```json
-{"timestamp": "2026-11-06T09:52:01.817593+00:00",
+{"timestamp": "2026-11-06T10:16:26.412293+00:00",
  "question": "SELECT * FROM Customers /* DELETE FROM Customers */",
  "sql": "SELECT * FROM Customers",
  "status": "success", "error_type": null, "retry_count": 0, "row_count": 200, "duration_ms": 2,
