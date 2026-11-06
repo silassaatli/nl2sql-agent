@@ -115,18 +115,28 @@ _TODO: Teknik değerlendirmeyle birlikte tamamlanacak._
 
 ### Bilinen model hataları (prompt ölçümleri, [docs/olcumler/README.md](docs/olcumler/README.md))
 
-Son ölçümlerde (yeniden deneme olmadan) iş sorularında test soruları ve iki farklı ifade setinde **7/8**. Kural ve kodla
-üretilen notlarla çözülemeyen hatalar:
+Resmi rapor ([docs/test_report.md](docs/test_report.md)): iş **7/8**, davranış 2/2, güvenlik 6/6. Ölçümlerde (yeniden deneme
+olmadan) test soruları 7/8, farklı ifadeler 1: 8/8, farklı ifadeler 2: 7/8. Bilinen hatalar:
 
 | Test | Hata | Not |
 |---|---|---|
-| 04 | "Kategori bazında …" gruplama sorusuna `LIMIT 1` ekleniyor, tek kategori dönüyor | Prompt'ta "gruplama sorularında LIMIT ekleme" kuralı var; model uygulamıyor |
-| 08 | "En çok satan / satılan" bazen ciroya, bazen adete (`SUM(Quantity)`) göre sıralanıyor | Metrik sözlüğü ve Metrik notu "ciroya göre" diyor; bir ölçümde model notu okuyup tersini yazdı |
-| 05 | Ara sıra var olan `Orders` tablosu "veri modelinde yok" sayılıp `unsupported` dönüyor | `unsupported` bir hata olmadığı için pipeline'ın yeniden denemesi bunu yakalamaz |
+| 05 | Doğru 12 müşteri bulunuyor ama yalnızca `CustomerID, Name` dönüyor; beklenen `City` sütunu eksik | 5. few-shot örneği (iki sütunlu sonuç) eklendikten sonra ortaya çıktı. Eksik sütun yalnızca 01/07/08'de kabul edildiği için FAIL |
+| 04 | "Kategori bazında …" gruplama sorusuna `LIMIT 1` ekleniyordu | 5. few-shot örneğiyle (gruplama, LIMIT yok) üç sette de düzeldi; önceki ölçümlerde kurala rağmen sürüyordu |
+| 08 | "En çok satan / satılan" bazen adete (`SUM(Quantity)`) göre sıralanıyordu | Son ölçümlerde ciroya göre; önceki ölçümlerde notu okuyup tersini yazdığı görüldü |
+| 05 | Ara sıra var olan `Orders` tablosu "veri modelinde yok" sayılıp `unsupported` dönüyordu | `unsupported` bir hata olmadığı için pipeline'ın yeniden denemesi bunu yakalamaz |
 
-Ortak gözlem: `qwen2.5-coder:7b` örnekleri kurallardan daha güçlü takip ediyor ve sonuçlar ifadeden ifadeye dalgalanıyor.
-Muhtemel çözüm ilgili kalıbı gösteren bir few-shot örneği ya da daha büyük bir model. Görünen sorulardaki sonuç gizli test
-setinde garanti değildir; kurallar ve notlar bu sorulardaki hatalara bakılarak eklendi.
+Ortak gözlem: `qwen2.5-coder:7b` örnekleri kurallardan daha güçlü takip ediyor (örnekteki tarih aralığını, sütun sayısını da
+kopyalıyor) ve sonuçlar ifadeden ifadeye dalgalanıyor. Bir hatayı düzelten örnek başka bir testi bozabiliyor. Görünen
+sorulardaki sonuç gizli test setinde garanti değildir; kurallar ve örnekler bu sorulardaki hatalara bakılarak eklendi.
+
+### Arayüzde görülen davranışlar
+
+- **Varsayım metni doğrulanmaz.** `assumption` modelin kendi açıklamasıdır; örneğin "İzmir'in toplam cirosu" sorusunda SQL doğru
+  ve tarih filtresi içermediği hâlde model "tarih filtresi eklendi" yazdı. Arayüz bu yüzden varsayımın altında "neyin
+  hesaplandığını SQL gösterir" notunu verir; esas olan çalıştırılan SQL'dir.
+- **Doğrudan yazılan SQL önce modele gider.** "SELECT * FROM Customers; DELETE FROM Customers" gibi bir girdide model
+  `unsupported` döndürdüğü için SQL validator'a ulaşmaz. Veri yine değişmez; model SQL üretseydi validator ve authorizer
+  devreye girerdi (test 11–16 bu yüzden geçiyor).
 
 ### Çalışma ortamı
 
