@@ -429,7 +429,7 @@ ve savunulabilir olması hedeflendi.
 
 | Araç | Kim | Nerede / nasıl |
 |---|---|---|
-| Claude Code (Anthropic, VS Code eklentisi) | Sıla Saatlı | Kodlama ve öğrenme yardımcısı: şema bağlamı, prompt ve few-shot denemeleri, ölçüm araçları, arayüz, log ve rapor kodu; `run_all.py`'deki karşılaştırma düzeltmesi (`columns_match`, 2026-11-06); dokümantasyon taslakları (README, mimari diyagram, log örnekleri, teknik değerlendirme). Çalışma kuralları [CLAUDE.md](CLAUDE.md)'de. [KONTROL: Hangi dosyalarda ne ölçüde kullanıldığı Sıla tarafından netleştirilmeli] |
+| Claude (Anthropic; Claude Code ve sohbet) | Sıla Saatlı | [KONTROL: proje iskeleti / veri üretim betiği — veri kaynağı netleşince yazılacak]; arayüz (`ui.py`); LLM entegrasyonu ve prompt geliştirme (`llm.py`, few-shot örnekleri); test raporu ve cevap anahtarı; `run_all.py`'deki karşılaştırma düzeltmesi (`columns_match`, 2026-11-06); dokümantasyon (README, mimari diyagram, teknik değerlendirme, log örnekleri); pipeline değişikliğinin doğrulanması ve sıfırdan kurulum denemesi. Bütün çıktılar gerçek kod ve ölçümlerle karşılaştırılarak kontrol edildi. Çalışma kuralları [CLAUDE.md](CLAUDE.md)'de. |
 | Codex (OpenAI) | Murat Taha Yavaş | Kodlama ve öğrenme yardımcısı. `pipeline.py` ve `run_all.py` için kod üretimi, açıklama ve düzeltme desteği. `validator.py`, `db.py` ve `test_security.py` için kod inceleme ve güvenlik davranışının açıklanması. |
 | `qwen2.5-coder:7b` (Ollama, yerel) | Uygulamanın parçası | Çalışma anında Türkçe soruyu SQL'e çeviren model; geliştirme yardımcısı değil |
 | Veri üretimi | [KONTROL: kim] | [data/VERI_SETI.md](data/VERI_SETI.md) verinin "bir Python betiğiyle bir kez üretildiğini" söylüyor. [KONTROL: Bu betik yapay zekâ yardımıyla mı yazıldı, betik repoda değil] |
