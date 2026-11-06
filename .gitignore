@@ -20,3 +20,6 @@ Thumbs.db
 
 # Yerel deneme dosyaları
 deneme.sql
+
+# Yerel çalışma notları (YZ asistanı talimatları), repoya konmaz
+CLAUDE.md

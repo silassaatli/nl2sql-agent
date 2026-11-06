@@ -1,7 +1,7 @@
 """
 Ölçüm karşılaştırması: model sonucu ↔ tests/expected/<id>.json
 
-CLAUDE.md ekip kararları 4–6'nın basit uygulaması:
+Ekip kararlarının (yuvarlama, sıra, sütun eşleştirme) basit uygulaması; run_all.py'nin 2026-11-06 öncesi kuralı:
 - Float değerler 2 ondalığa yuvarlanır (madde 4)
 - 04, 05, 06 sırasız karşılaştırılır (madde 5)
 - Esnek sütun eşleştirmesi (madde 6): eksik sütun YALNIZCA 01/07/08'de ve ürün/şehir sütunu (beklenen 0. sütun)

@@ -4,8 +4,8 @@ Prompt'taki her değişikliğin etkisini ayrı ayrı görmek için test sorular�
 Sonuçlar **gerçek model çıktısıdır** (`qwen2.5-coder:7b`, `temperature=0`, `format=json`); elle yazılmış veya mock sonuç yoktur.
 
 Bu ölçümler resmi test raporu değildir (o: `tests/run_all.py` → [../test_report.md](../test_report.md)). Fark: **yeniden deneme yok**
-(pipeline'dan daha katı). Karşılaştırma ([karsilastir.py](karsilastir.py)) CLAUDE.md ekip kararları 4–6'yı `run_all.py` ile
-aynı şekilde uygular: 2 ondalık yuvarlama; 01/03/08 sıralı, 04/05/06 sırasız; eksik sütun yalnızca 01/07/08'de ve ürün/şehir
+(pipeline'dan daha katı). Karşılaştırma ([karsilastir.py](karsilastir.py)) ekip kararlarını `run_all.py`'nin
+2026-11-06 öncesi kuralıyla uygular (güncel kural: ana README → Testler; farkı yalnızca test 05'i etkiler): 2 ondalık yuvarlama; 01/03/08 sıralı, 04/05/06 sırasız; eksik sütun yalnızca 01/07/08'de ve ürün/şehir
 sütunu dönmüşse; fazla sütun, beklenen sütunların hepsi doğru değerlerle varsa kabul.
 
 | Dosya | Ne işe yarar |

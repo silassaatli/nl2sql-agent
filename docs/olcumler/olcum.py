@@ -7,7 +7,7 @@ Sonuçlar GERÇEK model çıktısıdır; elle yazılmış veya mock sonuç yoktu
 
 Bu resmi test raporu DEĞİLDİR (o: tests/run_all.py). Farkları:
 - Yeniden deneme YOK (pipeline'dan daha katı ölçer)
-- Karşılaştırma CLAUDE.md ekip kararları 4–6'nın basit bir uygulamasıdır
+- Karşılaştırma ekip kararlarının (yuvarlama, sıra, sütun eşleştirme) basit bir uygulamasıdır (karsilastir.py)
 
 Kullanım (proje kökünden):
     python docs/olcumler/olcum.py <etiket>                  # tests/test_cases.json soruları
