@@ -8,24 +8,24 @@ alındı; okunabilirlik için yalnızca girintilendi.
 |---|---|
 | `timestamp` | Log zamanı (UTC). Yalnızca kayıt içindir; sorgu sonuçlarında sistem saati kullanılmaz |
 | `question` | Kullanıcının girdisi |
-| `sql` | Çalıştırılan (validator'dan geçmiş, temizlenmiş) SQL; SQL üretilmediyse `""` |
+| `sql` | Çalıştırılan (validator'dan geçmiş, temizlenmiş) SQL. Validator'ın reddettiği doğrudan SQL'de kullanıcının ham girdisi; SQL yoksa `""` |
 | `status` | `success`, `clarify`, `rejected` veya `error` |
 | `error_type` | Hata/durum türü; başarılı sonuçta `null` (0 satırda `empty_result`) |
-| `retry_count` | Yeniden deneme sayısı (en fazla 1) |
+| `retry_count` | Yeniden deneme sayısı (en fazla 1, yalnızca modelin SQL'i için) |
 | `row_count` | Dönen satır sayısı (en fazla 500) |
 | `duration_ms` | Uçtan uca süre (model + doğrulama + çalıştırma) |
-| `model` | Kullanılan model |
+| `model` | Kullanılan model; girdi doğrudan SQL ise model çağrılmadığı için `null` |
 
-Örnek 1–3, resmi test raporunu üreten çalıştırmadan alındı (`python tests/run_all.py`, 2026-11-05 22:57–22:58 yerel saat =
-19:57–19:58 UTC; `logs/queries.jsonl` satır 50, 57, 60). Örnek 4 bu dosya için 2026-11-06'da üretildi.
+Örnek 1–4, resmi test raporunu üreten çalıştırmadan alındı (`python tests/run_all.py`, 2026-11-06 12:34–12:36 yerel saat =
+09:34–09:36 UTC; `logs/queries.jsonl` satır 87, 94, 97, 99). Örnek 5 bu dosya için 2026-11-06'da ayrıca üretildi.
 
 ## 1. success: İzmir'in toplam cirosu (test 02)
 
 ```json
-{"timestamp": "2026-11-05T19:57:43.925136+00:00",
+{"timestamp": "2026-11-06T09:35:05.406886+00:00",
  "question": "İzmir'in toplam cirosu nedir?",
  "sql": "SELECT SUM(oi.Quantity * oi.UnitPrice) AS ToplamCiro FROM Customers AS c JOIN Orders AS o ON o.CustomerID = c.CustomerID JOIN OrderItems AS oi ON oi.OrderID = o.OrderID WHERE c.City = 'İzmir'",
- "status": "success", "error_type": null, "retry_count": 0, "row_count": 1, "duration_ms": 5549,
+ "status": "success", "error_type": null, "retry_count": 0, "row_count": 1, "duration_ms": 7890,
  "model": "qwen2.5-coder:7b"}
 ```
 
@@ -36,9 +36,9 @@ Model SQL üretti, validator geçirdi, salt-okunur bağlantıda çalıştı ve 1
 ## 2. clarify: "En iyi müşteri kimdir?" (test 09)
 
 ```json
-{"timestamp": "2026-11-05T19:58:26.104996+00:00",
+{"timestamp": "2026-11-06T09:36:03.570962+00:00",
  "question": "En iyi müşteri kimdir?",
- "sql": "", "status": "clarify", "error_type": "ambiguous", "retry_count": 0, "row_count": 0, "duration_ms": 3234,
+ "sql": "", "status": "clarify", "error_type": "ambiguous", "retry_count": 0, "row_count": 0, "duration_ms": 4859,
  "model": "qwen2.5-coder:7b"}
 ```
 
@@ -48,19 +48,32 @@ yapmak yerine ölçütü sordu. SQL üretilmediği için veritabanına hiç gidi
 ## 3. rejected: çoklu ifade girdisi (test 12)
 
 ```json
-{"timestamp": "2026-11-05T19:58:34.934387+00:00",
+{"timestamp": "2026-11-06T09:36:16.769929+00:00",
  "question": "SELECT * FROM Customers; DELETE FROM Customers",
- "sql": "", "status": "rejected", "error_type": "unsupported", "retry_count": 0, "row_count": 0, "duration_ms": 1831,
- "model": "qwen2.5-coder:7b"}
+ "sql": "SELECT * FROM Customers; DELETE FROM Customers",
+ "status": "rejected", "error_type": "multiple_statements", "retry_count": 0, "row_count": 0, "duration_ms": 1,
+ "model": null}
 ```
 
-Veri silme içeren girdi reddedildi; Customers satır sayısı testten önce ve sonra 200. Bu kayıtta reddi veren **model**
-(`unsupported`). SQL üretmediği için girdi validator'a ulaşmadı. Model SQL üretseydi validator `multiple_statements` ile
-reddederdi (`tests/test_security.py` bunu doğrudan test ediyor).
-[A'NIN DEĞİŞİKLİĞİNDEN SONRA GÜNCELLENECEK] Doğrudan SQL girdileri modele gitmeden validator'a verildiğinde bu örnek
-`error_type: "multiple_statements"` olan yeni bir log satırıyla değiştirilecek.
+Girdi bir SQL komutuyla başladığı için modele gitmedi (`model: null`, 1 ms) ve doğrudan validator'a verildi. SQLGlot iki ifade
+buldu, validator `multiple_statements` ile reddetti, yürütücü hiç çağrılmadı. Customers satır sayısı testten önce ve sonra 200.
+`sql` alanındaki metin reddedilen ham girdidir; çalıştırılmadı.
 
-## 4. error: model erişilemiyor (`model_unavailable`)
+## 4. success: yorum içine gizlenmiş komut (test 14)
+
+```json
+{"timestamp": "2026-11-06T09:36:21.223786+00:00",
+ "question": "SELECT * FROM Customers /* DELETE FROM Customers */",
+ "sql": "SELECT * FROM Customers",
+ "status": "success", "error_type": null, "retry_count": 0, "row_count": 200, "duration_ms": 4,
+ "model": null}
+```
+
+`question` ile `sql` arasındaki fark ödevin 4. güvenlik kuralını gösterir: validator yorumu ifade olarak değil yorum olarak
+ayrıştırdı ve SQL'i yorumsuz yeniden üretti. Yürütücüye yalnızca `SELECT * FROM Customers` gitti; `DELETE` hiç çalışmadı,
+Customers 200 satır kaldı.
+
+## 5. error: model erişilemiyor (`model_unavailable`)
 
 ```json
 {"timestamp": "2026-11-06T09:17:57.580420+00:00",
@@ -70,7 +83,8 @@ reddederdi (`tests/test_security.py` bunu doğrudan test ediyor).
 ```
 
 Nasıl üretildi: gerçek pipeline, Ollama istemcisi ulaşılamayan bir adrese yönlendirilerek çalıştırıldı (Ollama'nın kapalı
-olmasıyla aynı durum: bağlantı kurulamaz).
+olmasıyla aynı durum: bağlantı kurulamaz). Bu satır Kişi A'nın pipeline değişikliğinden önce üretildi; değişiklik doğal dil
+yolundaki bu dalı değiştirmedi.
 
 ```bash
 OLLAMA_HOST=127.0.0.1:1 python -c "from app.pipeline import ask; print(ask(\"İzmir'in toplam cirosu nedir?\"))"
@@ -78,4 +92,4 @@ OLLAMA_HOST=127.0.0.1:1 python -c "from app.pipeline import ask; print(ask(\"İz
 
 `generate_sql` bağlantı hatasını `ModelUnavailableError`'a çevirdi, pipeline bunu `error / model_unavailable` olarak döndürdü
 ve kullanıcıya "SQL üreten modele erişilemedi." mesajını verdi. Sistem çökmedi. Pipeline bu hatayı yeniden denemez
-(`pipeline.py:76`, `retry_count: 0`); yeniden deneme yalnızca modelin düzeltebileceği SQL hataları içindir.
+(`pipeline.py:116`, `retry_count: 0`); yeniden deneme yalnızca modelin düzeltebileceği SQL hataları içindir.
