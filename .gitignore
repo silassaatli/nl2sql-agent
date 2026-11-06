@@ -17,3 +17,6 @@ data/kaynak/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Yerel deneme dosyaları
+deneme.sql
