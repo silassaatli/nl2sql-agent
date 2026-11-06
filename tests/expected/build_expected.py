@@ -83,6 +83,20 @@ ORDER BY Ciro DESC
 LIMIT 3;""",
 }
 
+# --- Sorunun istediği (zorunlu) sütunlar -------------------------------------
+# Ödevdeki "beklenen davranış" metninden. Diğer beklenen sütunlar açıklayıcıdır: model döndürmezse FAIL sebebi değildir
+# (karşılaştırma: tests/run_all.py · columns_match). Adlar referans SQL'in sütun adlarıdır.
+REQUIRED_COLUMNS = {
+    "01": ["ProductName", "Ciro"],              # "ciro bazında ilk 5 ürün; sıra ve tutarlar doğru"
+    "02": ["Ciro"],                             # "İzmir müşterilerinin toplam cirosu"
+    "03": ["Ay", "Ciro"],                       # "her ay için ciro"
+    "04": ["Category", "OrtalamaKalemTutari"],  # "her kategori için ortalama"
+    "05": ["Name"],                             # "siparişi olmayan müşteriler" (Name tekil); CustomerID, City açıklayıcı
+    "06": ["Segment", "Ciro"],                  # "Bireysel, KOBİ ve Kurumsal için ciro"
+    "07": ["City"],                             # "lider şehir"; Ciro açıklayıcı
+    "08": ["ProductName"],                      # "ilk 3 ürün"; Ciro açıklayıcı
+}
+
 
 def load_questions() -> dict:
     """test_cases.json'dan {id: soru} sözlüğü. Soru metninin tek kaynağı orası."""
@@ -106,11 +120,15 @@ def main():
     try:
         for test_id, sql in REFERENCE_SQL.items():
             columns, rows = run_query(conn, sql)
+            missing = set(REQUIRED_COLUMNS[test_id]) - set(columns)
+            if missing:
+                sys.exit(f"{test_id}: zorunlu sütun referans sonuçta yok: {sorted(missing)}")
             data = {
                 "id": test_id,
                 "question": questions[test_id],
                 "reference_sql": sql,
                 "columns": columns,
+                "required_columns": REQUIRED_COLUMNS[test_id],
                 "rows": rows,
                 "row_count": len(rows),
             }

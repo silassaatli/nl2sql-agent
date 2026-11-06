@@ -6,6 +6,10 @@
     "Ay",
     "Ciro"
   ],
+  "required_columns": [
+    "Ay",
+    "Ciro"
+  ],
   "rows": [
     [
       "2026-01",

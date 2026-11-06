@@ -31,7 +31,7 @@ import json
 import sqlite3
 import sys
 from collections import Counter
-from itertools import permutations
+from itertools import combinations, permutations
 from pathlib import Path
 from unittest.mock import patch
 
@@ -42,7 +42,39 @@ sys.path.insert(0, str(PROJECT_DIR))
 from app import pipeline
 from app.validator import validate_sql
 from config import DB_PATH
-from report import write_report 
+from report import write_report
+
+
+def columns_match(actual_values, expected_values, expected_columns, required_columns, ordered):
+    """Model sütunlarını beklenen sütunlara DEĞERLERİYLE eşler (sütun adlarına bakılmaz). Bütün iş testlerinde aynı kural:
+
+    - Sorunun istediği sütunların (required_columns, cevap anahtarında) hepsi eşleşmeli.
+    - Diğer beklenen sütunlar açıklayıcıdır ve eksik olabilir. Ama bir açıklayıcı sütun eksikse modelin HER sütunu
+      bir beklenen sütuna eşleşmeli: eşleşmeyen bir sütun, eksik sütunun yanlış değerli hâli olabilir
+      (gerçek örnek: test 07'de doğru şehir + yanlış dönemin cirosu).
+    - Bütün beklenen sütunlar eşleştiyse modelin fazladan sütunları yok sayılır.
+    - ordered=True ise satır sırası da eşleşmeli; değilse satırlar sırasız (çoklu küme) karşılaştırılır.
+
+    Döner: eşleşen beklenen sütun adları (PASS) veya None (FAIL).
+    """
+    expected_width = len(expected_values[0])
+    actual_width = len(actual_values[0])
+    required = {expected_columns.index(name) for name in required_columns}
+
+    # Önce bütün beklenen sütunlar denenir, sonra açıklayıcı sütunlar teker teker bırakılır.
+    for size in range(min(expected_width, actual_width), 0, -1):
+        for subset in combinations(range(expected_width), size):
+            if not required <= set(subset):
+                continue
+            if size < expected_width and size != actual_width:
+                continue            # açıklayıcı sütun eksik + modelde eşleşmeyen sütun var → kabul edilmez
+            reference = [tuple(row[i] for i in subset) for row in expected_values]
+            reference = reference if ordered else Counter(reference)
+            for indexes in permutations(range(actual_width), size):
+                projected = [tuple(row[i] for i in indexes) for row in actual_values]
+                if (projected if ordered else Counter(projected)) == reference:
+                    return [expected_columns[i] for i in subset]
+    return None
 
 
 def main() -> None:
@@ -55,7 +87,6 @@ def main() -> None:
 
     results = []
     ordered_cases = {"01", "03", "08"}
-    partial_column_cases = {"01", "07", "08"}
 
     # Bu bağlantı yalnızca güvenlik testlerinden önce ve sonra sayım yapar.
     db_uri = Path(DB_PATH).resolve().as_uri() + "?mode=ro"
@@ -133,36 +164,20 @@ def main() -> None:
                             for row in expected["rows"]
                         ]
 
-                        actual_width = len(actual_columns)
-                        expected_width = len(expected["columns"])
-
-                        # Geniş sonuçtan dar sonuca tek bir sütun eşlemesi uygula.
-                        # Fazla sütun varsa bütün beklenen sütunlar eşleşmeli.
-                        partial = actual_width < expected_width
-                        if not partial or (case_id in partial_column_cases and actual_width > 0):
-                            source = expected_values if partial else actual_values
-                            target = actual_values if partial else expected_values
-                            width = len(target[0])
-                            ordered = case_id in ordered_cases
-                            reference = target if ordered else Counter(target)
-
-                            for indexes in permutations(range(len(source[0])), width):
-                                # Eksik sütun istisnasında ürün/şehir yine zorunlu.
-                                if partial and 0 not in indexes:
-                                    continue
-                                projected = [
-                                    tuple(row[index] for index in indexes)
-                                    for row in source
-                                ]
-                                if (projected if ordered else Counter(projected)) == reference:
-                                    passed = True
-                                    break
-
-                        reason = (
-                            "Sonuç cevap anahtarıyla eşleşti."
-                            if passed
-                            else "Sütunlar, değerler veya zorunlu satır sırası eşleşmedi."
+                        # Cevap anahtarında zorunlu sütun yoksa bütün sütunlar zorunlu sayılır.
+                        required = expected.get("required_columns", expected["columns"])
+                        matched = columns_match(
+                            actual_values, expected_values, expected["columns"],
+                            required, ordered=case_id in ordered_cases,
                         )
+                        passed = matched is not None
+                        if not passed:
+                            reason = "Zorunlu sütunlar, değerler veya zorunlu satır sırası eşleşmedi."
+                        else:
+                            missing = [c for c in expected["columns"] if c not in matched]
+                            reason = "Sonuç cevap anahtarıyla eşleşti."
+                            if missing:
+                                reason += f" Döndürülmeyen açıklayıcı sütun: {', '.join(missing)}."
 
                 # 09: “En iyi müşteri” için ölçüt belirsiz.
                 elif case_id == "09":

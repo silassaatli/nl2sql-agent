@@ -7,6 +7,9 @@
     "Name",
     "City"
   ],
+  "required_columns": [
+    "Name"
+  ],
   "rows": [
     [
       16,

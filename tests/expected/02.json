@@ -5,6 +5,9 @@
   "columns": [
     "Ciro"
   ],
+  "required_columns": [
+    "Ciro"
+  ],
   "rows": [
     [
       19235337.37

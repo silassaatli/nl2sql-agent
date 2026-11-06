@@ -6,6 +6,10 @@
     "Segment",
     "Ciro"
   ],
+  "required_columns": [
+    "Segment",
+    "Ciro"
+  ],
   "rows": [
     [
       "KOBİ",

@@ -104,6 +104,16 @@ def actual_text(r: dict) -> str:
 # --- Rapor -------------------------------------------------------------------
 TYPE_TR = {"is": "İş", "davranis": "Davranış", "guvenlik": "Güvenlik"}
 
+# Karşılaştırma kuralındaki değişikliğin şeffaflık notu (rapora her üretimde yazılır).
+COMPARISON_NOTE = (
+    "İlk cevap anahtarı test 05 için City sütununu da şart koşuyordu; ödev bunu istemediği için "
+    "(beklenen davranış: \"Siparişi olmayan müşteriler\") karşılaştırma ödev ölçütüne göre düzeltildi. "
+    "Model çıktısı değişmedi. Kural bütün iş testlerinde aynı: sorunun istediği sütunlar "
+    "(cevap anahtarında required_columns) değer, satır sayısı ve gerekiyorsa sıra olarak eşleşmeli; "
+    "diğer sütunlar açıklayıcıdır, eksik olmaları FAIL sebebi değildir (eksikken modelin her sütunu eşleşmeli). "
+    "Bu düzeltme 05'i FAIL'den PASS'e çevirdi; kayıtlı 160 ölçüm çıktısında başka hiçbir sonucu değiştirmedi."
+)
+
 
 def _markdown(results: list[dict], summary: dict, generated_at: str) -> str:
     lines = [
@@ -112,6 +122,8 @@ def _markdown(results: list[dict], summary: dict, generated_at: str) -> str:
         f"Üretim: {generated_at} · Model: `{MODEL_NAME}` · Komut: `python tests/run_all.py`",
         "",
         "Sonuçlar gerçek model çıktısıdır (mock yok). Ayrıntılı kayıtlar: [test_report.json](test_report.json).",
+        "",
+        f"> **Karşılaştırma notu.** {COMPARISON_NOTE}",
         "",
         "## Özet",
         "",
@@ -163,14 +175,16 @@ def _markdown(results: list[dict], summary: dict, generated_at: str) -> str:
     return "\n".join(lines)
 
 
-def write_report(results: list[dict], out_dir: str = DEFAULT_OUT_DIR) -> None:
-    """docs/test_report.json ve docs/test_report.md dosyalarını yazar."""
+def write_report(results: list[dict], out_dir: str = DEFAULT_OUT_DIR, generated_at: str | None = None) -> None:
+    """docs/test_report.json ve docs/test_report.md dosyalarını yazar.
+    generated_at: kayıtlı bir koşunun raporu yeniden yazılırken o koşunun zamanını korumak için; yoksa şimdiki zaman."""
     os.makedirs(out_dir, exist_ok=True)
     summary = summarize(results)
-    generated_at = datetime.now().isoformat(timespec="seconds")   # sadece rapor zamanı
+    generated_at = generated_at or datetime.now().isoformat(timespec="seconds")   # sadece rapor zamanı
 
     report = {
-        "meta": {"generated_at": generated_at, "model": MODEL_NAME, "command": "python tests/run_all.py"},
+        "meta": {"generated_at": generated_at, "model": MODEL_NAME, "command": "python tests/run_all.py",
+                 "comparison_note": COMPARISON_NOTE},
         "summary": summary,
         "tests": results,      # run_all.py'den gelen kayıtlar, değiştirilmeden
     }

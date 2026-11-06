@@ -6,6 +6,9 @@
     "City",
     "Ciro"
   ],
+  "required_columns": [
+    "City"
+  ],
   "rows": [
     [
       "İstanbul",
