@@ -98,14 +98,20 @@ girdi ─┬─ doğal dil → semantic.py (Tarih notu + Metrik notu) → llm.py
        validator.py (SQLGlot) → db.py (salt-okunur bağlantı + authorizer, 5 sn, 500 satır) → sonuç + JSON log → ui.py
 ```
 
-Doğal dil soruları LLM'e gönderilir. Baştaki boşluk ve SQL yorumları atlandıktan sonra SQL komutuyla başlayan girdiler doğrudan validator'a yönlendirilir. Her iki yoldaki SQL aynı doğrulamadan geçer. Doğrulanan temiz SQL salt-okunur bağlantı ve authorizer altında, 500 satır ve 5 saniye sınırıyla çalıştırılır.
-
-Kullanıcının doğrudan SQL girdisindeki hata kullanıcıya döndürülür. Modelin ürettiği SQL'de ayrıştırma veya sütun hatası oluşursa önceki SQL ve hata mesajıyla en fazla bir düzeltme denemesi yapılır. Güvenlik reddi, süre aşımı ve model erişim hatalarında sonuç doğrudan döndürülür. Pipeline sonuç kaydını log fonksiyonuna iletir.
-
-- **Güvenlik koda, zekâ modele.** Model ne üretirse üretsin SQL çalışmadan önce `validate_sql` ve `execute_sql`'deki
-  kurallardan geçer. Arayüz güvenlik kontrolü yapmaz, yalnızca `pipeline.ask()`'ı çağırır ([app/ui.py](app/ui.py)).
-- **Durum çevirisi `pipeline.py`'de:** model `ok` → (SQL çalıştıysa) `success`, `clarify` → `clarify`, `unsupported` →
-  `rejected`, güvenlik reddi → `rejected`, diğer hatalar → `error`.
+- **SQL doğrulaması.** Çalıştırılacak her SQL, `validate_sql` kontrolünden geçer.
+  Temizlenen sorgu, `execute_sql` tarafından salt-okunur bağlantı ve SQLite authorizer
+  altında çalıştırılır. Arayüz `pipeline.ask()` fonksiyonunu çağırır.
+- **Durum çevirisi.** Modelin `ok` cevabı sorgu başarıyla çalışırsa `success`,
+  `clarify` cevabı `clarify`, `unsupported` cevabı `rejected` olarak döner.
+  Güvenlik reddi `rejected`, diğer hatalar `error` durumuyla bildirilir.
+- **Doğrudan SQL yolu.** Baştaki boşluk ve yorumlar atlandıktan sonra SQL komutuyla
+  başlayan girdiler doğrudan validator'a gönderilir. Doğal dil soruları modele gider.
+  Her iki yoldaki SQL aynı güvenlik kontrollerinden geçer.
+- **Yeniden deneme.** Modelin ürettiği SQL'deki `parse_error` ve `unknown_field`
+  hataları için toplam en fazla bir düzeltme denemesi yapılır. Önceki SQL ve hata
+  mesajı modele iletilir. Kullanıcının doğrudan SQL girdisindeki hatalar kullanıcıya
+  döndürülür. Güvenlik reddi, timeout, model erişilemezliği ve bozuk model cevabında
+  sonuç doğrudan döndürülür.
 - **Koddaki yerleri:** doğrudan SQL tespiti `SQL_START` regex'i ([pipeline.py:19](app/pipeline.py#L19)); bu tespit güvenlik
   kararı değildir, yalnızca yolu seçer. Yeniden deneme kararı [pipeline.py:245](app/pipeline.py#L245): `parse_error` ile
   `unknown_field` (SQLite `no such column`) aynı tek hakkı paylaşır (`config.MAX_RETRIES = 1`); bozuk model cevabı ve
