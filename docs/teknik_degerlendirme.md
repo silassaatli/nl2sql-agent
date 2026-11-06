@@ -1,6 +1,6 @@
 # Teknik değerlendirme
 
-NL2SQL Agent · ENS-AI-001 · Sıla Saatlı, Taha Yavaş [KONTROL: Kişi A'nın adı]
+NL2SQL Agent · ENS-AI-001 · Sıla Saatlı, Murat Taha Yavaş
 
 **Sonuç.** Resmi raporda ([test_report.md](test_report.md), gerçek model, mock yok) iş 8/8 (eşik 6/8), davranış 2/2,
 güvenlik 6/6. Model `qwen2.5-coder:7b` (Ollama, yerel), `temperature=0`, prompt ≈ 3446 token, `num_ctx=8192`. Modele giden

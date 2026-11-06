@@ -3,7 +3,7 @@
 Ensight Teknik Staj Ödevi (ENS-AI-001). Türkçe sorulan iş sorularını SQL'e çeviren, sorguyu güvenli şekilde çalıştıran ve sonucu gösteren bir Proof of Concept.
 Senaryo: bir bankanın ürün ve hizmet satış verisi (bkz. [data/VERI_SETI.md](data/VERI_SETI.md)).
 
-**Ekip:** Sıla Saatlı · Taha Yavaş [KONTROL: Kişi A'nın adı git commit yazarından alındı; yazımı onaylanmalı]
+**Ekip:** Sıla Saatlı · Murat Taha Yavaş
 
 ## Teslim paketi
 
@@ -98,16 +98,18 @@ girdi ─┬─ doğal dil → semantic.py (Tarih notu + Metrik notu) → llm.py
        validator.py (SQLGlot) → db.py (salt-okunur bağlantı + authorizer, 5 sn, 500 satır) → sonuç + JSON log → ui.py
 ```
 
+Doğal dil soruları LLM'e gönderilir. Baştaki boşluk ve SQL yorumları atlandıktan sonra SQL komutuyla başlayan girdiler doğrudan validator'a yönlendirilir. Her iki yoldaki SQL aynı doğrulamadan geçer. Doğrulanan temiz SQL salt-okunur bağlantı ve authorizer altında, 500 satır ve 5 saniye sınırıyla çalıştırılır.
+
+Kullanıcının doğrudan SQL girdisindeki hata kullanıcıya döndürülür. Modelin ürettiği SQL'de ayrıştırma veya sütun hatası oluşursa önceki SQL ve hata mesajıyla en fazla bir düzeltme denemesi yapılır. Güvenlik reddi, süre aşımı ve model erişim hatalarında sonuç doğrudan döndürülür. Pipeline sonuç kaydını log fonksiyonuna iletir.
+
 - **Güvenlik koda, zekâ modele.** Model ne üretirse üretsin SQL çalışmadan önce `validate_sql` ve `execute_sql`'deki
   kurallardan geçer. Arayüz güvenlik kontrolü yapmaz, yalnızca `pipeline.ask()`'ı çağırır ([app/ui.py](app/ui.py)).
 - **Durum çevirisi `pipeline.py`'de:** model `ok` → (SQL çalıştıysa) `success`, `clarify` → `clarify`, `unsupported` →
   `rejected`, güvenlik reddi → `rejected`, diğer hatalar → `error`.
-- **Doğrudan SQL modele gitmez.** Girdi (baştaki boşluk ve yorumlar atlandıktan sonra) bir SQL komutuyla başlıyorsa
-  (`SQL_START` regex'i, [pipeline.py:19](app/pipeline.py#L19)) aynen validator'a verilir. Bu tespit güvenlik kararı
-  değildir, yalnızca yolu seçer: iki yol da aynı validator ve authorizer'dan geçer.
-- **Yeniden deneme en fazla 1 kez**, yalnızca modelin ürettiği SQL için ve tek hak: `parse_error` ile `unknown_field`
-  (SQLite `no such column`) aynı sayacı paylaşır. Önceki SQL ve hata mesajı modele geri verilir. Kullanıcının yazdığı SQL
-  hatalıysa modele düzelttirilmez. Güvenlik reddi, timeout, model erişilemezliği ve bozuk model cevabı yeniden denenmez.
+- **Koddaki yerleri:** doğrudan SQL tespiti `SQL_START` regex'i ([pipeline.py:19](app/pipeline.py#L19)); bu tespit güvenlik
+  kararı değildir, yalnızca yolu seçer. Yeniden deneme kararı [pipeline.py:245](app/pipeline.py#L245): `parse_error` ile
+  `unknown_field` (SQLite `no such column`) aynı tek hakkı paylaşır (`config.MAX_RETRIES = 1`); bozuk model cevabı ve
+  diğer veritabanı hataları da yeniden denenmez. Log kaydı [pipeline.py:82](app/pipeline.py#L82).
 
 ## Şema bağlamı
 
@@ -284,6 +286,8 @@ kullanılırsa yanlış eşleşebilir. Etkisi ölçümlerle belgelendi: [docs/ol
 
 ## Güvenlik
 
+Validator gelen SQL'i sabit kurallarla denetler. Kullanıcı girdisi bu kuralları değiştiremez. Modelin ürettiği SQL ve kullanıcının doğrudan SQL girdisi aynı doğrulayıcıdan geçer. Doğrulama sonrasında çalıştırılan sorgu ayrıca salt-okunur bağlantı ve SQLite authorizer tarafından denetlenir.
+
 İlke: güvenlik prompt'a değil koda bırakılır. Prompt'taki "veri silme isteği unsupported'dır" kuralı yalnızca kullanıcıya
 düzgün mesaj içindir; asıl koruma iki katmanlıdır: **validator** ([app/validator.py](app/validator.py), SQLGlot AST) ve
 **salt-okunur bağlantı + authorizer** ([app/db.py](app/db.py), SQLite motoru). Authorizer, SQLite'ın her işlemden önce
@@ -403,9 +407,13 @@ sorulardaki sonuç gizli test setinde garanti değildir; kurallar ve örnekler b
 - **Varsayım metni doğrulanmaz.** `assumption` modelin kendi açıklamasıdır; örneğin "İzmir'in toplam cirosu" sorusunda SQL doğru
   ve tarih filtresi içermediği hâlde model "tarih filtresi eklendi" yazdı. Arayüz bu yüzden varsayımın altında "neyin
   hesaplandığını SQL gösterir" notunu verir; esas olan çalıştırılan SQL'dir.
-- **SQL kelimesiyle başlayan Türkçe soru SQL sayılır.** Doğrudan SQL tespiti ilk kelimeye bakar; "Select en çok satan 5
-  ürün" gibi bir girdi modele gitmez, validator'da `error · parse_error` döner (2026-11-06'da elle denendi). Güvenlik
-  sorunu değildir: girdi yine validator'dan geçer ve hiçbir şey çalışmaz.
+- **Doğrudan SQL girdileri validator'a yönlendirilir.** `SELECT * FROM Customers; DELETE FROM Customers` ve
+  `ATTACH DATABASE 'x.db' AS x; PRAGMA table_info(Customers)` girdileri çoklu ifade oldukları için reddedilir.
+  `SELECT * FROM Customers /* DELETE FROM Customers */` girdisinde yorum temizlenir ve yalnızca güvenli SELECT çalıştırılır.
+  SQL komutuyla başlayan doğal dil metinleri de bu yola girdiği için ayrıştırma hatası alabilir.
+  - Örnek: "Select en çok satan 5 ürün" modele gitmez, validator'da `error · parse_error` döner (2026-11-06'da elle
+    denendi). Güvenlik sorunu değildir: girdi yine validator'dan geçer ve hiçbir şey çalışmaz.
+
 ### Çalışma ortamı
 
 - Bağlam penceresi `num_ctx = 8192` (Ollama varsayılanı 4096). Prompt ≈ 3446 token; pencere aşılırsa Ollama prompt'un başını
@@ -421,7 +429,7 @@ ve savunulabilir olması hedeflendi.
 
 | Araç | Kim | Nerede / nasıl |
 |---|---|---|
-| Claude Code (Anthropic, VS Code eklentisi) | Sıla Saatlı | Kodlama ve öğrenme yardımcısı: şema bağlamı, prompt ve few-shot denemeleri, ölçüm araçları, arayüz, log ve rapor kodu; dokümantasyon taslakları (README, mimari diyagram, log örnekleri, teknik değerlendirme). Çalışma kuralları [CLAUDE.md](CLAUDE.md)'de. [KONTROL: Hangi dosyalarda ne ölçüde kullanıldığı Sıla tarafından netleştirilmeli] |
-| [KONTROL: Kişi A'nın kullandığı yapay zekâ araçları] | Taha Yavaş | [KONTROL: validator, db, pipeline, run_all, test_security için kullanılan araçlar] |
+| Claude Code (Anthropic, VS Code eklentisi) | Sıla Saatlı | Kodlama ve öğrenme yardımcısı: şema bağlamı, prompt ve few-shot denemeleri, ölçüm araçları, arayüz, log ve rapor kodu; `run_all.py`'deki karşılaştırma düzeltmesi (`columns_match`, 2026-11-06); dokümantasyon taslakları (README, mimari diyagram, log örnekleri, teknik değerlendirme). Çalışma kuralları [CLAUDE.md](CLAUDE.md)'de. [KONTROL: Hangi dosyalarda ne ölçüde kullanıldığı Sıla tarafından netleştirilmeli] |
+| Codex (OpenAI) | Murat Taha Yavaş | Kodlama ve öğrenme yardımcısı. `pipeline.py` ve `run_all.py` için kod üretimi, açıklama ve düzeltme desteği. `validator.py`, `db.py` ve `test_security.py` için kod inceleme ve güvenlik davranışının açıklanması. |
 | `qwen2.5-coder:7b` (Ollama, yerel) | Uygulamanın parçası | Çalışma anında Türkçe soruyu SQL'e çeviren model; geliştirme yardımcısı değil |
 | Veri üretimi | [KONTROL: kim] | [data/VERI_SETI.md](data/VERI_SETI.md) verinin "bir Python betiğiyle bir kez üretildiğini" söylüyor. [KONTROL: Bu betik yapay zekâ yardımıyla mı yazıldı, betik repoda değil] |
