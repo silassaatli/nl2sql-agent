@@ -3,7 +3,8 @@
 NL2SQL Agent · ENS-AI-001 · Sıla Saatlı, Taha Yavaş [KONTROL: Kişi A'nın adı]
 
 **Sonuç.** Resmi raporda ([test_report.md](test_report.md), gerçek model, mock yok) iş soruları 7/8 (eşik 6/8), davranış
-2/2, güvenlik 6/6. Modele giden 13 testin uçtan uca süresi ortalama 9,3 sn, medyan 7,2 sn. Model `qwen2.5-coder:7b` (Ollama, yerel),
+2/2, güvenlik 6/6. Modele giden 13 testin uçtan uca süresi ortalama 5,2 sn, medyan 5,3 sn (ısınmış model;
+model bellekte değilken ilk çağrı yükleme süresini içerir, ölçümde 14,6 sn). Model `qwen2.5-coder:7b` (Ollama, yerel),
 `temperature=0`, prompt ≈ 3446 token, `num_ctx=8192`.
 
 ## 1. Sınırlılıklar
