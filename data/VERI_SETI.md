@@ -73,5 +73,7 @@ Referans tarih: **2026-06-30**.
 
 ## Veri nasıl üretildi?
 
-Veri, ödevdeki şemaya ve bankacılık senaryosuna uygun olarak bir Python betiğiyle bir kez üretildi ve CSV olarak donduruldu.
+Öğretici yalnızca çalışılacak sektörü (bankacılık) belirledi; veri seti ve yükleme betiği (`setup_db.py`) ekip tarafından
+hazırlandı. Veri, ödevdeki şemaya ve bankacılık senaryosuna uygun olarak bir Python betiğiyle (Claude yardımıyla yazıldı)
+bir kez üretildi ve CSV olarak donduruldu. Üretim betiği repoda değildir.
 Teslimde kullanılan veri her zaman bu CSV dosyalarıdır. Veri değiştirilirse test 01–08'in beklenen sonuçları yeniden hesaplanmalıdır.
