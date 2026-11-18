@@ -17,6 +17,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import streamlit as st  # noqa: E402
 
+from app.chart_view import show_chart
+from app.charts import build_charts  # noqa: E402
 from app.pipeline import SQL_START, ask  # noqa: E402
 from config import MAX_ROWS, MODEL_NAME, REFERENCE_DATE  # noqa: E402
 
@@ -42,7 +44,7 @@ ERROR_TYPE_TR = {
     "unknown_field": "sorguda veri modelinde olmayan bir sütun var",
     "timeout": "sorgu süre sınırını aştı",
     "database_error": "veritabanı sorguyu çalıştıramadı",
-    "model_unavailable": "dil modeline ulaşılamadı (Ollama çalışıyor mu?)",
+    "model_unavailable": "Gemini API erişimi veya anahtar/kota ayarları kontrol edilmeli",
     "invalid_model_response": "dil modelinin cevabı okunamadı",
 }
 
@@ -84,14 +86,11 @@ def show_result(result: dict, direct_sql: bool = False) -> None:
         # Varsayım metni modelin kendi açıklamasıdır ve doğrulanmaz; esas olan çalışan SQL'dir.
         st.caption("Varsayım, modelin kendi açıklamasıdır; neyin hesaplandığını SQL gösterir.")
 
-    st.subheader("Girilen SQL" if direct_sql else "Üretilen SQL")
     notes = SQL_NOTE_DIRECT if direct_sql else SQL_NOTE
     if result.get("sql"):
-        st.code(result["sql"], language="sql")
-        if status in notes:
-            st.caption(notes[status])
-    else:
-        st.caption("SQL üretilmedi; veritabanında hiçbir sorgu çalıştırılmadı.")
+        with st.expander("SQL ve işlem ayrıntıları",expanded=False):
+            st.code(result["sql"],language="sql")
+            if status in notes: st.caption(notes[status])
 
     rows = result.get("rows") or []
     if status == "success":
@@ -99,6 +98,13 @@ def show_result(result: dict, direct_sql: bool = False) -> None:
         if rows:
             st.dataframe(rows, width="stretch", hide_index=True)
             st.caption(f"{len(rows)} satır")
+            charts = build_charts(rows)
+            if charts:
+                st.subheader("Grafikler")
+                for title, chart in charts:
+                    st.markdown(f"**{title}**")
+                    show_chart(chart, title, "result_"+title)
+                st.caption("Grafikler yalnızca gösterilen sorgu sonucunu kullanır; ek sorgu veya model çağrısı yapılmaz.")
             if result.get("truncated"):
                 st.warning(f"Sonuç {MAX_ROWS} satırla sınırlandı; daha fazla kayıt var.")
         else:
@@ -114,30 +120,6 @@ def _use_example(text: str) -> None:
     st.session_state["run"] = True
 
 
-st.set_page_config(page_title="NL2SQL Agent", layout="wide")
-st.title("NL2SQL Agent")
-st.caption(f"Türkçe iş sorunuzu yazın; SQL'e çevrilip salt-okunur bağlantıyla çalıştırılır. "
-           f"Model: {MODEL_NAME} · Referans tarih: {REFERENCE_DATE} · En fazla {MAX_ROWS} satır gösterilir.")
 
-with st.form("soru_formu"):
-    question = st.text_input("Soru", key="question", placeholder="Örn: İzmir'in toplam cirosu nedir?")
-    submitted = st.form_submit_button("Sor", type="primary")
-
-st.write("Örnek sorular:")
-for col, example in zip(st.columns(len(EXAMPLES)), EXAMPLES):
-    col.button(example, on_click=_use_example, args=(example,), width="stretch")
-
-run = submitted or st.session_state.pop("run", False)
-if run:
-    if not question.strip():
-        st.warning("Lütfen bir soru yazın.")
-    else:
-        st.divider()
-        with st.spinner("Model SQL üretiyor ve sorgu güvenli şekilde çalıştırılıyor…"):
-            try:
-                result = ask(question)
-            except Exception as e:      # ask() hataları kendisi yönetir; bu sadece beklenmeyen durumlar için
-                st.error(f"Beklenmeyen hata: {type(e).__name__}: {e}")
-                st.stop()
-        # Pipeline ile aynı regex: girdinin hangi yoldan gittiğini arayüz ayrıca tahmin etmez.
-        show_result(result, direct_sql=bool(SQL_START.match(question)))
+from app.platform_ui import render_platform
+render_platform(show_result)

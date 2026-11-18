@@ -10,6 +10,7 @@ Kurallar (ödev Bölüm 05):
 Not: Bu katman tek başına yeterli sayılmaz; db.py'deki salt-okunur bağlantı + authorizer ikinci savunma hattıdır.
 """
 
+from app.workspace import allowed_tables
 import sqlglot
 from sqlglot import exp
 
@@ -35,7 +36,7 @@ def validate_sql(sql: str) -> tuple[bool, str, str]:
     cte_names = {c.alias_or_name.lower() for c in tree.find_all(exp.CTE)}
     for table in tree.find_all(exp.Table):
         name = table.name.lower()
-        if name not in ALLOWED_TABLES and name not in cte_names:
+        if name not in allowed_tables() and name not in cte_names:
             return False, "", f"table_not_allowed:{name}"
     clean_sql = tree.sql(dialect="sqlite", comments=False)
     return True, clean_sql, ""

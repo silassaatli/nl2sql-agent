@@ -23,8 +23,7 @@ DATE_RANGES = {
 }
 
 # LLM
-MODEL_NAME = "qwen2.5-coder:7b"   # Ollama model adı
-TEMPERATURE = 0                   # tekrarlanabilir sonuçlar için
+MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite").strip() or "gemini-3.5-flash-lite"
 
 # Log
 LOG_PATH = os.path.join(BASE_DIR, "logs", "queries.jsonl")

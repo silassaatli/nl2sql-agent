@@ -13,6 +13,8 @@ Hatalar:
 
 import sqlite3
 import time
+from pathlib import Path
+from app.workspace import db_path, allowed_tables
 
 from config import ALLOWED_TABLES, DB_PATH, MAX_ROWS, TIMEOUT_S
 
@@ -20,7 +22,7 @@ from config import ALLOWED_TABLES, DB_PATH, MAX_ROWS, TIMEOUT_S
 def _authorizer(action, arg1, arg2, db_name, trigger):
     if action == sqlite3.SQLITE_SELECT:
         return sqlite3.SQLITE_OK
-    if action == sqlite3.SQLITE_READ and arg1 and arg1.lower() in ALLOWED_TABLES:
+    if action == sqlite3.SQLITE_READ and arg1 and arg1.lower() in allowed_tables():
         return sqlite3.SQLITE_OK
     if action == sqlite3.SQLITE_FUNCTION:
         return sqlite3.SQLITE_OK
@@ -29,7 +31,7 @@ def _authorizer(action, arg1, arg2, db_name, trigger):
 
 def execute_sql(sql: str) -> tuple[list[dict], bool]:
     """Döner: (satırlar, 500'den fazla olup kesildi_mi)"""
-    conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
+    conn = sqlite3.connect(Path(db_path()).resolve().as_uri() + "?mode=ro", uri=True)
     conn.set_authorizer(_authorizer)
     start = time.time()
     conn.set_progress_handler(lambda: 1 if time.time() - start > TIMEOUT_S else 0, 10000)

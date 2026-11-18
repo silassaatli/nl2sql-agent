@@ -16,10 +16,42 @@ Senaryo: bir bankanın ürün ve hizmet satış verisi (bkz. [data/VERI_SETI.md]
 | En fazla 2 sayfalık teknik değerlendirme | [docs/teknik_degerlendirme.md](docs/teknik_degerlendirme.md) |
 | Kullanılan yapay zekâ araçları (Bölüm 10) | [Kullanılan yapay zekâ araçları](#kullanılan-yapay-zekâ-araçları) |
 
+## Gemini API ile güncel çalışma
+
+SQL üretimi artık Gemini API'nin `generateContent` uç noktasını kullanır.
+Varsayılan model `gemini-3.5-flash-lite`; `GEMINI_MODEL` ortam değişkeniyle değiştirilebilir.
+Bağlantı Python standart kütüphanesiyle yapılır; ek SDK gerekmez.
+Sistem prompt'u, few-shot örnekleri, tarih/metrik notları ve yeniden deneme akışı korunur.
+Kullanıcı sorusu ve şema bağlamı (şemadaki örnek değerler dahil) Google API'ye gönderilir;
+SQL yerel SQLite üzerinde doğrulandıktan sonra çalışır.
+
+PowerShell'de uygulamayı başlatacağınız terminalde anahtarı tanımlayın:
+
+```powershell
+$geminiSecret = Read-Host "Gemini API anahtarı" -AsSecureString
+$env:GEMINI_API_KEY = [System.Net.NetworkCredential]::new('', $geminiSecret).Password
+.venv\Scripts\python.exe -m streamlit run app/ui.py
+```
+
+Anahtar [Google AI Studio](https://aistudio.google.com/apikey) üzerinden alınır.
+Anahtar dosyaya yazılmaz; `.env` otomatik yüklenmez. Model adı değişirse uygulamayı yeniden başlatın.
+API anahtarı/bağlantı/kota hataları `model_unavailable`, eksik veya bozuk yanıtlar
+`invalid_model_response` olarak mevcut pipeline üzerinden gösterilir.
+
+```bash
+python -m pytest tests/test_llm.py tests/test_security.py
+python tests/run_all.py
+```
+
+İlk komut API anahtarı gerektirmeyen birim testleridir. İkinci komut gerçek Gemini çağrıları
+yapar, kota kullanır ve 16 soruluk raporu yeniden yazar. Aşağıdaki eski Qwen ölçümleri,
+model seçimi açıklamaları ve `docs/` raporları önceki yerel model çalışmasına aittir;
+Gemini başarımını göstermez.
+
 ## Gereksinimler
 
 - Python 3.10+ (geliştirme ortamı: Python 3.11.9)
-- [Ollama](https://ollama.com) ve en az 8 GB RAM (model ~4.7 GB)
+- İnternet erişimi ve `GEMINI_API_KEY` ortam değişkeni
 
 ## Kurulum
 
@@ -39,7 +71,6 @@ python -m venv .venv
 # Mac / Linux:  source .venv/bin/activate
 pip install -r requirements.txt
 
-ollama pull qwen2.5-coder:7b     # modeli indir (bir kez)
 python setup_db.py               # veritabanını sabit CSV'lerden sıfırdan kur + şema bağlamını (data/schema.json) üret
 ```
 
@@ -75,7 +106,7 @@ config.py            Sabit ayarlar: referans tarih, limitler, model adı
 setup_db.py          Veritabanını data/csv/ içindeki sabit veriden kurar, ardından data/schema.json üretir
 data/                Veri seti (CSV) ve veri dokümantasyonu
 app/schema.py        Şema bağlamı: tablo, sütun, tip, PK/FK → LLM'e verilir
-app/llm.py           Prompt + Ollama çağrısı → SQL üretimi
+app/llm.py           Prompt + Gemini API çağrısı → SQL üretimi
 app/semantic.py      Semantik katman: metrik sözlüğü + tarih çözücü (soruya Tarih/Metrik notu ekler)
 app/validator.py     SQLGlot ile güvenlik doğrulaması
 app/db.py            Salt-okunur bağlantı + authorizer + süre/satır limiti
