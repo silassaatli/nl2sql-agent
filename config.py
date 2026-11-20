@@ -22,6 +22,11 @@ MAX_RETRIES = 1       # hata olursa en fazla 1 kez yeniden deneme
 SELF_CORRECTION = False
 SELF_CORRECTION_MAX_RETRIES = 2
 
+# Göreli tarih çözücü (varsayılan KAPALI). Açıkken app/semantic.py "geçen ay", "bu yıl", "bu çeyrek",
+# "son N ay/gün", "geçen/bu hafta", "dün" gibi ifadeleri REFERENCE_DATE'e göre çözüp soruya Tarih notu
+# olarak ekler; app/llm.py çözülen aralığı cevabın varsayımına yazar. Kapalıyken bugünkü davranış.
+RELATIVE_DATES = False
+
 # Referans tarih: tüm göreli tarih ifadeleri buna göre yorumlanır
 REFERENCE_DATE = "2026-06-30"
 DATE_RANGES = {

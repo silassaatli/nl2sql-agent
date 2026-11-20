@@ -8,12 +8,15 @@ Model bu çeviriyi tahmin etmez; hazır sonucu prompt'ta veya soruya eklenen not
 2. resolve_dates(): sorudaki tarih ifadelerini (config.DATE_RANGES ifadeleri, ay adları, çeyrekler, "ilk N ay",
    "X'ten Y'ye" aralıkları) bulup tarih aralığına çevirir. date_note() bunu soruya eklenecek nota dönüştürür.
    Hesap yalnızca config.REFERENCE_DATE üzerinden yapılır; sistem saati KULLANILMAZ.
+3. relative_dates(): "geçen ay", "bu yıl", "bu çeyrek", "son N ay/gün", "geçen/bu hafta", "dün" gibi göreli
+   ifadeler. resolve_dates() bunları yalnızca config.RELATIVE_DATES açıkken ekler (kapalıyken bugünkü davranış).
 """
 
 import calendar
 import re
-from datetime import date
+from datetime import date, timedelta
 
+import config  # RELATIVE_DATES bayrağı çağrı anında okunur (eval aynı süreçte açıp kapatabilsin)
 from config import DATE_RANGES, REFERENCE_DATE
 
 REF = date.fromisoformat(REFERENCE_DATE)
@@ -167,7 +170,92 @@ def resolve_dates(question: str) -> list[dict]:
     # Geniş bir aralığın içinde kalan tek ayı at ("Mart sonuna kadarki ilk üç ay" → sadece Ocak–Mart)
     month_spans = [m for m in month_spans
                    if not any(s["start"] <= m["start"] and m["end"] <= s["end"] for s in spans)]
-    return spans + month_spans
+    result = spans + month_spans
+
+    # Göreli ifadeler ay filtresinden SONRA eklenir: "Bu yıl Mart'ta" sorusunda Mart'ı yutmasınlar.
+    # config.DATE_RANGES ile aynı aralığı veren ifade ("son 6 ay") tekrar eklenmez.
+    if config.RELATIVE_DATES:
+        for span in relative_dates(question):
+            if not any(s["start"] == span["start"] and s["end"] == span["end"] for s in result):
+                result.append(span)
+    return result
+
+
+# --- 3. Göreli tarih ifadeleri ------------------------------------------------
+_NUMBER_RE = r"(\d+|" + "|".join(NUMBERS_TR) + r")"
+_RELATIVE_PATTERNS = [
+    # (desen, etiket üreten fonksiyon adı)
+    # "geçen ay", "geçen ayın", "geçen ayki"; "geçen aylar" / "aylık" (çoğul, sıklık) göreli ay değildir
+    (re.compile(r"(?<!\w)geçen\s+ay(?!lar|lık)"), "last_month"),
+    (re.compile(r"(?<!\w)bu\s+ay(?!lar|lık)"), "this_month"),
+    (re.compile(r"(?<!\w)(?:bu\s+(?:yıl|sene)|yılbaşından\s+(?:bu\s+yana|beri|bugüne))"), "this_year"),
+    (re.compile(r"(?<!\w)(?:geçen|önceki)\s+(?:yıl|sene)"), "last_year"),
+    (re.compile(r"(?<!\w)bu\s+çeyre"), "this_quarter"),
+    (re.compile(r"(?<!\w)son\s+" + _NUMBER_RE + r"\s+ay"), "last_n_months"),
+    (re.compile(r"(?<!\w)son\s+" + _NUMBER_RE + r"\s+gün"), "last_n_days"),
+    (re.compile(r"(?<!\w)bu\s+hafta"), "this_week"),
+    (re.compile(r"(?<!\w)geçen\s+hafta"), "last_week"),
+    (re.compile(r"(?<!\w)dün(?!ya)(?!\w)"), "yesterday"),
+]
+
+
+def _to_int(raw: str) -> int:
+    return int(raw) if raw.isdigit() else NUMBERS_TR[raw]
+
+
+def _relative_span(kind: str, match: re.Match) -> tuple[str, date, date]:
+    """Bir göreli ifadeyi (etiket, başlangıç, bitiş) üçlüsüne çevirir. Yalnızca REF kullanılır."""
+    if kind == "this_month":
+        return f"bu ay ({MONTHS_TR[REF.month - 1]} {REF.year})", REF.replace(day=1), REF
+    if kind == "last_month":
+        last = REF.replace(day=1) - timedelta(days=1)          # bu ayın 1'inden bir gün önce
+        return f"geçen ay ({MONTHS_TR[last.month - 1]} {last.year})", last.replace(day=1), last
+    if kind == "this_year":
+        return f"bu yıl ({REF.year}, yılbaşından referans tarihe kadar)", date(REF.year, 1, 1), REF
+    if kind == "last_year":
+        return f"geçen yıl ({REF.year - 1})", date(REF.year - 1, 1, 1), date(REF.year - 1, 12, 31)
+    if kind == "this_quarter":
+        first = 3 * ((REF.month - 1) // 3) + 1
+        return f"bu çeyrek ({REF.year} {(first + 2) // 3}. çeyrek)", date(REF.year, first, 1), REF
+    if kind == "last_n_months":
+        n = _to_int(match.group(1))
+        month_index = REF.year * 12 + REF.month - 1 - (n - 1)  # n ay geriye (referans ay dahil)
+        start = date(month_index // 12, month_index % 12 + 1, 1)
+        return f"son {n} ay", start, REF
+    if kind == "last_n_days":
+        n = _to_int(match.group(1))
+        return f"son {n} gün", REF - timedelta(days=n - 1), REF   # referans gün dahil n gün
+    if kind == "this_week":
+        return "bu hafta (pazartesiden referans tarihe)", REF - timedelta(days=REF.weekday()), REF
+    if kind == "last_week":
+        monday = REF - timedelta(days=REF.weekday() + 7)
+        return "geçen hafta (pazartesi–pazar)", monday, monday + timedelta(days=6)
+    # yesterday
+    day = REF - timedelta(days=1)
+    return "dün", day, day
+
+
+def relative_dates(question: str) -> list[dict]:
+    """Sorudaki göreli tarih ifadelerini aralığa çevirir: [{"phrase", "start", "end"}, ...].
+    Bayraktan bağımsızdır; resolve_dates() bunu yalnızca config.RELATIVE_DATES açıkken kullanır."""
+    q = _tr_lower(question)
+    spans = []
+    for pattern, kind in _RELATIVE_PATTERNS:
+        for match in pattern.finditer(q):
+            phrase, start, end = _relative_span(kind, match)
+            span = {"phrase": phrase, "start": start.isoformat(), "end": end.isoformat()}
+            if span not in spans:
+                spans.append(span)
+    return spans
+
+
+def relative_assumption(question: str) -> str:
+    """Cevabın varsayımına eklenecek cümle (çözülen göreli tarih yoksa "")."""
+    spans = relative_dates(question)
+    if not spans:
+        return ""
+    parts = [f"{s['phrase']} = {s['start']} – {s['end']}" for s in spans]
+    return f"Göreli tarih, referans tarih {REFERENCE_DATE} üzerinden çözüldü: " + "; ".join(parts) + "."
 
 
 def date_note(question: str) -> str:

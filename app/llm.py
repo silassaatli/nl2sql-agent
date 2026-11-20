@@ -29,7 +29,8 @@ import os
 from urllib import error, parse, request
 
 from app.schema import load_schema, schema_to_prompt_text
-from app.semantic import date_note, metric_note, metrics_to_prompt_text, month_rules_text
+from app.semantic import date_note, metric_note, metrics_to_prompt_text, month_rules_text, relative_assumption
+import config  # RELATIVE_DATES bayrağı çağrı anında okunur
 from config import DATE_RANGES, MODEL_NAME, REFERENCE_DATE
 
 
@@ -299,4 +300,11 @@ def generate_sql(question: str, previous_error: str | None = None) -> dict:
         raise ModelOutputError("Gemini kullanılabilir bir JSON yanıtı döndürmedi.") from None
     if not content.strip():
         raise ModelOutputError("Gemini boş yanıt döndürdü.")
-    return _parse_response(content)
+    result = _parse_response(content)
+
+    # Göreli tarih çözüldüyse varsayımda görünmesi kodla garanti edilir (modelin yazmasına bırakılmaz).
+    if config.RELATIVE_DATES and result["status"] == "ok" and not current():
+        note = relative_assumption(question)
+        if note and note not in result["assumption"]:
+            result["assumption"] = f"{result['assumption']} {note}".strip()
+    return result
