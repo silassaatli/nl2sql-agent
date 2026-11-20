@@ -138,6 +138,34 @@ def test_on_timeout_never_retried(env, monkeypatch):
     assert (r["status"], r["error_type"], r["retry_count"]) == ("error", "timeout", 0)
 
 
+TAUT = "SELECT p.Name FROM Customers AS p JOIN Orders AS o ON p.CustomerID = p.CustomerID"
+
+
+def test_off_tautology_not_checked(env, monkeypatch):
+    flag(monkeypatch, False)
+    env["replies"] = [TAUT]
+    env["outcomes"] = {TAUT: [{"Name": "A"}]}
+    r = pipeline.ask("soru")
+    assert (r["status"], r["retry_count"]) == ("success", 0)     # bugünkü davranış: çalıştırılır
+
+
+def test_on_tautology_retried_before_execution(env, monkeypatch):
+    flag(monkeypatch, True)
+    env["replies"] = [TAUT, GOOD]
+    env["outcomes"] = {GOOD: [{"Name": "A"}]}                  # TAUT yürütücüye hiç gitmemeli (KeyError olurdu)
+    r = pipeline.ask("soru")
+    assert (r["status"], r["retry_count"]) == ("success", 1)
+    assert r["attempts"][0]["error_type"] == "tautological_condition"
+    assert "p.CustomerID = p.CustomerID" in env["prompts"][1]
+
+
+def test_on_tautology_after_last_retry_not_shown(env, monkeypatch):
+    flag(monkeypatch, True, max_retries=1)
+    env["replies"] = [TAUT, TAUT]
+    r = pipeline.ask("soru")
+    assert (r["status"], r["error_type"], r["rows"]) == ("error", "tautological_condition", [])
+
+
 def test_on_direct_sql_not_affected(env, monkeypatch):
     flag(monkeypatch, True)
     env["outcomes"] = {"SELECT Name FROM Customers": []}

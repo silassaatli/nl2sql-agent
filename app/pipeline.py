@@ -10,6 +10,7 @@ from sqlglot.errors import ParseError, TokenError
 from app.db import execute_sql
 from app.llm import ModelUnavailableError, generate_sql
 from app.logger import write_log
+from app.sql_checks import find_tautologies
 from app.validator import validate_sql
 from config import MAX_RETRIES, MAX_ROWS, MODEL_NAME
 import config  # SELF_CORRECTION bayrakları sorgu anında okunur (eval aynı süreçte açıp kapatabilsin)
@@ -209,6 +210,25 @@ def ask(question: str) -> dict:
         else:
             # Yürütücü yalnızca validator'ın temizlediği SQL'i alır.
             sql = clean_sql
+
+            # Self-correction açıkken: sessiz hata kontrolü (güvenlik değil; app/sql_checks.py).
+            # Sütunun kendisiyle karşılaştırıldığı koşul varsa SQL çalıştırılmadan düzeltme istenir.
+            tautologies = find_tautologies(sql) if self_correction else []
+            if tautologies and retry_count < max_retries:
+                attempts.append({"attempt": retry_count + 1, "sql": sql, "error_type": "tautological_condition"})
+                previous_error = (
+                    f"Önceki SQL:\n{sql}\nHata: Her zaman doğru olan koşul: {'; '.join(tautologies)}. "
+                    "Bir sütun kendisiyle karşılaştırılmış; JOIN koşulu iki FARKLI tabloyu bağlamalı "
+                    "(ör. p.ProductID = oi.ProductID)."
+                )
+                retry_count += 1
+                continue
+            if tautologies:
+                return finish(
+                    "error",
+                    "Sorguda her zaman doğru olan bir koşul var; sonuç güvenilir olmadığı için gösterilmedi.",
+                    "tautological_condition",
+                )
 
             try:
                 rows, truncated = execute_sql(sql)

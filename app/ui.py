@@ -44,6 +44,7 @@ ERROR_TYPE_TR = {
     "unknown_field": "sorguda veri modelinde olmayan bir sütun var",
     "timeout": "sorgu süre sınırını aştı",
     "database_error": "veritabanı sorguyu çalıştıramadı",
+    "tautological_condition": "sorguda her zaman doğru olan bir koşul var (ör. bir sütun kendisiyle karşılaştırılmış)",
     "model_unavailable": "Gemini API erişimi veya anahtar/kota ayarları kontrol edilmeli",
     "invalid_model_response": "dil modelinin cevabı okunamadı",
 }
