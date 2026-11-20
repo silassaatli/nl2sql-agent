@@ -61,8 +61,12 @@ REPORT_DIR = EVAL_DIR / "reports"
 # Ajan akışını değiştiren config bayrakları. Var olanlar rapora ve önbellek anahtarına yazılır.
 FLAG_NAMES = ["SELF_CORRECTION", "SELF_CORRECTION_MAX_RETRIES", "CLARIFY_GATE"]
 
-# Kod özeti: bunlardan biri değişirse önbellek yeni dosyaya geçer.
-CODE_FILES = ["config.py", "data/schema.json", *sorted(str(p.relative_to(PROJECT_DIR)) for p in (PROJECT_DIR / "app").glob("*.py"))]
+# Kod özeti: ajanın CEVABINI etkileyen dosyalar. Biri değişirse önbellek yeni dosyaya geçer.
+# Arayüz dosyaları (ui.py, platform_ui.py, eval_view.py, charts.py …) bilerek yok: cevabı değiştirmezler,
+# eklenirlerse her arayüz değişikliği bütün önbelleği geçersiz kılar ve gereksiz API çağrısı yapılır.
+# Ajan akışına yeni bir modül eklenirse (ör. app/clarify.py) buraya da eklenmeli.
+CODE_FILES = ["config.py", "data/schema.json", "app/llm.py", "app/semantic.py", "app/schema.py", "app/pipeline.py",
+              "app/validator.py", "app/db.py", "app/workspace.py", "app/governance.py"]
 
 RETRYABLE_HTTP = re.compile(r"HTTP (429|500|502|503|504)\b")
 

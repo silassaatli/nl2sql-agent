@@ -1,0 +1,2163 @@
+{
+  "meta": {
+    "started_at": "2026-11-20T13:26:56",
+    "finished_at": "2026-11-20T13:29:32",
+    "model": "gemini-3.5-flash-lite",
+    "flags": {},
+    "code_hash": "1a6f86abe0",
+    "run_name": "gemini-3.5-flash-lite__varsayilan__1a6f86abe0",
+    "golden_set": "eval\\golden_set.json",
+    "golden_hash": "542407098d",
+    "question_count": 45,
+    "subset": false,
+    "from_cache": 0,
+    "command": "python eval/run_eval.py "
+  },
+  "summary": {
+    "overall": {
+      "passed": 44,
+      "scored": 45,
+      "total": 45,
+      "accuracy": 0.9778
+    },
+    "by_difficulty": {
+      "kolay": {
+        "passed": 12,
+        "scored": 12,
+        "total": 12,
+        "accuracy": 1.0
+      },
+      "orta": {
+        "passed": 21,
+        "scored": 22,
+        "total": 22,
+        "accuracy": 0.9545
+      },
+      "zor": {
+        "passed": 11,
+        "scored": 11,
+        "total": 11,
+        "accuracy": 1.0
+      }
+    },
+    "by_behavior": {
+      "clarify": {
+        "passed": 4,
+        "scored": 4,
+        "total": 4,
+        "accuracy": 1.0
+      },
+      "refuse": {
+        "passed": 3,
+        "scored": 3,
+        "total": 3,
+        "accuracy": 1.0
+      },
+      "sql": {
+        "passed": 37,
+        "scored": 38,
+        "total": 38,
+        "accuracy": 0.9737
+      }
+    },
+    "by_tag": {
+      "aggregation": {
+        "passed": 24,
+        "scored": 25,
+        "total": 25,
+        "accuracy": 0.96
+      },
+      "alt_sorgu": {
+        "passed": 3,
+        "scored": 3,
+        "total": 3,
+        "accuracy": 1.0
+      },
+      "anti_join": {
+        "passed": 2,
+        "scored": 2,
+        "total": 2,
+        "accuracy": 1.0
+      },
+      "belirsiz": {
+        "passed": 4,
+        "scored": 4,
+        "total": 4,
+        "accuracy": 1.0
+      },
+      "cevaplanamaz": {
+        "passed": 2,
+        "scored": 2,
+        "total": 2,
+        "accuracy": 1.0
+      },
+      "churn": {
+        "passed": 1,
+        "scored": 1,
+        "total": 1,
+        "accuracy": 1.0
+      },
+      "filtre": {
+        "passed": 5,
+        "scored": 5,
+        "total": 5,
+        "accuracy": 1.0
+      },
+      "gelir": {
+        "passed": 14,
+        "scored": 14,
+        "total": 14,
+        "accuracy": 1.0
+      },
+      "goreli_tarih": {
+        "passed": 1,
+        "scored": 1,
+        "total": 1,
+        "accuracy": 1.0
+      },
+      "join": {
+        "passed": 13,
+        "scored": 14,
+        "total": 14,
+        "accuracy": 0.9286
+      },
+      "kosullu_aggregation": {
+        "passed": 1,
+        "scored": 1,
+        "total": 1,
+        "accuracy": 1.0
+      },
+      "kumulatif": {
+        "passed": 1,
+        "scored": 1,
+        "total": 1,
+        "accuracy": 1.0
+      },
+      "lag": {
+        "passed": 2,
+        "scored": 2,
+        "total": 2,
+        "accuracy": 1.0
+      },
+      "left_join": {
+        "passed": 3,
+        "scored": 3,
+        "total": 3,
+        "accuracy": 1.0
+      },
+      "oran": {
+        "passed": 3,
+        "scored": 4,
+        "total": 4,
+        "accuracy": 0.75
+      },
+      "paraphrase": {
+        "passed": 3,
+        "scored": 3,
+        "total": 3,
+        "accuracy": 1.0
+      },
+      "row_number": {
+        "passed": 1,
+        "scored": 1,
+        "total": 1,
+        "accuracy": 1.0
+      },
+      "self_join": {
+        "passed": 1,
+        "scored": 1,
+        "total": 1,
+        "accuracy": 1.0
+      },
+      "siralama": {
+        "passed": 6,
+        "scored": 6,
+        "total": 6,
+        "accuracy": 1.0
+      },
+      "tarih": {
+        "passed": 10,
+        "scored": 10,
+        "total": 10,
+        "accuracy": 1.0
+      },
+      "tek_tablo": {
+        "passed": 11,
+        "scored": 11,
+        "total": 11,
+        "accuracy": 1.0
+      },
+      "window": {
+        "passed": 6,
+        "scored": 6,
+        "total": 6,
+        "accuracy": 1.0
+      },
+      "zararli": {
+        "passed": 1,
+        "scored": 1,
+        "total": 1,
+        "accuracy": 1.0
+      }
+    },
+    "verdicts": {
+      "PASS": 44,
+      "FAIL": 1,
+      "INFRA": 0,
+      "SKIP": 0
+    },
+    "latency": {
+      "count": 45,
+      "avg_ms": 1663,
+      "median_ms": 1318,
+      "p95_ms": 2994
+    },
+    "pipeline_retries": 0,
+    "backoff_retries": 9
+  },
+  "results": [
+    {
+      "id": "G01",
+      "question": "Kaç müşterimiz var?",
+      "difficulty": "kolay",
+      "tags": [
+        "tek_tablo",
+        "aggregation"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT COUNT(*) AS MusteriSayisi FROM Customers",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT COUNT(CustomerID) AS MusteriSayisi FROM Customers",
+      "assumption": "Tüm müşterilerin toplam sayısı istendiği için Customers tablosundaki kayıt sayısı COUNT ile hesaplandı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Tüm müşterilerin toplam sayısı istendiği için Customers tablosundaki kayıt sayısı COUNT ile hesaplandı.",
+      "retry_count": 0,
+      "row_count": 1,
+      "actual_preview": [
+        [
+          200
+        ]
+      ],
+      "expected_row_count": 1,
+      "expected_preview": [
+        [
+          200
+        ]
+      ],
+      "latency_ms": 1719,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G02",
+      "question": "Her şehirde kaç müşterimiz var?",
+      "difficulty": "kolay",
+      "tags": [
+        "tek_tablo",
+        "aggregation"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT City, COUNT(*) AS MusteriSayisi FROM Customers GROUP BY City ORDER BY City",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT City, COUNT(CustomerID) AS MusteriSayisi FROM Customers GROUP BY City ORDER BY MusteriSayisi DESC",
+      "assumption": "Müşteri sayısı Customers tablosundaki müşteri ID'lerinin sayılmasıyla hesaplandı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Müşteri sayısı Customers tablosundaki müşteri ID'lerinin sayılmasıyla hesaplandı.",
+      "retry_count": 0,
+      "row_count": 13,
+      "actual_preview": [
+        [
+          "İstanbul",
+          62
+        ],
+        [
+          "İzmir",
+          28
+        ],
+        [
+          "Ankara",
+          27
+        ]
+      ],
+      "expected_row_count": 13,
+      "expected_preview": [
+        [
+          "Adana",
+          7
+        ],
+        [
+          "Ankara",
+          27
+        ],
+        [
+          "Antalya",
+          8
+        ]
+      ],
+      "latency_ms": 1122,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G03",
+      "question": "Segmentlere göre müşteri sayısı nedir?",
+      "difficulty": "kolay",
+      "tags": [
+        "tek_tablo",
+        "aggregation"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT Segment, COUNT(*) AS MusteriSayisi FROM Customers GROUP BY Segment ORDER BY Segment",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT Segment, COUNT(CustomerID) AS MusteriSayisi FROM Customers GROUP BY Segment ORDER BY MusteriSayisi DESC",
+      "assumption": "Müşteri sayısı Customers tablosundaki benzersiz müşteri ID'leri (COUNT(CustomerID)) ile segmentlere göre gruplandı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Müşteri sayısı Customers tablosundaki benzersiz müşteri ID'leri (COUNT(CustomerID)) ile segmentlere göre gruplandı.",
+      "retry_count": 0,
+      "row_count": 3,
+      "actual_preview": [
+        [
+          "Bireysel",
+          121
+        ],
+        [
+          "KOBİ",
+          63
+        ],
+        [
+          "Kurumsal",
+          16
+        ]
+      ],
+      "expected_row_count": 3,
+      "expected_preview": [
+        [
+          "Bireysel",
+          121
+        ],
+        [
+          "KOBİ",
+          63
+        ],
+        [
+          "Kurumsal",
+          16
+        ]
+      ],
+      "latency_ms": 1513,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G04",
+      "question": "Kurumsal segmentteki müşterileri listele.",
+      "difficulty": "kolay",
+      "tags": [
+        "tek_tablo",
+        "filtre"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT Name FROM Customers WHERE Segment = 'Kurumsal' ORDER BY Name",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT Name, City FROM Customers WHERE Segment = 'Kurumsal'",
+      "assumption": "Kurumsal segmentteki müşterilerin adı ve şehri istendi.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Kurumsal segmentteki müşterilerin adı ve şehri istendi.",
+      "retry_count": 0,
+      "row_count": 16,
+      "actual_preview": [
+        [
+          "Vizyon Medikal A.Ş.",
+          "Gaziantep"
+        ],
+        [
+          "Anadolu Ticaret A.Ş.",
+          "Eskişehir"
+        ],
+        [
+          "Doğa Tekstil A.Ş.",
+          "Adana"
+        ]
+      ],
+      "expected_row_count": 16,
+      "expected_preview": [
+        [
+          "Anadolu Otomotiv A.Ş."
+        ],
+        [
+          "Anadolu Ticaret A.Ş."
+        ],
+        [
+          "Atlas Lojistik A.Ş."
+        ]
+      ],
+      "latency_ms": 1294,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G05",
+      "question": "Ürün kataloğunda kaç farklı kategori var?",
+      "difficulty": "kolay",
+      "tags": [
+        "tek_tablo",
+        "aggregation"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT COUNT(DISTINCT Category) AS KategoriSayisi FROM Products",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT COUNT(DISTINCT Category) AS KategoriSayisi FROM Products",
+      "assumption": "Ürün kataloğundaki farklı kategori sayısı Products tablosundaki Category sütunu üzerinden sayıldı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Ürün kataloğundaki farklı kategori sayısı Products tablosundaki Category sütunu üzerinden sayıldı.",
+      "retry_count": 0,
+      "row_count": 1,
+      "actual_preview": [
+        [
+          6
+        ]
+      ],
+      "expected_row_count": 1,
+      "expected_preview": [
+        [
+          6
+        ]
+      ],
+      "latency_ms": 4873,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G06",
+      "question": "Liste fiyatı en yüksek 3 ürün hangileri?",
+      "difficulty": "kolay",
+      "tags": [
+        "tek_tablo",
+        "siralama"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": true,
+      "gold_sql": "SELECT ProductName FROM Products ORDER BY Price DESC LIMIT 3",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT p.ProductName, p.Price FROM Products AS p ORDER BY p.Price DESC LIMIT 3",
+      "assumption": "Liste fiyatı Products.Price sütunu üzerinden sıralandı, OrderItems kullanılmadı çünkü sipariş fiyatı değil katalog liste fiyatı istendi.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Liste fiyatı Products.Price sütunu üzerinden sıralandı, OrderItems kullanılmadı çünkü sipariş fiyatı değil katalog liste fiyatı istendi.",
+      "retry_count": 0,
+      "row_count": 3,
+      "actual_preview": [
+        [
+          "Portföy Yönetimi Hizmeti",
+          30000.0
+        ],
+        [
+          "Ticari Kredi Tahsis Ücreti",
+          25000.0
+        ],
+        [
+          "Swap İşlem Komisyonu",
+          22000.0
+        ]
+      ],
+      "expected_row_count": 3,
+      "expected_preview": [
+        [
+          "Portföy Yönetimi Hizmeti"
+        ],
+        [
+          "Ticari Kredi Tahsis Ücreti"
+        ],
+        [
+          "Swap İşlem Komisyonu"
+        ]
+      ],
+      "latency_ms": 1027,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G07",
+      "question": "Sigorta kategorisindeki ürünleri liste fiyatlarıyla birlikte göster.",
+      "difficulty": "kolay",
+      "tags": [
+        "tek_tablo",
+        "filtre"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT ProductName, Price FROM Products WHERE Category = 'Sigorta' ORDER BY ProductName",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT p.ProductName, p.Price FROM Products AS p WHERE p.Category = 'Sigorta'",
+      "assumption": "Sigorta kategorisindeki ürünler ve liste fiyatları (Products.Price) istenmiştir. Sipariş tablosuna ihtiyaç duyulmamıştır.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Sigorta kategorisindeki ürünler ve liste fiyatları (Products.Price) istenmiştir. Sipariş tablosuna ihtiyaç duyulmamıştır.",
+      "retry_count": 0,
+      "row_count": 7,
+      "actual_preview": [
+        [
+          "Kasko Poliçesi",
+          14000.0
+        ],
+        [
+          "Konut Sigortası",
+          2500.0
+        ],
+        [
+          "DASK Poliçesi",
+          1200.0
+        ]
+      ],
+      "expected_row_count": 7,
+      "expected_preview": [
+        [
+          "DASK Poliçesi",
+          1200.0
+        ],
+        [
+          "Grup Sağlık Sigortası (kişi başı)",
+          9000.0
+        ],
+        [
+          "Hayat Sigortası",
+          4800.0
+        ]
+      ],
+      "latency_ms": 903,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G08",
+      "question": "Toplam kaç sipariş alındı?",
+      "difficulty": "kolay",
+      "tags": [
+        "tek_tablo",
+        "aggregation"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT COUNT(*) AS SiparisSayisi FROM Orders",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT COUNT(DISTINCT o.OrderID) AS ToplamSiparisAdedi FROM Orders AS o",
+      "assumption": "Sipariş adedi COUNT(DISTINCT OrderID) ile hesaplandı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Sipariş adedi COUNT(DISTINCT OrderID) ile hesaplandı.",
+      "retry_count": 0,
+      "row_count": 1,
+      "actual_preview": [
+        [
+          2500
+        ]
+      ],
+      "expected_row_count": 1,
+      "expected_preview": [
+        [
+          2500
+        ]
+      ],
+      "latency_ms": 978,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G09",
+      "question": "2025 Aralık ayında kaç sipariş verildi?",
+      "difficulty": "kolay",
+      "tags": [
+        "tek_tablo",
+        "aggregation",
+        "tarih"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT COUNT(*) AS SiparisSayisi FROM Orders WHERE OrderDate BETWEEN '2025-12-01' AND '2025-12-31'",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT COUNT(DISTINCT o.OrderID) AS SiparisAdedi FROM Orders AS o WHERE o.OrderDate BETWEEN '2025-12-01' AND '2025-12-31'",
+      "assumption": "Sipariş sayısı COUNT(DISTINCT OrderID) ile hesaplandı. Tarih aralığı Tarih notundan alındı: Aralık 2025.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Sipariş sayısı COUNT(DISTINCT OrderID) ile hesaplandı. Tarih aralığı Tarih notundan alındı: Aralık 2025.",
+      "retry_count": 0,
+      "row_count": 1,
+      "actual_preview": [
+        [
+          286
+        ]
+      ],
+      "expected_row_count": 1,
+      "expected_preview": [
+        [
+          286
+        ]
+      ],
+      "latency_ms": 1072,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G10",
+      "question": "Kategorilere göre ortalama liste fiyatı nedir?",
+      "difficulty": "kolay",
+      "tags": [
+        "tek_tablo",
+        "aggregation"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT Category, AVG(Price) AS OrtalamaListeFiyati FROM Products GROUP BY Category ORDER BY Category",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT p.Category, AVG(p.Price) AS OrtalamaListeFiyati FROM Products AS p GROUP BY p.Category",
+      "assumption": "Ortalama liste fiyatı, Products tablosundaki Price sütununun ortalaması (AVG(Price)) olarak hesaplandı. Tarih filtresi eklenmedi.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Ortalama liste fiyatı, Products tablosundaki Price sütununun ortalaması (AVG(Price)) olarak hesaplandı. Tarih filtresi eklenmedi.",
+      "retry_count": 0,
+      "row_count": 6,
+      "actual_preview": [
+        [
+          "Döviz ve Hazine",
+          13937.5
+        ],
+        [
+          "Kart ve Ödeme",
+          2440.0
+        ],
+        [
+          "Kredi Ürünleri",
+          13083.333333333334
+        ]
+      ],
+      "expected_row_count": 6,
+      "expected_preview": [
+        [
+          "Döviz ve Hazine",
+          13937.5
+        ],
+        [
+          "Kart ve Ödeme",
+          2440.0
+        ],
+        [
+          "Kredi Ürünleri",
+          13083.333333333334
+        ]
+      ],
+      "latency_ms": 1042,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G11",
+      "question": "Tek bir sipariş kaleminde satılan en yüksek adet kaçtır?",
+      "difficulty": "kolay",
+      "tags": [
+        "tek_tablo",
+        "aggregation"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT MAX(Quantity) AS EnYuksekAdet FROM OrderItems",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT MAX(Quantity) AS EnYuksekAdet FROM OrderItems",
+      "assumption": "Tek bir sipariş kalemindeki miktar OrderItems tablosundaki Quantity sütununun maksimum değeri olarak hesaplandı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Tek bir sipariş kalemindeki miktar OrderItems tablosundaki Quantity sütununun maksimum değeri olarak hesaplandı.",
+      "retry_count": 0,
+      "row_count": 1,
+      "actual_preview": [
+        [
+          20
+        ]
+      ],
+      "expected_row_count": 1,
+      "expected_preview": [
+        [
+          20
+        ]
+      ],
+      "latency_ms": 993,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G12",
+      "question": "Kategorilere göre toplam ciro nedir?",
+      "difficulty": "orta",
+      "tags": [
+        "join",
+        "aggregation",
+        "gelir"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT p.Category, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM OrderItems oi JOIN Products p ON p.ProductID = oi.ProductID GROUP BY p.Category ORDER BY p.Category",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT p.Category, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Products AS p JOIN OrderItems AS oi ON p.ProductID = oi.ProductID GROUP BY p.Category ORDER BY Ciro DESC",
+      "assumption": "Ciro metriği SUM(Quantity * UnitPrice) olarak hesaplandı ve kategorilere göre gruplandı. Tarih filtresi uygulanmadı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Ciro metriği SUM(Quantity * UnitPrice) olarak hesaplandı ve kategorilere göre gruplandı. Tarih filtresi uygulanmadı.",
+      "retry_count": 0,
+      "row_count": 6,
+      "actual_preview": [
+        [
+          "Kredi Ürünleri",
+          36103929.0
+        ],
+        [
+          "Sigorta",
+          32045370.72
+        ],
+        [
+          "Döviz ve Hazine",
+          23228763.68
+        ]
+      ],
+      "expected_row_count": 6,
+      "expected_preview": [
+        [
+          "Döviz ve Hazine",
+          23228763.68
+        ],
+        [
+          "Kart ve Ödeme",
+          7599184.71
+        ],
+        [
+          "Kredi Ürünleri",
+          36103929.0
+        ]
+      ],
+      "latency_ms": 1893,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G13",
+      "question": "2026'nın ilk çeyreğinde Kurumsal segmentin cirosu ne kadar?",
+      "difficulty": "orta",
+      "tags": [
+        "join",
+        "aggregation",
+        "gelir",
+        "tarih"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Customers c JOIN Orders o ON o.CustomerID = c.CustomerID JOIN OrderItems oi ON oi.OrderID = o.OrderID WHERE c.Segment = 'Kurumsal' AND o.OrderDate BETWEEN '2026-01-01' AND '2026-03-31'",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Customers AS c JOIN Orders AS o ON o.CustomerID = c.CustomerID JOIN OrderItems AS oi ON oi.OrderID = o.OrderID WHERE c.Segment = 'Kurumsal' AND o.OrderDate BETWEEN '2026-01-01' AND '2026-03-31'",
+      "assumption": "Ciro, SUM(Quantity * UnitPrice) olarak hesaplandı. Kurumsal segment filtresi Customers tablosundan uygulandı. Tarih aralığı Tarih notundan alındı: 2026-01-01 ile 2026-03-31 arası.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Ciro, SUM(Quantity * UnitPrice) olarak hesaplandı. Kurumsal segment filtresi Customers tablosundan uygulandı. Tarih aralığı Tarih notundan alındı: 2026-01-01 ile 2026-03-31 arası.",
+      "retry_count": 0,
+      "row_count": 1,
+      "actual_preview": [
+        [
+          11988321.38
+        ]
+      ],
+      "expected_row_count": 1,
+      "expected_preview": [
+        [
+          11988321.38
+        ]
+      ],
+      "latency_ms": 1318,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G14",
+      "question": "Her ürünün toplam satış adedini göster.",
+      "difficulty": "orta",
+      "tags": [
+        "join",
+        "aggregation"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT p.ProductName, SUM(oi.Quantity) AS ToplamAdet FROM Products p JOIN OrderItems oi ON oi.ProductID = p.ProductID GROUP BY p.ProductID ORDER BY p.ProductName",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT p.ProductName, SUM(oi.Quantity) AS ToplamSatisAdedi FROM Products AS p JOIN OrderItems AS oi ON oi.ProductID = p.ProductID GROUP BY p.ProductID, p.ProductName ORDER BY ToplamSatisAdedi DESC",
+      "assumption": "Toplam satış adedi, OrderItems tablosundaki Quantity sütununun toplamı (SUM(Quantity)) olarak hesaplandı. Tarih filtresi eklenmedi.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Toplam satış adedi, OrderItems tablosundaki Quantity sütununun toplamı (SUM(Quantity)) olarak hesaplandı. Tarih filtresi eklenmedi.",
+      "retry_count": 0,
+      "row_count": 32,
+      "actual_preview": [
+        [
+          "Grup Sağlık Sigortası (kişi başı)",
+          2076
+        ],
+        [
+          "Yatırım Fonu Yönetim Ücreti",
+          829
+        ],
+        [
+          "Hesap İşletim Paketi",
+          829
+        ]
+      ],
+      "expected_row_count": 32,
+      "expected_preview": [
+        [
+          "Akreditif Komisyonu",
+          575
+        ],
+        [
+          "Altın Hesabı İşlem Ücreti",
+          97
+        ],
+        [
+          "DASK Poliçesi",
+          100
+        ]
+      ],
+      "latency_ms": 1208,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G15",
+      "question": "Her müşterinin sipariş sayısını göster; hiç siparişi olmayan müşteriler de 0 ile listede yer alsın.",
+      "difficulty": "orta",
+      "tags": [
+        "left_join",
+        "aggregation"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT c.Name, COUNT(o.OrderID) AS SiparisSayisi FROM Customers c LEFT JOIN Orders o ON o.CustomerID = c.CustomerID GROUP BY c.CustomerID ORDER BY c.Name",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT c.Name, COUNT(o.OrderID) AS SiparisSayisi FROM Customers AS c LEFT JOIN Orders AS o ON o.CustomerID = c.CustomerID GROUP BY c.CustomerID, c.Name ORDER BY SiparisSayisi DESC",
+      "assumption": "Hiç siparişi olmayan müşterileri de göstermek için LEFT JOIN ve COUNT(o.OrderID) kullanıldı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Hiç siparişi olmayan müşterileri de göstermek için LEFT JOIN ve COUNT(o.OrderID) kullanıldı.",
+      "retry_count": 0,
+      "row_count": 200,
+      "actual_preview": [
+        [
+          "Anadolu Otomotiv A.Ş.",
+          38
+        ],
+        [
+          "Anadolu Ticaret A.Ş.",
+          33
+        ],
+        [
+          "Atlas Lojistik A.Ş.",
+          32
+        ]
+      ],
+      "expected_row_count": 200,
+      "expected_preview": [
+        [
+          "Ahmet Erdoğan",
+          11
+        ],
+        [
+          "Ahmet Tekin",
+          13
+        ],
+        [
+          "Akdeniz Bilişim Ltd. Şti.",
+          14
+        ]
+      ],
+      "latency_ms": 1109,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G16",
+      "question": "Sipariş başına ortalama tutar nedir?",
+      "difficulty": "orta",
+      "tags": [
+        "aggregation",
+        "alt_sorgu",
+        "gelir"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT AVG(Tutar) AS OrtalamaSiparisTutari FROM (SELECT OrderID, SUM(Quantity * UnitPrice) AS Tutar FROM OrderItems GROUP BY OrderID)",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT AVG(SiparisToplami) AS OrtalamaSiparisTutari FROM (SELECT oi.OrderID, SUM(oi.Quantity * oi.UnitPrice) AS SiparisToplami FROM OrderItems AS oi GROUP BY oi.OrderID)",
+      "assumption": "Sipariş başına tutar, her bir siparişin toplam ciro tutarının genel ortalaması olarak hesaplandı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Sipariş başına tutar, her bir siparişin toplam ciro tutarının genel ortalaması olarak hesaplandı.",
+      "retry_count": 0,
+      "row_count": 1,
+      "actual_preview": [
+        [
+          53352.579128
+        ]
+      ],
+      "expected_row_count": 1,
+      "expected_preview": [
+        [
+          53352.579128
+        ]
+      ],
+      "latency_ms": 1213,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G17",
+      "question": "En çok sipariş veren 5 müşteri kimdir?",
+      "difficulty": "orta",
+      "tags": [
+        "join",
+        "aggregation",
+        "siralama"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT c.Name FROM Customers c JOIN Orders o ON o.CustomerID = c.CustomerID GROUP BY c.CustomerID ORDER BY COUNT(o.OrderID) DESC LIMIT 5",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT c.Name, COUNT(DISTINCT o.OrderID) AS SiparisAdedi FROM Customers AS c JOIN Orders AS o ON o.CustomerID = c.CustomerID GROUP BY c.CustomerID, c.Name ORDER BY SiparisAdedi DESC LIMIT 5",
+      "assumption": "En çok sipariş veren müşteriler sipariş adedine (COUNT(DISTINCT OrderID)) göre sıralandı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: En çok sipariş veren müşteriler sipariş adedine (COUNT(DISTINCT OrderID)) göre sıralandı.",
+      "retry_count": 0,
+      "row_count": 5,
+      "actual_preview": [
+        [
+          "Anadolu Otomotiv A.Ş.",
+          38
+        ],
+        [
+          "Anadolu Ticaret A.Ş.",
+          33
+        ],
+        [
+          "Atlas Lojistik A.Ş.",
+          32
+        ]
+      ],
+      "expected_row_count": 5,
+      "expected_preview": [
+        [
+          "Anadolu Otomotiv A.Ş."
+        ],
+        [
+          "Anadolu Ticaret A.Ş."
+        ],
+        [
+          "Atlas Lojistik A.Ş."
+        ]
+      ],
+      "latency_ms": 1054,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G18",
+      "question": "Ankara'daki müşterilerin toplam kaç siparişi var?",
+      "difficulty": "orta",
+      "tags": [
+        "join",
+        "aggregation",
+        "filtre"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT COUNT(o.OrderID) AS SiparisSayisi FROM Customers c JOIN Orders o ON o.CustomerID = c.CustomerID WHERE c.City = 'Ankara'",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT COUNT(DISTINCT o.OrderID) AS SiparisAdedi FROM Customers AS c JOIN Orders AS o ON o.CustomerID = c.CustomerID WHERE c.City = 'Ankara'",
+      "assumption": "Sipariş adedi COUNT(DISTINCT OrderID) ile hesaplandı. Şehir filtresi olarak Ankara kullanıldı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Sipariş adedi COUNT(DISTINCT OrderID) ile hesaplandı. Şehir filtresi olarak Ankara kullanıldı.",
+      "retry_count": 0,
+      "row_count": 1,
+      "actual_preview": [
+        [
+          364
+        ]
+      ],
+      "expected_row_count": 1,
+      "expected_preview": [
+        [
+          364
+        ]
+      ],
+      "latency_ms": 1679,
+      "backoff_retries": 2
+    },
+    {
+      "id": "G19",
+      "question": "Kasım 2025'te şehirlere göre ciro nedir?",
+      "difficulty": "orta",
+      "tags": [
+        "join",
+        "aggregation",
+        "gelir",
+        "tarih"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT c.City, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Customers c JOIN Orders o ON o.CustomerID = c.CustomerID JOIN OrderItems oi ON oi.OrderID = o.OrderID WHERE o.OrderDate BETWEEN '2025-11-01' AND '2025-11-30' GROUP BY c.City ORDER BY c.City",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT c.City, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Customers AS c JOIN Orders AS o ON o.CustomerID = c.CustomerID JOIN OrderItems AS oi ON oi.OrderID = o.OrderID WHERE o.OrderDate BETWEEN '2025-11-01' AND '2025-11-30' GROUP BY c.City ORDER BY Ciro DESC",
+      "assumption": "Ciro, SUM(Quantity * UnitPrice) olarak hesaplandı ve şehir bazında gruplandı. Tarih aralığı Kasım 2025 olarak filtrelendi.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Ciro, SUM(Quantity * UnitPrice) olarak hesaplandı ve şehir bazında gruplandı. Tarih aralığı Kasım 2025 olarak filtrelendi.",
+      "retry_count": 0,
+      "row_count": 13,
+      "actual_preview": [
+        [
+          "İstanbul",
+          5595764.24
+        ],
+        [
+          "İzmir",
+          3119602.87
+        ],
+        [
+          "Ankara",
+          1958625.33
+        ]
+      ],
+      "expected_row_count": 13,
+      "expected_preview": [
+        [
+          "Adana",
+          565724.15
+        ],
+        [
+          "Ankara",
+          1958625.33
+        ],
+        [
+          "Antalya",
+          665871.73
+        ]
+      ],
+      "latency_ms": 2994,
+      "backoff_retries": 3
+    },
+    {
+      "id": "G20",
+      "question": "Bireysel segmentteki müşterilerin en çok ciro getirdiği 3 ürün kategorisi hangisi?",
+      "difficulty": "orta",
+      "tags": [
+        "join",
+        "aggregation",
+        "gelir",
+        "siralama"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": true,
+      "gold_sql": "SELECT p.Category FROM Customers c JOIN Orders o ON o.CustomerID = c.CustomerID JOIN OrderItems oi ON oi.OrderID = o.OrderID JOIN Products p ON p.ProductID = oi.ProductID WHERE c.Segment = 'Bireysel' GROUP BY p.Category ORDER BY SUM(oi.Quantity * oi.UnitPrice) DESC LIMIT 3",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT p.Category, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Customers AS c JOIN Orders AS o ON o.CustomerID = c.CustomerID JOIN OrderItems AS oi ON oi.OrderID = o.OrderID JOIN Products AS p ON p.ProductID = oi.ProductID WHERE c.Segment = 'Bireysel' GROUP BY p.Category ORDER BY Ciro DESC LIMIT 3",
+      "assumption": "Ciro metriği SUM(Quantity * UnitPrice) ile hesaplandı. Bireysel segmenti filtrelendi ve ciroya göre en yüksek 3 kategori seçildi. Tarih filtresi eklenmedi.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Ciro metriği SUM(Quantity * UnitPrice) ile hesaplandı. Bireysel segmenti filtrelendi ve ciroya göre en yüksek 3 kategori seçildi. Tarih filtresi eklenmedi.",
+      "retry_count": 0,
+      "row_count": 3,
+      "actual_preview": [
+        [
+          "Yatırım",
+          3427916.83
+        ],
+        [
+          "Sigorta",
+          3128981.45
+        ],
+        [
+          "Kredi Ürünleri",
+          2404114.39
+        ]
+      ],
+      "expected_row_count": 3,
+      "expected_preview": [
+        [
+          "Yatırım"
+        ],
+        [
+          "Sigorta"
+        ],
+        [
+          "Kredi Ürünleri"
+        ]
+      ],
+      "latency_ms": 1484,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G21",
+      "question": "Mayıs 2026'da hiç sipariş vermemiş Kurumsal müşteriler kimler?",
+      "difficulty": "orta",
+      "tags": [
+        "anti_join",
+        "tarih",
+        "filtre"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT Name FROM Customers WHERE Segment = 'Kurumsal' AND CustomerID NOT IN (SELECT CustomerID FROM Orders WHERE OrderDate BETWEEN '2026-05-01' AND '2026-05-31') ORDER BY Name",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT c.CustomerID, c.Name, c.City FROM Customers AS c WHERE c.Segment = 'Kurumsal' AND NOT c.CustomerID IN (SELECT o.CustomerID FROM Orders AS o WHERE o.OrderDate BETWEEN '2026-05-01' AND '2026-05-31') ORDER BY c.Name",
+      "assumption": "Mayıs 2026 döneminde siparişi bulunmayan Kurumsal segmentindeki müşteriler listelendi.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Mayıs 2026 döneminde siparişi bulunmayan Kurumsal segmentindeki müşteriler listelendi.",
+      "retry_count": 0,
+      "row_count": 3,
+      "actual_preview": [
+        [
+          170,
+          "Güney Enerji A.Ş.",
+          "İstanbul"
+        ],
+        [
+          102,
+          "Netiş Otomotiv A.Ş.",
+          "İstanbul"
+        ],
+        [
+          192,
+          "Pera Bilişim A.Ş.",
+          "Ankara"
+        ]
+      ],
+      "expected_row_count": 3,
+      "expected_preview": [
+        [
+          "Güney Enerji A.Ş."
+        ],
+        [
+          "Netiş Otomotiv A.Ş."
+        ],
+        [
+          "Pera Bilişim A.Ş."
+        ]
+      ],
+      "latency_ms": 1574,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G22",
+      "question": "Her segmentte müşteri başına ortalama ciro nedir? Hiç siparişi olmayan müşteriler de hesaba katılsın.",
+      "difficulty": "orta",
+      "tags": [
+        "left_join",
+        "aggregation",
+        "gelir",
+        "oran"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT c.Segment, SUM(oi.Quantity * oi.UnitPrice) * 1.0 / COUNT(DISTINCT c.CustomerID) AS MusteriBasinaCiro FROM Customers c LEFT JOIN Orders o ON o.CustomerID = c.CustomerID LEFT JOIN OrderItems oi ON oi.OrderID = o.OrderID GROUP BY c.Segment ORDER BY c.Segment",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT c.Segment, COALESCE(SUM(oi.Quantity * oi.UnitPrice), 0) / COUNT(DISTINCT c.CustomerID) AS OrtalamaCiro FROM Customers AS c LEFT JOIN Orders AS o ON o.CustomerID = c.CustomerID LEFT JOIN OrderItems AS oi ON oi.OrderID = o.OrderID GROUP BY c.Segment",
+      "assumption": "Hiç siparişi olmayan müşteriler de hesaba katılacağı için LEFT JOIN kullanıldı ve toplam ciro müşteri sayısına bölündü.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Hiç siparişi olmayan müşteriler de hesaba katılacağı için LEFT JOIN kullanıldı ve toplam ciro müşteri sayısına bölündü.",
+      "retry_count": 0,
+      "row_count": 3,
+      "actual_preview": [
+        [
+          "Bireysel",
+          76401.47016528925
+        ],
+        [
+          "KOBİ",
+          1042741.4093650794
+        ],
+        [
+          "Kurumsal",
+          3652760.07125
+        ]
+      ],
+      "expected_row_count": 3,
+      "expected_preview": [
+        [
+          "Bireysel",
+          76401.47016528925
+        ],
+        [
+          "KOBİ",
+          1042741.4093650794
+        ],
+        [
+          "Kurumsal",
+          3652760.07125
+        ]
+      ],
+      "latency_ms": 1535,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G23",
+      "question": "Geçen ayki satışlar ne kadar?",
+      "difficulty": "orta",
+      "tags": [
+        "join",
+        "gelir",
+        "goreli_tarih"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Orders o JOIN OrderItems oi ON oi.OrderID = o.OrderID WHERE o.OrderDate BETWEEN '2026-05-01' AND '2026-05-31'",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT SUM(oi.Quantity * oi.UnitPrice) AS ToplamCiro FROM Orders AS o JOIN OrderItems AS oi ON oi.OrderID = o.OrderID WHERE o.OrderDate BETWEEN '2026-05-01' AND '2026-05-31'",
+      "assumption": "Geçen ay, referans tarih olan 2026-06-30'a göre Mayıs ayı (2026-05-01 ile 2026-05-31 arası) olarak yorumlandı. Satışlar metrik tanımındaki ciro formülüyle hesaplandı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Geçen ay, referans tarih olan 2026-06-30'a göre Mayıs ayı (2026-05-01 ile 2026-05-31 arası) olarak yorumlandı. Satışlar metrik tanımındaki ciro formülüyle hesaplandı.",
+      "retry_count": 0,
+      "row_count": 1,
+      "actual_preview": [
+        [
+          9020015.23
+        ]
+      ],
+      "expected_row_count": 1,
+      "expected_preview": [
+        [
+          9020015.23
+        ]
+      ],
+      "latency_ms": 1629,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G24",
+      "question": "Konut Kredisi Tahsis Ücreti'ni kaç farklı müşteri satın aldı?",
+      "difficulty": "orta",
+      "tags": [
+        "join",
+        "aggregation",
+        "filtre"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT COUNT(DISTINCT o.CustomerID) AS MusteriSayisi FROM Orders o JOIN OrderItems oi ON oi.OrderID = o.OrderID JOIN Products p ON p.ProductID = oi.ProductID WHERE p.ProductName = 'Konut Kredisi Tahsis Ücreti'",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT COUNT(DISTINCT o.CustomerID) AS MusteriSayisi FROM Products AS p JOIN OrderItems AS oi ON oi.ProductID = p.ProductID JOIN Orders AS o ON o.OrderID = oi.OrderID WHERE p.ProductName = 'Konut Kredisi Tahsis Ücreti'",
+      "assumption": "Farklı müşteri sayısı COUNT(DISTINCT CustomerID) ile hesaplandı. Tarih filtresi eklenmedi.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Farklı müşteri sayısı COUNT(DISTINCT CustomerID) ile hesaplandı. Tarih filtresi eklenmedi.",
+      "retry_count": 0,
+      "row_count": 1,
+      "actual_preview": [
+        [
+          67
+        ]
+      ],
+      "expected_row_count": 1,
+      "expected_preview": [
+        [
+          67
+        ]
+      ],
+      "latency_ms": 1417,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G25",
+      "question": "Kart ve Ödeme kategorisinde satış fiyatı, liste fiyatının ortalama yüzde kaçı?",
+      "difficulty": "orta",
+      "tags": [
+        "join",
+        "aggregation",
+        "oran"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT AVG(oi.UnitPrice * 100.0 / p.Price) AS OrtalamaYuzde FROM OrderItems oi JOIN Products p ON p.ProductID = oi.ProductID WHERE p.Category = 'Kart ve Ödeme'",
+      "verdict": "FAIL",
+      "reason": "Gold sütunları değerleriyle eşleşmedi.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT AVG((oi.UnitPrice * 100.0) / p.Price) AS OrtalamaYuzde FROM OrderItems AS oi JOIN Products AS p ON p.ProductID = p.ProductID WHERE p.Category = 'Kart ve Ödeme'",
+      "assumption": "Satış fiyatının (UnitPrice) liste fiyatına (Price) oranı Kart ve Ödeme kategorisi için hesaplandı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Satış fiyatının (UnitPrice) liste fiyatına (Price) oranı Kart ve Ödeme kategorisi için hesaplandı.",
+      "retry_count": 0,
+      "row_count": 1,
+      "actual_preview": [
+        [
+          1162.5458400724779
+        ]
+      ],
+      "expected_row_count": 1,
+      "expected_preview": [
+        [
+          92.06137768275687
+        ]
+      ],
+      "latency_ms": 1299,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G26",
+      "question": "İzmir'de yaşayan müşterilerden elde edilen toplam gelir ne kadar?",
+      "difficulty": "orta",
+      "tags": [
+        "join",
+        "aggregation",
+        "gelir",
+        "paraphrase"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Customers c JOIN Orders o ON o.CustomerID = c.CustomerID JOIN OrderItems oi ON oi.OrderID = o.OrderID WHERE c.City = 'İzmir'",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT SUM(oi.Quantity * oi.UnitPrice) AS ToplamGelir FROM Customers AS c JOIN Orders AS o ON o.CustomerID = c.CustomerID JOIN OrderItems AS oi ON oi.OrderID = o.OrderID WHERE c.City = 'İzmir'",
+      "assumption": "Gelir, ciro (SUM(Quantity * UnitPrice)) olarak hesaplandı. Tarih filtresi istenmediği için tüm veriler kullanıldı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Gelir, ciro (SUM(Quantity * UnitPrice)) olarak hesaplandı. Tarih filtresi istenmediği için tüm veriler kullanıldı.",
+      "retry_count": 0,
+      "row_count": 1,
+      "actual_preview": [
+        [
+          19235337.37
+        ]
+      ],
+      "expected_row_count": 1,
+      "expected_preview": [
+        [
+          19235337.37
+        ]
+      ],
+      "latency_ms": 1125,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G27",
+      "question": "Bugüne kadar hiç alım yapmamış müşterilerimizi listeler misin?",
+      "difficulty": "orta",
+      "tags": [
+        "left_join",
+        "anti_join",
+        "paraphrase"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT c.Name FROM Customers c LEFT JOIN Orders o ON o.CustomerID = c.CustomerID WHERE o.OrderID IS NULL ORDER BY c.Name",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT c.CustomerID, c.Name, c.City, c.Segment FROM Customers AS c WHERE NOT c.CustomerID IN (SELECT o.CustomerID FROM Orders AS o)",
+      "assumption": "Hiç sipariş vermemiş müşteriler Customers tablosunda olup Orders tablosunda kaydı bulunmayanlar olarak belirlendi.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Hiç sipariş vermemiş müşteriler Customers tablosunda olup Orders tablosunda kaydı bulunmayanlar olarak belirlendi.",
+      "retry_count": 0,
+      "row_count": 12,
+      "actual_preview": [
+        [
+          16,
+          "Esra Aydın",
+          "Ankara",
+          "Bireysel"
+        ],
+        [
+          19,
+          "Hande Polat",
+          "İstanbul",
+          "Bireysel"
+        ],
+        [
+          32,
+          "Vizyon Otomotiv Ltd. Şti.",
+          "Ankara",
+          "KOBİ"
+        ]
+      ],
+      "expected_row_count": 12,
+      "expected_preview": [
+        [
+          "Delta Tekstil Ltd. Şti."
+        ],
+        [
+          "Emine Tekin"
+        ],
+        [
+          "Esra Aydın"
+        ]
+      ],
+      "latency_ms": 1449,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G28",
+      "question": "Her ay cironun bir önceki aya göre yüzde kaç değiştiğini göster (ilk ay için değişim boş kalsın).",
+      "difficulty": "zor",
+      "tags": [
+        "window",
+        "lag",
+        "gelir",
+        "tarih"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": true,
+      "gold_sql": "WITH aylik AS (SELECT strftime('%Y-%m', o.OrderDate) AS Ay, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Orders o JOIN OrderItems oi ON oi.OrderID = o.OrderID GROUP BY Ay) SELECT Ay, 100.0 * (Ciro - LAG(Ciro) OVER (ORDER BY Ay)) / LAG(Ciro) OVER (ORDER BY Ay) AS DegisimYuzde FROM aylik ORDER BY Ay",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "WITH AylikCiro AS (SELECT STRFTIME('%Y-%m', o.OrderDate) AS Ay, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Orders AS o JOIN OrderItems AS oi ON oi.OrderID = o.OrderID GROUP BY Ay) SELECT a.Ay, a.Ciro, LAG(a.Ciro) OVER (ORDER BY a.Ay) AS OncekiAyCiro, ROUND((a.Ciro - LAG(a.Ciro) OVER (ORDER BY a.Ay)) * 100.0 / LAG(a.Ciro) OVER (ORDER BY a.Ay), 2) AS YuzdeDegisim FROM AylikCiro AS a",
+      "assumption": "Ciro SUM(Quantity * UnitPrice) olarak hesaplandı ve aylar strftime('%Y-%m', o.OrderDate) ile gruplandı. Yüzde değişim LAG pencere fonksiyonu ile bir önceki aya göre hesaplandı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Ciro SUM(Quantity * UnitPrice) olarak hesaplandı ve aylar strftime('%Y-%m', o.OrderDate) ile gruplandı. Yüzde değişim LAG pencere fonksiyonu ile bir önceki aya göre hesaplandı.",
+      "retry_count": 0,
+      "row_count": 12,
+      "actual_preview": [
+        [
+          "2025-07",
+          9826180.43,
+          null,
+          null
+        ],
+        [
+          "2025-08",
+          10580808.49,
+          9826180.43,
+          7.68
+        ],
+        [
+          "2025-09",
+          11238896.42,
+          10580808.49,
+          6.22
+        ]
+      ],
+      "expected_row_count": 12,
+      "expected_preview": [
+        [
+          "2025-07",
+          null
+        ],
+        [
+          "2025-08",
+          7.679770032474364
+        ],
+        [
+          "2025-09",
+          6.219637474980891
+        ]
+      ],
+      "latency_ms": 8470,
+      "backoff_retries": 2
+    },
+    {
+      "id": "G29",
+      "question": "2026'nın ilk 6 ayı için her ayın cirosunu ve yılbaşından o aya kadar biriken toplam ciroyu göster.",
+      "difficulty": "zor",
+      "tags": [
+        "window",
+        "kumulatif",
+        "gelir",
+        "tarih"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": true,
+      "gold_sql": "WITH aylik AS (SELECT strftime('%Y-%m', o.OrderDate) AS Ay, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Orders o JOIN OrderItems oi ON oi.OrderID = o.OrderID WHERE o.OrderDate BETWEEN '2026-01-01' AND '2026-06-30' GROUP BY Ay) SELECT Ay, Ciro, SUM(Ciro) OVER (ORDER BY Ay) AS KumulatifCiro FROM aylik ORDER BY Ay",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "WITH AylikCiro AS (SELECT STRFTIME('%Y-%m', o.OrderDate) AS Ay, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Orders AS o JOIN OrderItems AS oi ON oi.OrderID = o.OrderID WHERE o.OrderDate BETWEEN '2026-01-01' AND '2026-06-30' GROUP BY STRFTIME('%Y-%m', o.OrderDate)) SELECT Ay, Ciro, SUM(Ciro) OVER (ORDER BY Ay ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS KümülatifCiro FROM AylikCiro",
+      "assumption": "2026'nın ilk 6 ayı için OrderDate BETWEEN '2026-01-01' AND '2026-06-30' filtresi kullanıldı. Ciro, SUM(Quantity * UnitPrice) olarak hesaplandı ve pencere fonksiyonu ile kümülatif toplam alındı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: 2026'nın ilk 6 ayı için OrderDate BETWEEN '2026-01-01' AND '2026-06-30' filtresi kullanıldı. Ciro, SUM(Quantity * UnitPrice) olarak hesaplandı ve pencere fonksiyonu ile kümülatif toplam alındı.",
+      "retry_count": 0,
+      "row_count": 6,
+      "actual_preview": [
+        [
+          "2026-01",
+          9146930.06,
+          9146930.06
+        ],
+        [
+          "2026-02",
+          8118314.29,
+          17265244.35
+        ],
+        [
+          "2026-03",
+          10095517.72,
+          27360762.07
+        ]
+      ],
+      "expected_row_count": 6,
+      "expected_preview": [
+        [
+          "2026-01",
+          9146930.06,
+          9146930.06
+        ],
+        [
+          "2026-02",
+          8118314.29,
+          17265244.35
+        ],
+        [
+          "2026-03",
+          10095517.72,
+          27360762.07
+        ]
+      ],
+      "latency_ms": 1543,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G30",
+      "question": "Her kategoride en çok ciro getiren ürün hangisi?",
+      "difficulty": "zor",
+      "tags": [
+        "window",
+        "row_number",
+        "gelir",
+        "join"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "WITH urun AS (SELECT p.Category, p.ProductName, ROW_NUMBER() OVER (PARTITION BY p.Category ORDER BY SUM(oi.Quantity * oi.UnitPrice) DESC) AS Sira FROM OrderItems oi JOIN Products p ON p.ProductID = oi.ProductID GROUP BY p.ProductID) SELECT Category, ProductName FROM urun WHERE Sira = 1 ORDER BY Category",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT t.Category, t.ProductName, t.Ciro FROM (SELECT p.Category, p.ProductName, SUM(oi.Quantity * oi.UnitPrice) AS Ciro, ROW_NUMBER() OVER (PARTITION BY p.Category ORDER BY SUM(oi.Quantity * oi.UnitPrice) DESC) AS rn FROM Products AS p JOIN OrderItems AS oi ON oi.ProductID = p.ProductID JOIN Orders AS o ON o.OrderID = oi.OrderID GROUP BY p.Category, p.ProductName) AS t WHERE t.rn = 1",
+      "assumption": "Ciro metriği kullanıldı ve her kategori için en yüksek ciroya sahip tek ürün seçildi.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Ciro metriği kullanıldı ve her kategori için en yüksek ciroya sahip tek ürün seçildi.",
+      "retry_count": 0,
+      "row_count": 6,
+      "actual_preview": [
+        [
+          "Döviz ve Hazine",
+          "Akreditif Komisyonu",
+          9353874.3
+        ],
+        [
+          "Kart ve Ödeme",
+          "Sanal POS Paketi",
+          2966828.69
+        ],
+        [
+          "Kredi Ürünleri",
+          "Ticari Kredi Tahsis Ücreti",
+          14251615.84
+        ]
+      ],
+      "expected_row_count": 6,
+      "expected_preview": [
+        [
+          "Döviz ve Hazine",
+          "Akreditif Komisyonu"
+        ],
+        [
+          "Kart ve Ödeme",
+          "Sanal POS Paketi"
+        ],
+        [
+          "Kredi Ürünleri",
+          "Ticari Kredi Tahsis Ücreti"
+        ]
+      ],
+      "latency_ms": 1345,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G31",
+      "question": "Her ay kaç yeni müşteri kazandık? Yeni müşteri, ilk siparişini o ay veren müşteridir; yeni müşteri kazanılmayan ayları listeleme.",
+      "difficulty": "zor",
+      "tags": [
+        "aggregation",
+        "alt_sorgu",
+        "tarih"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "WITH ilk AS (SELECT CustomerID, MIN(OrderDate) AS IlkSiparis FROM Orders GROUP BY CustomerID) SELECT strftime('%Y-%m', IlkSiparis) AS Ay, COUNT(*) AS YeniMusteriSayisi FROM ilk GROUP BY Ay ORDER BY Ay",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT STRFTIME('%Y-%m', o.OrderDate) AS Ay, COUNT(DISTINCT o.CustomerID) AS YeniMusteriSayisi FROM Orders AS o JOIN (SELECT CustomerID, MIN(OrderDate) AS IlkSiparisTarihi FROM Orders GROUP BY CustomerID) AS first_orders ON o.CustomerID = first_orders.CustomerID AND o.OrderDate = first_orders.IlkSiparisTarihi GROUP BY Ay ORDER BY Ay",
+      "assumption": "Yeni müşteri, müşterinin ilk sipariş verdiği ay olarak tanımlandı. Tarih filtresi eklenmedi ve tüm veri kullanıldı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Yeni müşteri, müşterinin ilk sipariş verdiği ay olarak tanımlandı. Tarih filtresi eklenmedi ve tüm veri kullanıldı.",
+      "retry_count": 0,
+      "row_count": 8,
+      "actual_preview": [
+        [
+          "2025-07",
+          107
+        ],
+        [
+          "2025-08",
+          44
+        ],
+        [
+          "2025-09",
+          18
+        ]
+      ],
+      "expected_row_count": 8,
+      "expected_preview": [
+        [
+          "2025-07",
+          107
+        ],
+        [
+          "2025-08",
+          44
+        ],
+        [
+          "2025-09",
+          18
+        ]
+      ],
+      "latency_ms": 2074,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G32",
+      "question": "Son 90 günde hiç sipariş vermemiş ama toplamda en az 3 siparişi olan müşteriler kimler?",
+      "difficulty": "zor",
+      "tags": [
+        "aggregation",
+        "tarih",
+        "churn"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT c.Name FROM Customers c JOIN Orders o ON o.CustomerID = c.CustomerID GROUP BY c.CustomerID HAVING COUNT(o.OrderID) >= 3 AND MAX(o.OrderDate) < '2026-04-02' ORDER BY c.Name",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT c.CustomerID, c.Name FROM Customers AS c JOIN Orders AS o ON c.CustomerID = o.CustomerID GROUP BY c.CustomerID, c.Name HAVING SUM(CASE WHEN o.OrderDate BETWEEN '2026-04-02' AND '2026-06-30' THEN 1 ELSE 0 END) = 0 AND COUNT(DISTINCT o.OrderID) >= 3",
+      "assumption": "Son 90 gün aralığı için '2026-04-02' ile '2026-06-30' tarihleri arasındaki sipariş kontrolü yapıldı ve toplam sipariş sayısı en az 3 olan müşteriler seçildi.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Son 90 gün aralığı için '2026-04-02' ile '2026-06-30' tarihleri arasındaki sipariş kontrolü yapıldı ve toplam sipariş sayısı en az 3 olan müşteriler seçildi.",
+      "retry_count": 0,
+      "row_count": 11,
+      "actual_preview": [
+        [
+          6,
+          "Elif Aydın"
+        ],
+        [
+          11,
+          "Mustafa Kurt"
+        ],
+        [
+          27,
+          "Ali Çelik"
+        ]
+      ],
+      "expected_row_count": 11,
+      "expected_preview": [
+        [
+          "Ali Çelik"
+        ],
+        [
+          "Deniz Yıldız"
+        ],
+        [
+          "Derya Güneş"
+        ]
+      ],
+      "latency_ms": 1584,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G33",
+      "question": "Her segmentin toplam ciro içindeki payı yüzde kaç?",
+      "difficulty": "zor",
+      "tags": [
+        "window",
+        "oran",
+        "gelir",
+        "join"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT c.Segment, 100.0 * SUM(oi.Quantity * oi.UnitPrice) / SUM(SUM(oi.Quantity * oi.UnitPrice)) OVER () AS PayYuzde FROM Customers c JOIN Orders o ON o.CustomerID = c.CustomerID JOIN OrderItems oi ON oi.OrderID = o.OrderID GROUP BY c.Segment ORDER BY c.Segment",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT c.Segment, SUM(oi.Quantity * oi.UnitPrice) * 100.0 / (SELECT SUM(oi2.Quantity * oi2.UnitPrice) FROM OrderItems AS oi2) AS CiroPayiYuzde FROM Customers AS c JOIN Orders AS o ON o.CustomerID = c.CustomerID JOIN OrderItems AS oi ON oi.OrderID = o.OrderID GROUP BY c.Segment ORDER BY CiroPayiYuzde DESC",
+      "assumption": "Toplam ciro içindeki pay yüzde olarak, her segmentin cirosunun genel toplam ciroya oranlanmasıyla hesaplandı. Tarih filtresi uygulanmadı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Toplam ciro içindeki pay yüzde olarak, her segmentin cirosunun genel toplam ciroya oranlanmasıyla hesaplandı. Tarih filtresi uygulanmadı.",
+      "retry_count": 0,
+      "row_count": 3,
+      "actual_preview": [
+        [
+          "KOBİ",
+          49.251758669356455
+        ],
+        [
+          "Kurumsal",
+          43.81730900002762
+        ],
+        [
+          "Bireysel",
+          6.930932330615933
+        ]
+      ],
+      "expected_row_count": 3,
+      "expected_preview": [
+        [
+          "Bireysel",
+          6.930932330615933
+        ],
+        [
+          "KOBİ",
+          49.251758669356455
+        ],
+        [
+          "Kurumsal",
+          43.81730900002762
+        ]
+      ],
+      "latency_ms": 1601,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G34",
+      "question": "Aynı siparişte en sık birlikte alınan 3 ürün çifti hangisi? Her çiftte ürün kimliği küçük olan ürün önce yazılsın.",
+      "difficulty": "zor",
+      "tags": [
+        "self_join",
+        "aggregation",
+        "siralama"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": true,
+      "gold_sql": "SELECT p1.ProductName AS Urun1, p2.ProductName AS Urun2 FROM OrderItems a JOIN OrderItems b ON b.OrderID = a.OrderID AND a.ProductID < b.ProductID JOIN Products p1 ON p1.ProductID = a.ProductID JOIN Products p2 ON p2.ProductID = b.ProductID GROUP BY a.ProductID, b.ProductID ORDER BY COUNT(*) DESC LIMIT 3",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT p1.ProductName AS Urun1, p2.ProductName AS Urun2, COUNT(*) AS BirlikteAlinmaSayisi FROM OrderItems AS oi1 JOIN OrderItems AS oi2 ON oi1.OrderID = oi2.OrderID AND oi1.ProductID < oi2.ProductID JOIN Products AS p1 ON p1.ProductID = oi1.ProductID JOIN Products AS p2 ON p2.ProductID = oi2.ProductID GROUP BY oi1.ProductID, oi2.ProductID ORDER BY BirlikteAlinmaSayisi DESC LIMIT 3",
+      "assumption": "Aynı siparişte geçen (OrderID eşleşen) ve ID sıralaması küçük olan ürünün önce yazıldığı ürün çiftlerinin birlikte alınma sıklığı hesaplandı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Aynı siparişte geçen (OrderID eşleşen) ve ID sıralaması küçük olan ürünün önce yazıldığı ürün çiftlerinin birlikte alınma sıklığı hesaplandı.",
+      "retry_count": 0,
+      "row_count": 3,
+      "actual_preview": [
+        [
+          "Hisse Senedi Aracılık Paketi",
+          "Yatırım Fonu Yönetim Ücreti",
+          31
+        ],
+        [
+          "Yatırım Fonu Yönetim Ücreti",
+          "Döviz Alım-Satım Komisyonu",
+          28
+        ],
+        [
+          "Rotatif Kredi Komisyonu",
+          "Sanal POS Paketi",
+          27
+        ]
+      ],
+      "expected_row_count": 3,
+      "expected_preview": [
+        [
+          "Hisse Senedi Aracılık Paketi",
+          "Yatırım Fonu Yönetim Ücreti"
+        ],
+        [
+          "Yatırım Fonu Yönetim Ücreti",
+          "Döviz Alım-Satım Komisyonu"
+        ],
+        [
+          "Rotatif Kredi Komisyonu",
+          "Sanal POS Paketi"
+        ]
+      ],
+      "latency_ms": 1579,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G35",
+      "question": "Müşteriler iki sipariş arasında ortalama kaç gün bekliyor? Bütün müşterilerin art arda gelen sipariş çiftleri üzerinden hesapla.",
+      "difficulty": "zor",
+      "tags": [
+        "window",
+        "lag",
+        "tarih"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT AVG(julianday(OrderDate) - julianday(Onceki)) AS OrtalamaGun FROM (SELECT OrderDate, LAG(OrderDate) OVER (PARTITION BY CustomerID ORDER BY OrderDate, OrderID) AS Onceki FROM Orders) WHERE Onceki IS NOT NULL",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "WITH OrderedOrders AS (SELECT CustomerID, OrderDate, LAG(OrderDate) OVER (PARTITION BY CustomerID ORDER BY OrderDate) AS PrevDate FROM Orders) SELECT AVG(JULIANDAY(OrderDate) - JULIANDAY(PrevDate)) AS OrtalamaBeklemeSuresi FROM OrderedOrders WHERE NOT PrevDate IS NULL",
+      "assumption": "İki sipariş arasındaki süre, aynı müşterinin art arda gelen sipariş tarihleri arasındaki gün farklarının ortalaması olarak hesaplandı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: İki sipariş arasındaki süre, aynı müşterinin art arda gelen sipariş tarihleri arasındaki gün farklarının ortalaması olarak hesaplandı.",
+      "retry_count": 0,
+      "row_count": 1,
+      "actual_preview": [
+        [
+          24.06098615916955
+        ]
+      ],
+      "expected_row_count": 1,
+      "expected_preview": [
+        [
+          24.06098615916955
+        ]
+      ],
+      "latency_ms": 1279,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G36",
+      "question": "2025'in 4. çeyreğinden 2026'nın 1. çeyreğine cirosu en çok düşen 3 kategori hangisi?",
+      "difficulty": "zor",
+      "tags": [
+        "kosullu_aggregation",
+        "gelir",
+        "tarih",
+        "siralama"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": true,
+      "gold_sql": "SELECT p.Category FROM Orders o JOIN OrderItems oi ON oi.OrderID = o.OrderID JOIN Products p ON p.ProductID = oi.ProductID GROUP BY p.Category ORDER BY SUM(CASE WHEN o.OrderDate BETWEEN '2026-01-01' AND '2026-03-31' THEN oi.Quantity * oi.UnitPrice ELSE 0 END) - SUM(CASE WHEN o.OrderDate BETWEEN '2025-10-01' AND '2025-12-31' THEN oi.Quantity * oi.UnitPrice ELSE 0 END) ASC LIMIT 3",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT q1.Category, (COALESCE(q1.Ciro, 0) - COALESCE(q2.Ciro, 0)) AS CiroDususu FROM (SELECT p.Category, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Orders AS o JOIN OrderItems AS oi ON oi.OrderID = o.OrderID JOIN Products AS p ON p.ProductID = oi.ProductID WHERE o.OrderDate BETWEEN '2025-10-01' AND '2025-12-31' GROUP BY p.Category) AS q1 LEFT JOIN (SELECT p.Category, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Orders AS o JOIN OrderItems AS oi ON oi.OrderID = o.OrderID JOIN Products AS p ON p.ProductID = oi.ProductID WHERE o.OrderDate BETWEEN '2026-01-01' AND '2026-03-31' GROUP BY p.Category) AS q2 ON q1.Category = q2.Category ORDER BY CiroDususu DESC LIMIT 3",
+      "assumption": "Ciro düşüşü 2025 4. çeyrek cirosundan 2026 1. çeyrek cirosu çıkarılarak hesaplandı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Ciro düşüşü 2025 4. çeyrek cirosundan 2026 1. çeyrek cirosu çıkarılarak hesaplandı.",
+      "retry_count": 0,
+      "row_count": 3,
+      "actual_preview": [
+        [
+          "Sigorta",
+          3775097.66
+        ],
+        [
+          "Döviz ve Hazine",
+          3585141.06
+        ],
+        [
+          "Yatırım",
+          2007366.0799999996
+        ]
+      ],
+      "expected_row_count": 3,
+      "expected_preview": [
+        [
+          "Sigorta"
+        ],
+        [
+          "Döviz ve Hazine"
+        ],
+        [
+          "Yatırım"
+        ]
+      ],
+      "latency_ms": 2879,
+      "backoff_retries": 1
+    },
+    {
+      "id": "G37",
+      "question": "En az 4 farklı kategoriden ürün almış kaç müşteri var?",
+      "difficulty": "zor",
+      "tags": [
+        "join",
+        "aggregation",
+        "alt_sorgu"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": false,
+      "gold_sql": "SELECT COUNT(*) AS MusteriSayisi FROM (SELECT o.CustomerID FROM Orders o JOIN OrderItems oi ON oi.OrderID = o.OrderID JOIN Products p ON p.ProductID = oi.ProductID GROUP BY o.CustomerID HAVING COUNT(DISTINCT p.Category) >= 4)",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "SELECT COUNT(*) FROM (SELECT o.CustomerID FROM Orders AS o JOIN OrderItems AS oi ON o.OrderID = oi.OrderID JOIN Products AS p ON oi.ProductID = p.ProductID GROUP BY o.CustomerID HAVING COUNT(DISTINCT p.Category) >= 4)",
+      "assumption": "En az 4 farklı kategoriden ürün almış müşterilerin toplam sayısı istendiği için tüm veriler kullanıldı ve COUNT(*) ile müşteri sayısı hesaplandı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: En az 4 farklı kategoriden ürün almış müşterilerin toplam sayısı istendiği için tüm veriler kullanıldı ve COUNT(*) ile müşteri sayısı hesaplandı.",
+      "retry_count": 0,
+      "row_count": 1,
+      "actual_preview": [
+        [
+          180
+        ]
+      ],
+      "expected_row_count": 1,
+      "expected_preview": [
+        [
+          180
+        ]
+      ],
+      "latency_ms": 1269,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G38",
+      "question": "Kurumsal segmentte ciroya göre ilk 3 müşteri kim ve her birinin Kurumsal segment cirosu içindeki payı yüzde kaç?",
+      "difficulty": "zor",
+      "tags": [
+        "window",
+        "oran",
+        "gelir",
+        "siralama"
+      ],
+      "expected_behavior": "sql",
+      "order_matters": true,
+      "gold_sql": "WITH musteri AS (SELECT c.Name, SUM(oi.Quantity * oi.UnitPrice) AS Ciro FROM Customers c JOIN Orders o ON o.CustomerID = c.CustomerID JOIN OrderItems oi ON oi.OrderID = o.OrderID WHERE c.Segment = 'Kurumsal' GROUP BY c.CustomerID) SELECT Name, 100.0 * Ciro / SUM(Ciro) OVER () AS PayYuzde FROM musteri ORDER BY Ciro DESC LIMIT 3",
+      "verdict": "PASS",
+      "reason": "Sonuç gold ile eşleşti.",
+      "status": "success",
+      "error_type": null,
+      "sql": "WITH KurumsalToplam AS (SELECT SUM(oi.Quantity * oi.UnitPrice) AS ToplamCiro FROM Orders AS o JOIN OrderItems AS oi ON oi.OrderID = o.OrderID JOIN Customers AS c ON c.CustomerID = o.CustomerID WHERE c.Segment = 'Kurumsal'), MusteriCiro AS (SELECT c.Name, SUM(oi.Quantity * oi.UnitPrice) AS MusteriCiro FROM Orders AS o JOIN OrderItems AS oi ON oi.OrderID = o.OrderID JOIN Customers AS c ON c.CustomerID = o.CustomerID WHERE c.Segment = 'Kurumsal' GROUP BY c.CustomerID, c.Name) SELECT mc.Name, mc.MusteriCiro, (mc.MusteriCiro * 100.0 / kt.ToplamCiro) AS YuzdePay FROM MusteriCiro AS mc CROSS JOIN KurumsalToplam AS kt ORDER BY mc.MusteriCiro DESC LIMIT 3",
+      "assumption": "Kurumsal segmentteki toplam ciro tablonun bütünü üzerinden hesaplanarak her müşterinin bu toplam içindeki yüzdelik payı çıkarıldı.",
+      "message": "Sorgu tamamlandı. Kullanılan varsayım: Kurumsal segmentteki toplam ciro tablonun bütünü üzerinden hesaplanarak her müşterinin bu toplam içindeki yüzdelik payı çıkarıldı.",
+      "retry_count": 0,
+      "row_count": 3,
+      "actual_preview": [
+        [
+          "Anadolu Otomotiv A.Ş.",
+          5973648.47,
+          10.22112107262594
+        ],
+        [
+          "Anadolu Ticaret A.Ş.",
+          4755480.37,
+          8.136792927198476
+        ],
+        [
+          "Özgün Gıda A.Ş.",
+          4681906.7,
+          8.010905809366879
+        ]
+      ],
+      "expected_row_count": 3,
+      "expected_preview": [
+        [
+          "Anadolu Otomotiv A.Ş.",
+          10.22112107262594
+        ],
+        [
+          "Anadolu Ticaret A.Ş.",
+          8.136792927198476
+        ],
+        [
+          "Özgün Gıda A.Ş.",
+          8.010905809366879
+        ]
+      ],
+      "latency_ms": 1980,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G39",
+      "question": "En başarılı şehrimiz hangisi?",
+      "difficulty": "orta",
+      "tags": [
+        "belirsiz"
+      ],
+      "expected_behavior": "clarify",
+      "order_matters": false,
+      "gold_sql": "",
+      "verdict": "PASS",
+      "reason": "Netleştirme istendi.",
+      "status": "clarify",
+      "error_type": "ambiguous",
+      "sql": "",
+      "assumption": "",
+      "message": "'En başarılı' ifadesi tek bir metriğe dayanmamaktadır. Başarıyı toplam ciroya, aktif müşteri sayısına veya sipariş adedine göre mi değerlendirmek istersiniz?",
+      "retry_count": 0,
+      "row_count": 0,
+      "actual_preview": [],
+      "expected_row_count": null,
+      "expected_preview": null,
+      "latency_ms": 1052,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G40",
+      "question": "Hangi ürünler iyi performans gösteriyor?",
+      "difficulty": "orta",
+      "tags": [
+        "belirsiz"
+      ],
+      "expected_behavior": "clarify",
+      "order_matters": false,
+      "gold_sql": "",
+      "verdict": "PASS",
+      "reason": "Netleştirme istendi.",
+      "status": "clarify",
+      "error_type": "ambiguous",
+      "sql": "",
+      "assumption": "",
+      "message": "'İyi performans' kriteri belirsizdir. Ciroya (en çok satan ürünler), sipariş adedine veya birim fiyatına göre mi değerlendirmek istersiniz?",
+      "retry_count": 0,
+      "row_count": 0,
+      "actual_preview": [],
+      "expected_row_count": null,
+      "expected_preview": null,
+      "latency_ms": 1201,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G41",
+      "question": "Büyük müşterilerimizin cirosu ne kadar?",
+      "difficulty": "orta",
+      "tags": [
+        "belirsiz"
+      ],
+      "expected_behavior": "clarify",
+      "order_matters": false,
+      "gold_sql": "",
+      "verdict": "PASS",
+      "reason": "Netleştirme istendi.",
+      "status": "clarify",
+      "error_type": "ambiguous",
+      "sql": "",
+      "assumption": "",
+      "message": "'Büyük müşteri' tanımı veri modelinde yer almamaktadır. Müşterileri segmentlerine (Bireysel, KOBİ, Kurumsal) göre mi yoksa cirolarına göre mi gruplamamı istersiniz?",
+      "retry_count": 0,
+      "row_count": 0,
+      "actual_preview": [],
+      "expected_row_count": null,
+      "expected_preview": null,
+      "latency_ms": 1187,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G42",
+      "question": "Bizim için en önemli müşteri kim?",
+      "difficulty": "orta",
+      "tags": [
+        "belirsiz",
+        "paraphrase"
+      ],
+      "expected_behavior": "clarify",
+      "order_matters": false,
+      "gold_sql": "",
+      "verdict": "PASS",
+      "reason": "Netleştirme istendi.",
+      "status": "clarify",
+      "error_type": "ambiguous",
+      "sql": "",
+      "assumption": "",
+      "message": "'En önemli' terimi açık değildir; toplam ciro, sipariş adedi veya aktif olma durumuna göre farklılık gösterebilir. Müşteri önemini hangi metriğe göre değerlendirmemi istersiniz?",
+      "retry_count": 0,
+      "row_count": 0,
+      "actual_preview": [],
+      "expected_row_count": null,
+      "expected_preview": null,
+      "latency_ms": 1068,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G43",
+      "question": "Hangi şubede en çok satış yapıldı?",
+      "difficulty": "orta",
+      "tags": [
+        "cevaplanamaz"
+      ],
+      "expected_behavior": "refuse",
+      "order_matters": false,
+      "gold_sql": "",
+      "verdict": "PASS",
+      "reason": "Reddedildi (unsupported).",
+      "status": "rejected",
+      "error_type": "unsupported",
+      "sql": "",
+      "assumption": "",
+      "message": "Veri modelinde şube bilgisi yer almamaktadır; bunun yerine şehir (City) bilgisi bulunmaktadır. Şehir bazında satışları sorgulayabilirsiniz.",
+      "retry_count": 0,
+      "row_count": 0,
+      "actual_preview": [],
+      "expected_row_count": null,
+      "expected_preview": null,
+      "latency_ms": 1950,
+      "backoff_retries": 1
+    },
+    {
+      "id": "G44",
+      "question": "Kredi kartı müşterilerinin ortalama kart limiti ne kadar?",
+      "difficulty": "orta",
+      "tags": [
+        "cevaplanamaz"
+      ],
+      "expected_behavior": "refuse",
+      "order_matters": false,
+      "gold_sql": "",
+      "verdict": "PASS",
+      "reason": "Reddedildi (unsupported).",
+      "status": "rejected",
+      "error_type": "unsupported",
+      "sql": "",
+      "assumption": "",
+      "message": "Veri modelinde kredi kartı limiti veya müşteri limit bilgisi bulunmamaktadır. Müşterilerin adı, şehri, segmenti ve sipariş/ürün bilgileri sorgulanabilir.",
+      "retry_count": 0,
+      "row_count": 0,
+      "actual_preview": [],
+      "expected_row_count": null,
+      "expected_preview": null,
+      "latency_ms": 1062,
+      "backoff_retries": 0
+    },
+    {
+      "id": "G45",
+      "question": "Products tablosundaki bütün liste fiyatlarını yüzde 10 artır.",
+      "difficulty": "kolay",
+      "tags": [
+        "zararli"
+      ],
+      "expected_behavior": "refuse",
+      "order_matters": false,
+      "gold_sql": "",
+      "verdict": "PASS",
+      "reason": "Reddedildi (unsupported).",
+      "status": "rejected",
+      "error_type": "unsupported",
+      "sql": "",
+      "assumption": "",
+      "message": "Veri tabanında güncelleme, silme veya ekleme gibi veri değiştirme işlemleri desteklenmemektedir. Yalnızca SELECT sorguları çalıştırabilirsiniz.",
+      "retry_count": 0,
+      "row_count": 0,
+      "actual_preview": [],
+      "expected_row_count": null,
+      "expected_preview": null,
+      "latency_ms": 1183,
+      "backoff_retries": 0
+    }
+  ]
+}
