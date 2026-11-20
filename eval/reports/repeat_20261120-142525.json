@@ -1,0 +1,759 @@
+{
+  "groups": [
+    {
+      "label": "SELF_CORRECTION=False, RELATIVE_DATES=False",
+      "setting": {
+        "SELF_CORRECTION": false,
+        "RELATIVE_DATES": false
+      },
+      "files": [
+        "C:\\Users\\Sıla SAATLI\\Masaüstü\\nl2sql-agent\\eval\\reports\\eval_20261120-142525_r1.json",
+        "C:\\Users\\Sıla SAATLI\\Masaüstü\\nl2sql-agent\\eval\\reports\\eval_20261120-142525_r2.json",
+        "C:\\Users\\Sıla SAATLI\\Masaüstü\\nl2sql-agent\\eval\\reports\\eval_20261120-142525_r3.json"
+      ],
+      "runs": 3,
+      "accuracy": {
+        "mean": 0.9697,
+        "min": 0.9535,
+        "max": 0.9778,
+        "values": [
+          0.9778,
+          0.9535,
+          0.9778
+        ]
+      },
+      "by_difficulty_mean": {
+        "kolay": 1.0,
+        "orta": 0.9848,
+        "zor": 0.9024
+      },
+      "latency_mean_ms": 2545,
+      "recovered_total": 0,
+      "infra_total": 0,
+      "missing_total": 2,
+      "mean_complete": 0.9778,
+      "complete_runs": 2,
+      "scored_per_run": [
+        45,
+        43,
+        45
+      ]
+    },
+    {
+      "label": "SELF_CORRECTION=True, RELATIVE_DATES=True",
+      "setting": {
+        "SELF_CORRECTION": true,
+        "RELATIVE_DATES": true
+      },
+      "files": [
+        "C:\\Users\\Sıla SAATLI\\Masaüstü\\nl2sql-agent\\eval\\reports\\eval_20261120-142525_sc-on_rd-on_r1.json",
+        "C:\\Users\\Sıla SAATLI\\Masaüstü\\nl2sql-agent\\eval\\reports\\eval_20261120-142525_sc-on_rd-on_r2.json",
+        "C:\\Users\\Sıla SAATLI\\Masaüstü\\nl2sql-agent\\eval\\reports\\eval_20261120-142525_sc-on_rd-on_r3.json"
+      ],
+      "runs": 3,
+      "accuracy": {
+        "mean": 0.9926,
+        "min": 0.9778,
+        "max": 1.0,
+        "values": [
+          0.9778,
+          1.0,
+          1.0
+        ]
+      },
+      "by_difficulty_mean": {
+        "kolay": 1.0,
+        "orta": 1.0,
+        "zor": 0.9546
+      },
+      "latency_mean_ms": 1429,
+      "recovered_total": 2,
+      "infra_total": 0,
+      "missing_total": 28,
+      "mean_complete": 0.9889,
+      "complete_runs": 2,
+      "scored_per_run": [
+        45,
+        45,
+        17
+      ]
+    }
+  ],
+  "questions": {
+    "G01": {
+      "question": "Kaç müşterimiz var?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G02": {
+      "question": "Her şehirde kaç müşterimiz var?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G03": {
+      "question": "Segmentlere göre müşteri sayısı nedir?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G04": {
+      "question": "Kurumsal segmentteki müşterileri listele.",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G05": {
+      "question": "Ürün kataloğunda kaç farklı kategori var?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G06": {
+      "question": "Liste fiyatı en yüksek 3 ürün hangileri?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G07": {
+      "question": "Sigorta kategorisindeki ürünleri liste fiyatlarıyla birlikte göster.",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G08": {
+      "question": "Toplam kaç sipariş alındı?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G09": {
+      "question": "2025 Aralık ayında kaç sipariş verildi?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G10": {
+      "question": "Kategorilere göre ortalama liste fiyatı nedir?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G11": {
+      "question": "Tek bir sipariş kaleminde satılan en yüksek adet kaçtır?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G12": {
+      "question": "Kategorilere göre toplam ciro nedir?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G13": {
+      "question": "2026'nın ilk çeyreğinde Kurumsal segmentin cirosu ne kadar?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G14": {
+      "question": "Her ürünün toplam satış adedini göster.",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G15": {
+      "question": "Her müşterinin sipariş sayısını göster; hiç siparişi olmayan müşteriler de 0 ile listede yer alsın.",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G16": {
+      "question": "Sipariş başına ortalama tutar nedir?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G17": {
+      "question": "En çok sipariş veren 5 müşteri kimdir?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      }
+    },
+    "G18": {
+      "question": "Ankara'daki müşterilerin toplam kaç siparişi var?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G19": {
+      "question": "Kasım 2025'te şehirlere göre ciro nedir?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G20": {
+      "question": "Bireysel segmentteki müşterilerin en çok ciro getirdiği 3 ürün kategorisi hangisi?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G21": {
+      "question": "Mayıs 2026'da hiç sipariş vermemiş Kurumsal müşteriler kimler?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G22": {
+      "question": "Her segmentte müşteri başına ortalama ciro nedir? Hiç siparişi olmayan müşteriler de hesaba katılsın.",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G23": {
+      "question": "Geçen ayki satışlar ne kadar?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "FAIL",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G24": {
+      "question": "Konut Kredisi Tahsis Ücreti'ni kaç farklı müşteri satın aldı?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G25": {
+      "question": "Kart ve Ödeme kategorisinde satış fiyatı, liste fiyatının ortalama yüzde kaçı?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G26": {
+      "question": "İzmir'de yaşayan müşterilerden elde edilen toplam gelir ne kadar?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G27": {
+      "question": "Bugüne kadar hiç alım yapmamış müşterilerimizi listeler misin?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G28": {
+      "question": "Her ay cironun bir önceki aya göre yüzde kaç değiştiğini göster (ilk ay için değişim boş kalsın).",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G29": {
+      "question": "2026'nın ilk 6 ayı için her ayın cirosunu ve yılbaşından o aya kadar biriken toplam ciroyu göster.",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G30": {
+      "question": "Her kategoride en çok ciro getiren ürün hangisi?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "FAIL",
+          "FAIL",
+          "FAIL"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "FAIL",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G31": {
+      "question": "Her ay kaç yeni müşteri kazandık? Yeni müşteri, ilk siparişini o ay veren müşteridir; yeni müşteri kazanılmayan ayları listeleme.",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G32": {
+      "question": "Son 90 günde hiç sipariş vermemiş ama toplamda en az 3 siparişi olan müşteriler kimler?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G33": {
+      "question": "Her segmentin toplam ciro içindeki payı yüzde kaç?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G34": {
+      "question": "Aynı siparişte en sık birlikte alınan 3 ürün çifti hangisi? Her çiftte ürün kimliği küçük olan ürün önce yazılsın.",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "EKSIK",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G35": {
+      "question": "Müşteriler iki sipariş arasında ortalama kaç gün bekliyor? Bütün müşterilerin art arda gelen sipariş çiftleri üzerinden hesapla.",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "EKSIK",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G36": {
+      "question": "2025'in 4. çeyreğinden 2026'nın 1. çeyreğine cirosu en çok düşen 3 kategori hangisi?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G37": {
+      "question": "En az 4 farklı kategoriden ürün almış kaç müşteri var?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G38": {
+      "question": "Kurumsal segmentte ciroya göre ilk 3 müşteri kim ve her birinin Kurumsal segment cirosu içindeki payı yüzde kaç?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G39": {
+      "question": "En başarılı şehrimiz hangisi?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G40": {
+      "question": "Hangi ürünler iyi performans gösteriyor?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G41": {
+      "question": "Büyük müşterilerimizin cirosu ne kadar?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G42": {
+      "question": "Bizim için en önemli müşteri kim?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G43": {
+      "question": "Hangi şubede en çok satış yapıldı?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G44": {
+      "question": "Kredi kartı müşterilerinin ortalama kart limiti ne kadar?",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    },
+    "G45": {
+      "question": "Products tablosundaki bütün liste fiyatlarını yüzde 10 artır.",
+      "passes": {
+        "SELF_CORRECTION=False, RELATIVE_DATES=False": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "SELF_CORRECTION=True, RELATIVE_DATES=True": [
+          "PASS",
+          "PASS",
+          "EKSIK"
+        ]
+      }
+    }
+  }
+}

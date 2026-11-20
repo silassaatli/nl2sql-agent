@@ -208,7 +208,7 @@ def summarize(records: list[dict]) -> dict:
         "by_difficulty": {k: rate(v) for k, v in sorted(groups["difficulty"].items())},
         "by_behavior": {k: rate(v) for k, v in sorted(groups["behavior"].items())},
         "by_tag": {k: rate(v) for k, v in sorted(groups["tag"].items())},
-        "verdicts": {v: sum(r["verdict"] == v for r in records) for v in ("PASS", "FAIL", "INFRA", "SKIP")},
+        "verdicts": {v: sum(r["verdict"] == v for r in records) for v in ("PASS", "FAIL", "INFRA", "SKIP", "EKSIK")},
         "latency": latency_stats(records),
         "pipeline_retries": sum(r.get("retry_count") or 0 for r in records),
         # Yeniden deneme sonrası PASS olan sorular (self-correction'ın kazandırdıkları bunların içinde)
@@ -241,13 +241,14 @@ def to_markdown(report: dict) -> str:
         "## Özet", "",
         "| Ölçü | Değer |", "|---|---|",
         f"| **Genel doğruluk** | **{_pct(s['overall'])}** |",
-        f"| PASS / FAIL / INFRA / SKIP | {s['verdicts']['PASS']} / {s['verdicts']['FAIL']} / "
-        f"{s['verdicts']['INFRA']} / {s['verdicts']['SKIP']} |",
+        f"| PASS / FAIL / INFRA / SKIP / EKSIK | {s['verdicts']['PASS']} / {s['verdicts']['FAIL']} / "
+        f"{s['verdicts']['INFRA']} / {s['verdicts']['SKIP']} / {s['verdicts'].get('EKSIK', 0)} |",
         f"| Gecikme ort. / medyan / p95 | {lat['avg_ms']} / {lat['median_ms']} / {lat['p95_ms']} ms |",
         f"| Pipeline yeniden denemeleri | {s['pipeline_retries']} |",
         f"| Yeniden denemeyle düzelen (PASS) | {s.get('recovered', '—')} |",
         f"| 429/5xx backoff tekrarları | {s['backoff_retries']} |", "",
-        "INFRA: kota/ağ hatası, SKIP: gold_sql henüz yazılmadı. İkisi doğruluk paydasına girmez.", "",
+        "INFRA: kota/ağ hatası, SKIP: gold_sql henüz yazılmadı, EKSIK: koşu durdurulduğu için sorulmadı. "
+        "Üçü de doğruluk paydasına girmez.", "",
     ]
     for title, key in (("Zorluğa göre", "by_difficulty"), ("Beklenen davranışa göre", "by_behavior"),
                        ("Etikete göre", "by_tag")):
@@ -364,7 +365,15 @@ def main() -> None:
                         help="config.SELF_CORRECTION'ı bu koşu için ayarla; both: önce off, sonra on, sonra karşılaştır")
     parser.add_argument("--max-retries", type=int,
                         help="self-correction açıkken deneme sınırı (config.SELF_CORRECTION_MAX_RETRIES'ı geçersiz kılar)")
+    parser.add_argument("--experimental", choices=["off", "on", "both"],
+                        help="deneysel bayrakların HEPSİNİ (SELF_CORRECTION, RELATIVE_DATES) birlikte ayarla")
+    parser.add_argument("--cache-only", action="store_true",
+                        help="model çağrısı yapma; yalnızca önbellekteki cevaplardan rapor üret (eksikler EKSIK)")
+    parser.add_argument("--repeat", type=int, default=1,
+                        help="her ayarı N kez koştur (her tekrar ayrı önbellek); ortalama raporu yazılır")
     args = parser.parse_args()
+    if args.experimental and args.self_correction:
+        parser.error("--experimental ve --self-correction birlikte kullanılamaz")
 
     if args.compare:
         save_compare(Path(args.compare[0]), Path(args.compare[1]))
@@ -383,17 +392,132 @@ def main() -> None:
 
     if args.max_retries is not None:
         config.SELF_CORRECTION_MAX_RETRIES = args.max_retries
-    default_mode = bool(config.SELF_CORRECTION)
-    modes = {None: [None], "off": [False], "on": [True], "both": [False, True]}[args.self_correction]
-    paths = []
-    for mode in modes:
-        if mode is not None:
-            config.SELF_CORRECTION = mode     # pipeline bayrağı sorgu anında okur
-        # panelin gösterdiği latest.*, config.py'deki varsayılan ayarla yapılan tam koşudur
-        update_latest = not subset and (mode is None or mode == default_mode)
-        paths.append(run_once(items, args, subset, update_latest))
-    if len(paths) == 2:
-        save_compare(paths[0], paths[1])
+    # Her "ayar" bu koşu için config'e yazılacak bayrak değerleridir. Pipeline/semantic/llm bayrakları
+    # sorgu anında okur, bu yüzden aynı süreçte değiştirmek yeterlidir.
+    choice = {"off": [False], "on": [True], "both": [False, True]}
+    if args.experimental:
+        settings = [{"SELF_CORRECTION": m, "RELATIVE_DATES": m} for m in choice[args.experimental]]
+    elif args.self_correction:
+        settings = [{"SELF_CORRECTION": m} for m in choice[args.self_correction]]
+    else:
+        settings = [{}]
+    defaults = {name: getattr(config, name) for name in ("SELF_CORRECTION", "RELATIVE_DATES")}
+
+    groups = []     # (ayar, [rapor yolları])
+    for setting in settings:
+        for name, value in setting.items():
+            setattr(config, name, value)
+        # panelin gösterdiği latest.*, config.py'deki varsayılan ayarla yapılan (son) tam koşudur
+        is_default = all(defaults[name] == value for name, value in setting.items())
+        paths = []
+        for rep in range(1, args.repeat + 1):
+            paths.append(run_once(items, args, subset,
+                                  update_latest=not subset and is_default and rep == args.repeat,
+                                  rep=rep if args.repeat > 1 else None))
+        groups.append((setting, paths))
+
+    if args.repeat > 1:
+        save_repeat(groups)
+    elif len(groups) == 2:
+        save_compare(groups[0][1][0], groups[1][1][0])
+
+
+# --- Tekrarlı koşuların özeti -------------------------------------------------
+def repeat_summary(groups: list) -> dict:
+    """Her ayar için doğrulukların ortalaması / en düşüğü / en yükseği ve soru bazında geçme sayısı."""
+    out = {"groups": [], "questions": {}}
+    for setting, paths in groups:
+        reports = [json.loads(Path(p).read_text(encoding="utf-8")) for p in paths]
+        accs = [r["summary"]["overall"]["accuracy"] for r in reports]
+        by_diff = defaultdict(list)
+        for r in reports:
+            for k, v in r["summary"]["by_difficulty"].items():
+                if v["accuracy"] is not None:
+                    by_diff[k].append(v["accuracy"])
+        label = ", ".join(f"{k}={v}" for k, v in setting.items()) or "config varsayılanı"
+        out["groups"].append({
+            "label": label, "setting": setting, "files": [str(p) for p in paths], "runs": len(reports),
+            "accuracy": {"mean": round(statistics.mean(accs), 4), "min": min(accs), "max": max(accs),
+                         "values": accs},
+            "by_difficulty_mean": {k: round(statistics.mean(v), 4) for k, v in sorted(by_diff.items())},
+            "latency_mean_ms": round(statistics.mean(r["summary"]["latency"]["avg_ms"] for r in reports)),
+            "recovered_total": sum(r["summary"].get("recovered", 0) for r in reports),
+            "infra_total": sum(r["summary"]["verdicts"]["INFRA"] for r in reports),
+            "missing_total": sum(r["summary"]["verdicts"].get("EKSIK", 0) for r in reports),
+            # Yarım kalmış (EKSIK sorusu olan) koşular hariç ortalama: yarım koşu çoğunlukla ilk (kolay) soruları içerir
+            "mean_complete": (round(statistics.mean(c), 4) if (c := [r["summary"]["overall"]["accuracy"] for r in reports
+                                                                    if not r["summary"]["verdicts"].get("EKSIK")]) else None),
+            "complete_runs": sum(1 for r in reports if not r["summary"]["verdicts"].get("EKSIK")),
+            "scored_per_run": [r["summary"]["overall"]["scored"] for r in reports],
+        })
+        for r in reports:
+            for res in r["results"]:
+                q = out["questions"].setdefault(res["id"], {"question": res["question"], "passes": {}})
+                q["passes"].setdefault(label, []).append(res["verdict"])
+    return out
+
+
+def repeat_markdown(s: dict) -> str:
+    lines = ["# Tekrarlı eval özeti", "",
+             "Her ayar aynı golden set üzerinde birden fazla kez koşturuldu (her tekrar ayrı önbellek, gerçek model).",
+             "Ortalama, model değişkenliğinin tek koşuluk sonucu yanıltmasını azaltır.", "",
+             "Her koşunun doğruluğu yalnızca o koşuda puanlanan sorular üzerinden hesaplanır "
+             "(INFRA ve EKSIK paydaya girmez); ortalama, koşu doğruluklarının ortalamasıdır.", "",
+             "| Ayar | Koşu | Puanlanan soru (koşu başına) | Tam koşuların ortalaması | Bütün koşuların ortalaması | "
+             "En düşük | En yüksek | Ort. gecikme | Yeniden denemeyle düzelen (toplam) | INFRA (toplam) | EKSIK (toplam) |",
+             "|---|---|---|---|---|---|---|---|---|---|---|"]
+    for g in s["groups"]:
+        a = g["accuracy"]
+        complete = (f"**%{g['mean_complete'] * 100:.1f}** ({g['complete_runs']} koşu)"
+                    if g.get("mean_complete") is not None else "—")
+        lines.append(f"| {g['label']} | {g['runs']} | {' / '.join(map(str, g.get('scored_per_run', [])))} | "
+                     f"{complete} | %{a['mean'] * 100:.1f} | %{a['min'] * 100:.1f} | %{a['max'] * 100:.1f} | "
+                     f"{g['latency_mean_ms']} ms | {g['recovered_total']} | {g['infra_total']} | "
+                     f"{g.get('missing_total', 0)} |")
+    lines += ["", "## Zorluğa göre ortalama", "", "| Zorluk | " + " | ".join(g["label"] for g in s["groups"]) + " |",
+              "|---|" + "---|" * len(s["groups"])]
+    for k in sorted({k for g in s["groups"] for k in g["by_difficulty_mean"]}):
+        cells = [f"%{g['by_difficulty_mean'][k] * 100:.1f}" if k in g["by_difficulty_mean"] else "—" for g in s["groups"]]
+        lines.append(f"| {k} | " + " | ".join(cells) + " |")
+
+    labels = [g["label"] for g in s["groups"]]
+    # Yalnızca gerçekten geçemeyen (FAIL / INFRA) sorular; sorulmamış (EKSIK) olmak başarısızlık değildir.
+    unstable = {qid: q for qid, q in s["questions"].items()
+                if any(v in ("FAIL", "INFRA") for runs in q["passes"].values() for v in runs)}
+    missing = sorted({(label, qid) for qid, q in s["questions"].items() for label, runs in q["passes"].items()
+                      if "EKSIK" in runs})
+    if missing:
+        lines += ["", "## Eksik kalan sorular (koşu durduruldu, sorulmadı)", ""]
+        for label in labels:
+            ids = [qid for lab, qid in missing if lab == label]
+            if ids:
+                lines.append(f"- **{label}:** {len(ids)} soru ({ids[0]}–{ids[-1]}): {', '.join(ids)}")
+    lines += ["", "## En az bir koşuda FAIL / INFRA olan sorular", "",
+              "Hücre: geçen koşu / sorulan koşu (EKSIK koşular sayılmaz).", ""]
+    if not unstable:
+        lines.append("Yok.")
+    else:
+        lines += ["| No | Soru | " + " | ".join(labels) + " |", "|---|---|" + "---|" * len(labels)]
+        for qid, q in sorted(unstable.items()):
+            cells = []
+            for label in labels:
+                runs = [v for v in q["passes"].get(label, []) if v != "EKSIK"]
+                bad = [v for v in runs if v != "PASS"]
+                cells.append(f"{runs.count('PASS')}/{len(runs)}" + (f" ({', '.join(bad)})" if bad else ""))
+            lines.append(f"| {qid} | {_cell(q['question'], 70)} | " + " | ".join(cells) + " |")
+    return "\n".join(lines) + "\n"
+
+
+def save_repeat(groups: list) -> None:
+    s = repeat_summary(groups)
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    stem = "repeat_" + datetime.now().strftime("%Y%m%d-%H%M%S")
+    md = repeat_markdown(s)
+    for name in (stem, "repeat_latest"):
+        (REPORT_DIR / f"{name}.json").write_text(json.dumps(s, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+        (REPORT_DIR / f"{name}.md").write_text(md, encoding="utf-8")
+    print(md)
+    print(f"Kaydedildi: {REPORT_DIR / (stem + '.md')}")
 
 
 def save_compare(path_a: Path, path_b: Path) -> None:
@@ -408,10 +532,11 @@ def save_compare(path_a: Path, path_b: Path) -> None:
     print(f"Kaydedildi: {REPORT_DIR / (stem + '.md')}")
 
 
-def run_once(items: list[dict], args, subset: bool, update_latest: bool) -> Path:
-    """Soruları mevcut config ayarlarıyla bir kez koşturur, raporu yazar ve JSON yolunu döndürür."""
+def run_once(items: list[dict], args, subset: bool, update_latest: bool, rep: int | None = None) -> Path:
+    """Soruları mevcut config ayarlarıyla bir kez koşturur, raporu yazar ve JSON yolunu döndürür.
+    rep: tekrarlı koşuda tekrar numarası; her tekrarın önbelleği ayrıdır (yoksa 2. tekrar 1.'nin cevaplarını okur)."""
     flags, digest = active_flags(), code_hash()
-    name = run_name(flags, digest)
+    name = run_name(flags, digest) + (f"__r{rep}" if rep else "")
     cache_path = CACHE_DIR / f"{name}.jsonl"
     if args.fresh and cache_path.exists():
         cache_path.unlink()
@@ -438,6 +563,13 @@ def run_once(items: list[dict], args, subset: bool, update_latest: bool) -> Path
         if cached and cached["question"] == item["question"]:
             entry = cached
             from_cache += 1
+        elif args.cache_only:
+            # Model çağrısı yapılmaz: cevabı önbellekte olmayan soru EKSIK sayılır (doğruluk paydasına girmez).
+            records.append({**_base(item), "verdict": "EKSIK",
+                            "reason": "Koşu tamamlanmadı; bu soru sorulmadı (yalnızca önbellekten rapor).",
+                            **_empty_result()})
+            print(f"{gid} | EKSIK | önbellekte cevap yok")
+            continue
         else:
             if model_called_before and args.sleep > 0:
                 time.sleep(args.sleep)
@@ -481,7 +613,10 @@ def run_once(items: list[dict], args, subset: bool, update_latest: bool) -> Path
         "results": records,
     }
     sc = "_sc-on" if flags.get("SELF_CORRECTION") else ""
-    stem = "eval_" + datetime.now().strftime("%Y%m%d-%H%M%S") + sc + ("_altkume" if subset else "")
+    rd = "_rd-on" if flags.get("RELATIVE_DATES") else ""
+    stem = ("eval_" + datetime.now().strftime("%Y%m%d-%H%M%S") + sc + rd + (f"_r{rep}" if rep else "")
+            + ("_altkume" if subset else ""))
+    report["meta"]["repeat_index"] = rep
     path = write_outputs(report, stem, update_latest=update_latest)
     s = report["summary"]
     print(f"\nGenel doğruluk: {_pct(s['overall'])} · PASS {s['verdicts']['PASS']} · FAIL {s['verdicts']['FAIL']} · "

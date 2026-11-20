@@ -84,6 +84,31 @@ def render_eval() -> None:
                 st.write(f"Beklenen ({r['expected_row_count']} satır, ilk satırlar): {r['expected_preview']}")
                 st.write(f"Gelen ({r['row_count']} satır, ilk satırlar): {r['actual_preview']}")
 
+    repeated = _load("repeat_latest.json")
+    if repeated:
+        st.subheader("Tekrarlı koşular (ortalama)")
+        st.caption("Her ayar birden fazla kez koşturuldu; ortalama, model değişkenliğinin etkisini azaltır.")
+        st.dataframe(pd.DataFrame([{
+            "Ayar": g["label"], "Koşu": g["runs"],
+            "Tam koşuların ort.": (f"%{g['mean_complete'] * 100:.1f} ({g['complete_runs']} koşu)"
+                                   if g.get("mean_complete") is not None else "—"),
+            "Ortalama": f"%{g['accuracy']['mean'] * 100:.1f}",
+            "Eksik soru": g.get("missing_total", 0),
+            "En düşük": f"%{g['accuracy']['min'] * 100:.1f}", "En yüksek": f"%{g['accuracy']['max'] * 100:.1f}",
+            "Ort. gecikme (ms)": g["latency_mean_ms"], "Düzelen (toplam)": g["recovered_total"],
+        } for g in repeated["groups"]]), hide_index=True, width="stretch")
+        labels = [g["label"] for g in repeated["groups"]]
+        def cell(runs):
+            asked = [v for v in runs if v != "EKSIK"]      # sorulmamış koşu başarısızlık sayılmaz
+            return f"{asked.count('PASS')}/{len(asked)}"
+
+        unstable = [{"No": qid, "Soru": q["question"], **{label: cell(q["passes"].get(label, [])) for label in labels}}
+                    for qid, q in sorted(repeated["questions"].items())
+                    if any(v in ("FAIL", "INFRA") for runs in q["passes"].values() for v in runs)]
+        if unstable:
+            st.markdown("**En az bir koşuda FAIL / INFRA olan sorular** (geçen koşu / sorulan koşu)")
+            st.dataframe(pd.DataFrame(unstable), hide_index=True, width="stretch")
+
     comparison = _load("compare_latest.json")
     if comparison:
         st.subheader("Son karşılaştırma (A → B)")
