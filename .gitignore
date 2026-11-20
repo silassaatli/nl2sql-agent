@@ -34,3 +34,9 @@ data/workspace/
 # Eval önbelleği ve eval çağrılarının pipeline logu (raporlar eval/reports/ altında takip edilir)
 eval/cache/
 eval/logs/
+
+# Ham eval rapor JSON'ları yerelde kalır; panelin okuduğu en son raporlar ve bütün Markdown raporlar takip edilir
+eval/reports/*.json
+!eval/reports/latest.json
+!eval/reports/repeat_latest.json
+!eval/reports/compare_latest.json
