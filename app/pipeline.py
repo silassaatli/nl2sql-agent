@@ -12,6 +12,12 @@ from app.llm import ModelUnavailableError, generate_sql
 from app.logger import write_log
 from app.validator import validate_sql
 from config import MAX_RETRIES, MAX_ROWS, MODEL_NAME
+import config  # SELF_CORRECTION bayrakları sorgu anında okunur (eval aynı süreçte açıp kapatabilsin)
+
+EMPTY_RESULT_HINT = (
+    "Sorgu hatasız çalıştı ama hiç satır döndürmedi. Filtre değerlerini (şemadaki yazım, tarih aralığı) "
+    "ve JOIN koşullarını kontrol et. Sonuç gerçekten boşsa aynı SQL'i döndür."
+)
 
 
 # Başlangıçtaki boşluk ve yorumları atlayıp ilk SQL komutunu tanır.
@@ -58,6 +64,13 @@ def ask(question: str) -> dict:
     assumption = ""
     direct_sql = bool(SQL_START.match(question))
 
+    # Deneysel self-correction (config.SELF_CORRECTION). Kapalıyken: MAX_RETRIES, yalnızca
+    # parse_error / unknown_field yeniden denenir, "attempts" alanı oluşmaz (bugünkü davranış).
+    self_correction = bool(config.SELF_CORRECTION) and not direct_sql
+    max_retries = config.SELF_CORRECTION_MAX_RETRIES if self_correction else MAX_RETRIES
+    attempts = []
+    last_empty_sql = None
+
     def finish(
         status,
         message,
@@ -78,8 +91,7 @@ def ask(question: str) -> dict:
             "retry_count": retry_count,
             "duration_ms": round((perf_counter() - started) * 1000),
         }
-
-        write_log({
+        record = {
             "timestamp": timestamp,
             "question": question,
             "sql": sql,
@@ -89,7 +101,13 @@ def ask(question: str) -> dict:
             "row_count": len(result["rows"]),
             "duration_ms": result["duration_ms"],
             "model": None if direct_sql else MODEL_NAME,
-        })
+        }
+        if self_correction:
+            attempts.append({"attempt": retry_count + 1, "sql": sql, "status": status, "error_type": error_type})
+            result["attempts"] = attempts
+            record["attempts"] = attempts
+
+        write_log(record)
 
         return result
 
@@ -211,7 +229,7 @@ def ask(question: str) -> dict:
                         error_type,
                     )
 
-                if error_type == "database_error":
+                if error_type == "database_error" and not self_correction:
                     return finish(
                         "error",
                         "Veritabanı sorguyu çalıştıramadı.",
@@ -220,6 +238,16 @@ def ask(question: str) -> dict:
 
                 detail = str(exc)
             else:
+                # Self-correction açıkken boş sonuç da düzeltme denemesi tetikler. Model aynı SQL'i
+                # geri gönderirse sonuç gerçekten boş kabul edilir (aşağıdaki normal başarı yolu).
+                if (not rows and self_correction and retry_count < max_retries
+                        and sql != last_empty_sql):
+                    last_empty_sql = sql
+                    attempts.append({"attempt": retry_count + 1, "sql": sql, "error_type": "empty_result"})
+                    previous_error = f"Önceki SQL:\n{sql}\nHata: {EMPTY_RESULT_HINT}"
+                    retry_count += 1
+                    continue
+
                 if not rows:
                     message = "Bu koşullara uyan kayıt bulunamadı."
                 elif truncated:
@@ -241,14 +269,19 @@ def ask(question: str) -> dict:
                 )
 
         # Kullanıcının SQL'i hatalıysa sonucu doğrudan döndür.
-        # Modelin ürettiği SQL için en fazla MAX_RETRIES düzeltme denemesi yap.
-        if direct_sql or retry_count >= MAX_RETRIES:
+        # Modelin ürettiği SQL için en fazla max_retries düzeltme denemesi yap
+        # (bayrak kapalıyken MAX_RETRIES = 1).
+        if direct_sql or retry_count >= max_retries:
             if error_type == "unknown_field":
                 message = "Sorgudaki sütun adı çözümlenemedi."
+            elif error_type == "database_error":    # yalnızca self-correction açıkken buraya gelir
+                message = "Veritabanı sorguyu çalıştıramadı."
             else:
                 message = "Geçerli bir SQL sorgusu elde edilemedi."
 
             return finish("error", message, error_type)
 
+        if self_correction:
+            attempts.append({"attempt": retry_count + 1, "sql": sql, "error_type": error_type})
         previous_error = f"Önceki SQL:\n{sql}\nHata: {detail}"
         retry_count += 1

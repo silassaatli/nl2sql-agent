@@ -211,6 +211,8 @@ def summarize(records: list[dict]) -> dict:
         "verdicts": {v: sum(r["verdict"] == v for r in records) for v in ("PASS", "FAIL", "INFRA", "SKIP")},
         "latency": latency_stats(records),
         "pipeline_retries": sum(r.get("retry_count") or 0 for r in records),
+        # Yeniden deneme sonrası PASS olan sorular (self-correction'ın kazandırdıkları bunların içinde)
+        "recovered": sum(r["verdict"] == "PASS" and (r.get("retry_count") or 0) > 0 for r in records),
         "backoff_retries": sum(r.get("backoff_retries") or 0 for r in records),
     }
 
@@ -243,6 +245,7 @@ def to_markdown(report: dict) -> str:
         f"{s['verdicts']['INFRA']} / {s['verdicts']['SKIP']} |",
         f"| Gecikme ort. / medyan / p95 | {lat['avg_ms']} / {lat['median_ms']} / {lat['p95_ms']} ms |",
         f"| Pipeline yeniden denemeleri | {s['pipeline_retries']} |",
+        f"| Yeniden denemeyle düzelen (PASS) | {s.get('recovered', '—')} |",
         f"| 429/5xx backoff tekrarları | {s['backoff_retries']} |", "",
         "INFRA: kota/ağ hatası, SKIP: gold_sql henüz yazılmadı. İkisi doğruluk paydasına girmez.", "",
     ]
@@ -265,6 +268,10 @@ def to_markdown(report: dict) -> str:
             f"- **Varsayım:** {r['assumption'] or '—'}",
             "- **Üretilen SQL:**", "", "```sql", r["sql"] or "-- yok", "```",
         ]
+        if r.get("attempts"):
+            lines.append("- **Denemeler (self-correction):**")
+            lines += [f"  {a['attempt']}. `{a.get('error_type') or a.get('status')}` · `{_cell(a['sql'], 120)}`"
+                      for a in r["attempts"]]
         if r["expected_behavior"] == "sql":
             lines += ["- **Gold SQL:**", "", "```sql", r["gold_sql"], "```",
                       f"- **Beklenen (ilk satırlar, {r['expected_row_count']} satır):** `{r['expected_preview']}`",
@@ -305,11 +312,12 @@ def compare(path_a: Path, path_b: Path) -> dict:
             continue
         for k in sorted(set(a["summary"][key]) | set(b["summary"][key])):
             rows.append({"group": f"{title}: {k}", "a": a["summary"][key].get(k), "b": b["summary"][key].get(k)})
-    return {"a": {"file": str(path_a), "meta": a["meta"], "latency": a["summary"]["latency"],
-                  "pipeline_retries": a["summary"]["pipeline_retries"]},
-            "b": {"file": str(path_b), "meta": b["meta"], "latency": b["summary"]["latency"],
-                  "pipeline_retries": b["summary"]["pipeline_retries"]},
-            "rows": rows, "flips": flips}
+    def side(path, rep):
+        s = rep["summary"]
+        return {"file": str(path), "meta": rep["meta"], "latency": s["latency"],
+                "pipeline_retries": s["pipeline_retries"], "recovered": s.get("recovered")}
+
+    return {"a": side(path_a, a), "b": side(path_b, b), "rows": rows, "flips": flips}
 
 
 def compare_markdown(c: dict) -> str:
@@ -330,7 +338,11 @@ def compare_markdown(c: dict) -> str:
     ]
     lines += [f"| {r['group']} | {acc(r['a'])} | {acc(r['b'])} | {delta(r['a'], r['b'])} |" for r in c["rows"]]
     lines += ["", f"Ortalama gecikme: A {a['latency']['avg_ms']} ms · B {b['latency']['avg_ms']} ms. "
-              f"Pipeline yeniden denemeleri: A {a['pipeline_retries']} · B {b['pipeline_retries']}.", "",
+              f"Pipeline yeniden denemeleri: A {a['pipeline_retries']} · B {b['pipeline_retries']}. "
+              f"Yeniden denemeyle düzelen: A {a.get('recovered')} · B {b.get('recovered')}.", "",
+              "> Not: model deterministik değil (aynı soru farklı koşularda farklı SQL üretebilir). "
+              "Tek koşuluk farkın bir kısmı bayraktan değil bu değişkenlikten gelebilir; değişen sorularda "
+              "B'nin denemelerine (attempts) bakın.", "",
               "## Sonucu değişen sorular", ""]
     if not c["flips"]:
         lines.append("Yok.")
@@ -348,18 +360,14 @@ def main() -> None:
     parser.add_argument("--backoff-base", type=float, default=2.0, help="ilk bekleme (sn); her denemede 2 katına çıkar")
     parser.add_argument("--fresh", action="store_true", help="önbelleği yok say, bütün soruları yeniden sor")
     parser.add_argument("--compare", nargs=2, metavar=("A.json", "B.json"), help="iki raporu karşılaştır")
+    parser.add_argument("--self-correction", choices=["off", "on", "both"],
+                        help="config.SELF_CORRECTION'ı bu koşu için ayarla; both: önce off, sonra on, sonra karşılaştır")
+    parser.add_argument("--max-retries", type=int,
+                        help="self-correction açıkken deneme sınırı (config.SELF_CORRECTION_MAX_RETRIES'ı geçersiz kılar)")
     args = parser.parse_args()
 
     if args.compare:
-        c = compare(Path(args.compare[0]), Path(args.compare[1]))
-        REPORT_DIR.mkdir(parents=True, exist_ok=True)
-        stem = "compare_" + datetime.now().strftime("%Y%m%d-%H%M%S")
-        md = compare_markdown(c)
-        for name in (stem, "compare_latest"):
-            (REPORT_DIR / f"{name}.json").write_text(json.dumps(c, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
-            (REPORT_DIR / f"{name}.md").write_text(md, encoding="utf-8")
-        print(md)
-        print(f"Kaydedildi: {REPORT_DIR / (stem + '.md')}")
+        save_compare(Path(args.compare[0]), Path(args.compare[1]))
         return
 
     items = load_golden()
@@ -373,6 +381,35 @@ def main() -> None:
         items = items[: args.limit]
     subset = bool(args.ids or args.limit)
 
+    if args.max_retries is not None:
+        config.SELF_CORRECTION_MAX_RETRIES = args.max_retries
+    default_mode = bool(config.SELF_CORRECTION)
+    modes = {None: [None], "off": [False], "on": [True], "both": [False, True]}[args.self_correction]
+    paths = []
+    for mode in modes:
+        if mode is not None:
+            config.SELF_CORRECTION = mode     # pipeline bayrağı sorgu anında okur
+        # panelin gösterdiği latest.*, config.py'deki varsayılan ayarla yapılan tam koşudur
+        update_latest = not subset and (mode is None or mode == default_mode)
+        paths.append(run_once(items, args, subset, update_latest))
+    if len(paths) == 2:
+        save_compare(paths[0], paths[1])
+
+
+def save_compare(path_a: Path, path_b: Path) -> None:
+    c = compare(path_a, path_b)
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    stem = "compare_" + datetime.now().strftime("%Y%m%d-%H%M%S")
+    md = compare_markdown(c)
+    for name in (stem, "compare_latest"):
+        (REPORT_DIR / f"{name}.json").write_text(json.dumps(c, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+        (REPORT_DIR / f"{name}.md").write_text(md, encoding="utf-8")
+    print(md)
+    print(f"Kaydedildi: {REPORT_DIR / (stem + '.md')}")
+
+
+def run_once(items: list[dict], args, subset: bool, update_latest: bool) -> Path:
+    """Soruları mevcut config ayarlarıyla bir kez koşturur, raporu yazar ve JSON yolunu döndürür."""
     flags, digest = active_flags(), code_hash()
     name = run_name(flags, digest)
     cache_path = CACHE_DIR / f"{name}.jsonl"
@@ -429,6 +466,7 @@ def main() -> None:
             "row_count": len(result.get("rows") or []), "actual_preview": preview(result.get("rows")),
             "expected_row_count": len(gold[1]) if gold else None, "expected_preview": preview(gold[1]) if gold else None,
             "latency_ms": latency, "backoff_retries": entry.get("backoff_retries", 0),
+            "attempts": result.get("attempts"),
         })
         print(f"{gid} | {verdict} | {reason}")
 
@@ -442,12 +480,15 @@ def main() -> None:
         "summary": summarize(records),
         "results": records,
     }
-    stem = "eval_" + datetime.now().strftime("%Y%m%d-%H%M%S") + ("_altkume" if subset else "")
-    path = write_outputs(report, stem, update_latest=not subset)
+    sc = "_sc-on" if flags.get("SELF_CORRECTION") else ""
+    stem = "eval_" + datetime.now().strftime("%Y%m%d-%H%M%S") + sc + ("_altkume" if subset else "")
+    path = write_outputs(report, stem, update_latest=update_latest)
     s = report["summary"]
     print(f"\nGenel doğruluk: {_pct(s['overall'])} · PASS {s['verdicts']['PASS']} · FAIL {s['verdicts']['FAIL']} · "
-          f"INFRA {s['verdicts']['INFRA']} · SKIP {s['verdicts']['SKIP']}")
-    print(f"Rapor: {path} (+ .md)")
+          f"INFRA {s['verdicts']['INFRA']} · SKIP {s['verdicts']['SKIP']} · "
+          f"yeniden denemeyle düzelen {s['recovered']}")
+    print(f"Rapor: {path} (+ .md)\n")
+    return path
 
 
 def _base(item: dict) -> dict:

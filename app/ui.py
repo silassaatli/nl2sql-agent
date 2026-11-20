@@ -91,6 +91,12 @@ def show_result(result: dict, direct_sql: bool = False) -> None:
         with st.expander("SQL ve işlem ayrıntıları",expanded=False):
             st.code(result["sql"],language="sql")
             if status in notes: st.caption(notes[status])
+            attempts = result.get("attempts") or []     # yalnızca config.SELF_CORRECTION açıkken dolu
+            if len(attempts) > 1:
+                st.markdown("**Self-correction denemeleri**")
+                for a in attempts:
+                    st.caption(f"{a['attempt']}. deneme · {a.get('error_type') or a.get('status')}")
+                    st.code(a["sql"] or "-- SQL yok", language="sql")
 
     rows = result.get("rows") or []
     if status == "success":
