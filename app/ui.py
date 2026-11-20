@@ -21,6 +21,9 @@ from app.chart_view import show_chart
 from app.charts import build_charts  # noqa: E402
 from app.pipeline import SQL_START, ask  # noqa: E402
 from config import MAX_ROWS, MODEL_NAME, REFERENCE_DATE  # noqa: E402
+import config  # noqa: E402  (INSIGHTS / SQL_EXPLAIN bayrakları çalışma anında okunur)
+from app.explain import explain_sql  # noqa: E402
+from app.insight import generate_insights  # noqa: E402
 
 # ask() durumu → (ekranda görünen ad, Streamlit kutusu)
 STATUS_VIEW = {
@@ -92,6 +95,11 @@ def show_result(result: dict, direct_sql: bool = False) -> None:
         with st.expander("SQL ve işlem ayrıntıları",expanded=False):
             st.code(result["sql"],language="sql")
             if status in notes: st.caption(notes[status])
+            explanation = explain_sql(result["sql"]) if config.SQL_EXPLAIN else []
+            if explanation:
+                st.markdown("**Bu SQL ne yapıyor?**")
+                st.markdown("\n".join(f"- {line}" for line in explanation))
+                st.caption("Açıklama, çalıştırılan SQL'in ayrıştırılmasıyla kodla üretildi (model çağrısı yok).")
             attempts = result.get("attempts") or []     # yalnızca config.SELF_CORRECTION açıkken dolu
             if len(attempts) > 1:
                 st.markdown("**Self-correction denemeleri**")
@@ -105,6 +113,11 @@ def show_result(result: dict, direct_sql: bool = False) -> None:
         if rows:
             st.dataframe(rows, width="stretch", hide_index=True)
             st.caption(f"{len(rows)} satır")
+            insights = generate_insights(rows) if config.INSIGHTS else []
+            if insights:
+                st.markdown("**Otomatik yorum**")
+                st.markdown("\n".join(f"- {line}" for line in insights))
+                st.caption("Yorum yalnızca bu tablodaki değerlerden kodla hesaplandı; model çağrısı yapılmadı.")
             charts = build_charts(rows)
             if charts:
                 st.subheader("Grafikler")
