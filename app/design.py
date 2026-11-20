@@ -10,6 +10,7 @@ DESCRIPTIONS={
 "Sorgu geçmişi": "Önceki analizlerinize dönün, keşfetmeye kaldığınız yerden devam edin.",
 "Veri yükle": "Yeni bir veri kaynağı, yeni keşifler.",
 "Yönetişim": "Verinizin kaynağı, kullanımı ve saklanması hakkında şeffaf bir görünüm.",
+"Değerlendirme": "Ajanın golden set üzerindeki doğruluğu, gecikmesi ve başarısız soruları.",
 }
 def apply_design():
     st.markdown("<style>"+Path(__file__).with_name("design.css").read_text(encoding="utf-8")+"</style>",unsafe_allow_html=True)

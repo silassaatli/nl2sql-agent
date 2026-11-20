@@ -33,7 +33,7 @@ def render_platform(show_result):
             state.last_selected=selected
         st.caption("Son kullanılanlar üstte • Yazarak arayabilirsiniz")
         st.markdown('<div class="nav-label">KEŞFET & ANALİZ ET</div>',unsafe_allow_html=True)
-        icons={"Genel bakış":"◫", "Veri keşfi":"▤", "Sorgu stüdyosu":"✦", "Sorgu geçmişi":"◷", "Veri yükle":"⊕", "Yönetişim":"◇"}
+        icons={"Genel bakış":"◫", "Veri keşfi":"▤", "Sorgu stüdyosu":"✦", "Sorgu geçmişi":"◷", "Veri yükle":"⊕", "Yönetişim":"◇", "Değerlendirme":"◎"}
         page=st.radio("Çalışma alanı",list(icons),format_func=lambda x: icons[x]+"   "+x,label_visibility="collapsed")
         st.divider()
         st.markdown('<div class="sidebar-note"><span class="status-dot"></span> Yerel çalışma alanı<br><small>Verinizi keşfedin. Sorulara dönüştürün.</small></div>',unsafe_allow_html=True)
@@ -185,5 +185,8 @@ def render_platform(show_result):
                     st.info("Sorgu stüdyosuna geçip Analiz et düğmesine basın.")
         if not history:
             st.markdown('<div class="empty-state"><div class="empty-icon">◷</div><h3>Her analiz bir iz bırakır.</h3><p>İlk sorgunuzdan sonra sorularınız ve sonuçlarınız burada görünecek.</p></div>',unsafe_allow_html=True)
+    elif page=="Değerlendirme":
+        from app.eval_view import render_eval
+        render_eval()
     else:
         gov.render(identity,frame,state.governance_session)
