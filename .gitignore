@@ -26,3 +26,7 @@ CLAUDE.md
 
 # Yerel veri kataloğu ve yüklemeler
 data/workspace/
+
+# Gizli anahtarlar (API key yalnızca ortam değişkeninden okunur)
+.env
+.env.*
