@@ -30,3 +30,7 @@ data/workspace/
 # Gizli anahtarlar (API key yalnızca ortam değişkeninden okunur)
 .env
 .env.*
+
+# Eval önbelleği ve eval çağrılarının pipeline logu (raporlar eval/reports/ altında takip edilir)
+eval/cache/
+eval/logs/
